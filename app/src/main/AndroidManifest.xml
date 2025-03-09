@@ -23,6 +23,8 @@
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <queries>
         <intent>
@@ -140,5 +142,27 @@
             android:name=".AboutMeActivity"
             android:exported="false"
             android:theme="@style/Theme.KiytoApp.NoActionBar" />
+            
+        <!-- Service für Aufgaben-Benachrichtigungen -->
+        <service
+            android:name=".services.TaskNotificationService"
+            android:enabled="true"
+            android:exported="false" />
+            
+        <!-- Receiver für Aufgaben-Benachrichtigungen -->
+        <receiver
+            android:name=".services.TaskDueCheckReceiver"
+            android:enabled="true"
+            android:exported="false" />
+            
+        <!-- Receiver für Gerätestart -->
+        <receiver
+            android:name=".services.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

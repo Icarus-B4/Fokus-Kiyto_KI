@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.deepcore.kiytoapp.ai.AIRecommendationsActivity
@@ -85,6 +84,19 @@ class MainActivity : BaseActivity() {
         menu.findItem(R.id.nav_assistant)?.isEnabled = authManager.isLoggedIn()
         menu.findItem(R.id.nav_day_visualizer)?.isEnabled = authManager.isLoggedIn()
         
+        // Deaktiviere den Standard-Farbselektor
+        bottomNavigation.itemIconTintList = null
+        
+        // Setze alle Icons auf inaktiv
+        menu.findItem(R.id.nav_dashboard).icon = getDrawable(R.drawable.ic_dashboard_inactive)
+        menu.findItem(R.id.nav_day_visualizer).icon = getDrawable(R.drawable.ic_timeline_inactive)
+        menu.findItem(R.id.nav_focus).icon = getDrawable(R.drawable.ic_focus_inactive)
+        menu.findItem(R.id.nav_assistant).icon = getDrawable(R.drawable.ic_assistant_inactive)
+        menu.findItem(R.id.nav_tasks).icon = getDrawable(R.drawable.ic_tasks_inactive)
+        
+        // Setze das Dashboard-Icon auf farbig, da es beim Start ausgewählt ist
+        menu.findItem(R.id.nav_dashboard).icon = getDrawable(R.drawable.ic_dashboard_colored)
+        
         // Variable zum Speichern des letzten ausgewählten Menüpunkts
         var lastSelectedItemId = R.id.nav_dashboard
         
@@ -93,6 +105,22 @@ class MainActivity : BaseActivity() {
                 // Wenn nicht eingeloggt und nicht Dashboard, zum Login weiterleiten
                 startActivity(Intent(this, LoginActivity::class.java))
                 return@setOnItemSelectedListener false
+            }
+            
+            // Aktualisiere die Icons - setze alle auf inaktiv
+            menu.findItem(R.id.nav_dashboard).icon = getDrawable(R.drawable.ic_dashboard_inactive)
+            menu.findItem(R.id.nav_day_visualizer).icon = getDrawable(R.drawable.ic_timeline_inactive)
+            menu.findItem(R.id.nav_focus).icon = getDrawable(R.drawable.ic_focus_inactive)
+            menu.findItem(R.id.nav_assistant).icon = getDrawable(R.drawable.ic_assistant_inactive)
+            menu.findItem(R.id.nav_tasks).icon = getDrawable(R.drawable.ic_tasks_inactive)
+            
+            // Setze das ausgewählte Icon auf farbig
+            when (item.itemId) {
+                R.id.nav_dashboard -> item.icon = getDrawable(R.drawable.ic_dashboard_colored)
+                R.id.nav_day_visualizer -> item.icon = getDrawable(R.drawable.ic_timeline_colored)
+                R.id.nav_focus -> item.icon = getDrawable(R.drawable.ic_focus_colored)
+                R.id.nav_assistant -> item.icon = getDrawable(R.drawable.ic_assistant_colored)
+                R.id.nav_tasks -> item.icon = getDrawable(R.drawable.ic_tasks_colored)
             }
             
             // Prüfen, ob der Benutzer zweimal auf den gleichen Menüpunkt geklickt hat
@@ -213,8 +241,7 @@ class MainActivity : BaseActivity() {
         val authManager = AuthManager(this)
         val isLoggedIn = authManager.isLoggedIn()
         
-
-        
+        // Einstellungen
         popupView.findViewById<TextView>(R.id.menu_settings)?.apply {
             visibility = if (isLoggedIn) View.VISIBLE else View.GONE
             setOnClickListener {
@@ -231,6 +258,7 @@ class MainActivity : BaseActivity() {
             }
         }
         
+        // Hinweise
         popupView.findViewById<TextView>(R.id.menu_hints)?.apply {
             visibility = if (isLoggedIn) View.VISIBLE else View.GONE
             setOnClickListener {
@@ -247,6 +275,7 @@ class MainActivity : BaseActivity() {
             }
         }
         
+        // Kontakt
         val contactMenuItem = popupView.findViewById<TextView>(R.id.menu_contact)
         contactMenuItem.setOnClickListener {
             popupWindow.dismiss()

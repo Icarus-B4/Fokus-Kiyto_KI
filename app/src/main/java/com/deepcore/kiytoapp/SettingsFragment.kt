@@ -1,36 +1,39 @@
 package com.deepcore.kiytoapp
 
+import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
-import com.deepcore.kiytoapp.BuildConfig
 import com.deepcore.kiytoapp.ai.APISettingsDialog
+import com.deepcore.kiytoapp.base.BaseFragment
 import com.deepcore.kiytoapp.debug.DebugActivity
+import com.deepcore.kiytoapp.settings.CalendarManager
 import com.deepcore.kiytoapp.settings.NotificationSettingsManager
+import com.deepcore.kiytoapp.settings.TaskNotificationManager
 import com.deepcore.kiytoapp.util.LogUtils
+import com.deepcore.kiytoapp.util.NotificationHelper
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import com.deepcore.kiytoapp.databinding.FragmentSettingsBinding
-import com.deepcore.kiytoapp.util.NotificationHelper
-import com.deepcore.kiytoapp.base.BaseFragment
 
 class SettingsFragment : BaseFragment() {
     private lateinit var notificationSettingsManager: NotificationSettingsManager
     private lateinit var notificationHelper: NotificationHelper
+    private lateinit var calendarManager: CalendarManager
+    private lateinit var taskNotificationManager: TaskNotificationManager
 
     private val pickSound = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         LogUtils.debug(this, "Ton-Picker Ergebnis: ${result.resultCode}")
@@ -114,6 +117,27 @@ class SettingsFragment : BaseFragment() {
             LogUtils.warn(this, "Kein Bild ausgewählt (URI ist null)")
         }
     }
+    
+    private val requestCalendarPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        val readGranted = permissions[Manifest.permission.READ_CALENDAR] ?: false
+        val writeGranted = permissions[Manifest.permission.WRITE_CALENDAR] ?: false
+        
+        if (readGranted && writeGranted) {
+            LogUtils.debug(this, "Kalender-Berechtigungen erteilt")
+            setupCalendarSettings()
+        } else {
+            LogUtils.warn(this, "Kalender-Berechtigungen verweigert")
+            // Deaktiviere die Kalendersynchronisierung
+            calendarManager.calendarSyncEnabled = false
+            view?.findViewById<SwitchMaterial>(R.id.calendar_sync_switch)?.isChecked = false
+            
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.calendar_permission_required),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -130,6 +154,8 @@ class SettingsFragment : BaseFragment() {
         
         notificationSettingsManager = NotificationSettingsManager(requireContext())
         notificationHelper = NotificationHelper(requireContext())
+        calendarManager = CalendarManager(requireContext())
+        taskNotificationManager = TaskNotificationManager(requireContext())
 
         // Zeige aktuelle Einstellungen in Logs
         showCurrentSettings()
@@ -140,6 +166,9 @@ class SettingsFragment : BaseFragment() {
             val dialog = APISettingsDialog.newInstance()
             dialog.show(parentFragmentManager, "api_settings")
         }
+
+        // Kalender-Einstellungen
+        setupCalendarSettings()
 
         // Benachrichtigungseinstellungen
         setupNotificationSettings(view)
@@ -206,10 +235,125 @@ class SettingsFragment : BaseFragment() {
             val settingsLayout = view.findViewById<LinearLayout>(R.id.settingsLayout)
             settingsLayout?.addView(debugCard)
         }
+        
+        // Prüfe, ob zu einer bestimmten Einstellung gescrollt werden soll
+        arguments?.getString("scroll_to")?.let { scrollTo ->
+            LogUtils.debug(this, "Scrolle zu Einstellung: $scrollTo")
+            
+            val scrollView = view.parent as? ScrollView
+            
+            when (scrollTo) {
+                "calendar" -> {
+                    val calendarCard = view.findViewById<MaterialCardView>(R.id.calendarSettingsCard)
+                    scrollView?.post {
+                        scrollView.smoothScrollTo(0, calendarCard.top)
+                    }
+                }
+                "notifications" -> {
+                    val notificationCard = view.findViewById<MaterialCardView>(R.id.notificationSettingsCard)
+                    scrollView?.post {
+                        scrollView.smoothScrollTo(0, notificationCard.top)
+                    }
+                }
+
+                else -> {}
+            }
+        }
+    }
+    
+    private fun setupCalendarSettings() {
+        LogUtils.debug(this, "Richte Kalender-Einstellungen ein")
+        
+        view?.findViewById<LinearLayout>(R.id.calendar_sync_setting)?.let { syncSetting ->
+            LogUtils.debug(this, "Kalender-Synchronisierungs-Einstellung gefunden")
+            
+            // Initialisiere den Switch mit dem aktuellen Wert
+            val syncSwitch = syncSetting.findViewById<SwitchMaterial>(R.id.calendar_sync_switch)
+            syncSwitch?.isChecked = calendarManager.calendarSyncEnabled
+            
+            syncSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                LogUtils.debug(this, "Kalender-Synchronisierung geändert auf: $isChecked")
+                
+                if (isChecked && !calendarManager.hasCalendarPermission()) {
+                    // Berechtigungen anfordern, wenn sie noch nicht erteilt wurden
+                    requestCalendarPermissions.launch(
+                        arrayOf(
+                            Manifest.permission.READ_CALENDAR,
+                            Manifest.permission.WRITE_CALENDAR
+                        )
+                    )
+                } else {
+                    calendarManager.calendarSyncEnabled = isChecked
+                    
+                    // Wenn aktiviert, zeige den Kalender-Auswahldialog
+                    if (isChecked && calendarManager.selectedCalendarId == -1L) {
+                        showCalendarSelectionDialog()
+                    }
+                }
+            }
+        } ?: run {
+            LogUtils.error(this, "Kalender-Synchronisierungs-Einstellung nicht gefunden (calendar_sync_setting)")
+        }
+        
+        // Kalender-Auswahl
+        view?.findViewById<LinearLayout>(R.id.calendar_selection_setting)?.let { selectionSetting ->
+            LogUtils.debug(this, "Kalender-Auswahl-Einstellung gefunden")
+            
+            // Aktualisiere die Anzeige des ausgewählten Kalenders
+            updateCalendarSelectionDisplay()
+            
+            selectionSetting.setOnClickListener {
+                LogUtils.debug(this, "Kalender-Auswahl-Einstellung geklickt")
+                
+                if (!calendarManager.hasCalendarPermission()) {
+                    // Berechtigungen anfordern, wenn sie noch nicht erteilt wurden
+                    requestCalendarPermissions.launch(
+                        arrayOf(
+                            Manifest.permission.READ_CALENDAR,
+                            Manifest.permission.WRITE_CALENDAR
+                        )
+                    )
+                } else {
+                    showCalendarSelectionDialog()
+                }
+            }
+        } ?: run {
+            LogUtils.error(this, "Kalender-Auswahl-Einstellung nicht gefunden (calendar_selection_setting)")
+        }
     }
 
     private fun setupNotificationSettings(view: View) {
         LogUtils.debug(this, "Richte Benachrichtigungseinstellungen ein")
+        
+        // Benachrichtigung bei abgeschlossenen Aufgaben
+        view.findViewById<LinearLayout>(R.id.notification_task_complete_setting)?.let { completeSetting ->
+            LogUtils.debug(this, "Benachrichtigung bei abgeschlossenen Aufgaben gefunden")
+            
+            val completeSwitch = completeSetting.findViewById<SwitchMaterial>(R.id.notification_task_complete_switch)
+            completeSwitch?.isChecked = taskNotificationManager.taskCompleteNotificationsEnabled
+            
+            completeSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                LogUtils.debug(this, "Benachrichtigung bei abgeschlossenen Aufgaben geändert auf: $isChecked")
+                taskNotificationManager.taskCompleteNotificationsEnabled = isChecked
+            }
+        } ?: run {
+            LogUtils.error(this, "Benachrichtigung bei abgeschlossenen Aufgaben nicht gefunden (notification_task_complete_setting)")
+        }
+        
+        // Benachrichtigung bei fälligen Aufgaben
+        view.findViewById<LinearLayout>(R.id.notification_task_due_setting)?.let { dueSetting ->
+            LogUtils.debug(this, "Benachrichtigung bei fälligen Aufgaben gefunden")
+            
+            val dueSwitch = dueSetting.findViewById<SwitchMaterial>(R.id.notification_task_due_switch)
+            dueSwitch?.isChecked = taskNotificationManager.taskDueNotificationsEnabled
+            
+            dueSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                LogUtils.debug(this, "Benachrichtigung bei fälligen Aufgaben geändert auf: $isChecked")
+                taskNotificationManager.taskDueNotificationsEnabled = isChecked
+            }
+        } ?: run {
+            LogUtils.error(this, "Benachrichtigung bei fälligen Aufgaben nicht gefunden (notification_task_due_setting)")
+        }
         
         // Hintergrund-Einstellung
         view.findViewById<LinearLayout>(R.id.notification_background_setting)?.let { backgroundSetting ->
@@ -301,6 +445,39 @@ class SettingsFragment : BaseFragment() {
             LogUtils.error(this, "Zeitplan-Einstellung nicht gefunden (notification_schedule_setting)")
         }
     }
+    
+    private fun showCalendarSelectionDialog() {
+        LogUtils.debug(this, "Zeige Kalender-Auswahldialog")
+        
+        val calendars = calendarManager.getAvailableCalendars()
+        
+        if (calendars.isEmpty()) {
+            LogUtils.warn(this, "Keine Kalender verfügbar")
+            Toast.makeText(
+                requireContext(),
+                "Keine Kalender verfügbar",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        
+        val calendarNames = calendars.map { "${it.name} (${it.account})" }.toTypedArray()
+        val selectedIndex = calendars.indexOfFirst { it.id == calendarManager.selectedCalendarId }
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.calendar_selection))
+            .setSingleChoiceItems(calendarNames, selectedIndex) { dialog, which ->
+                val selectedCalendar = calendars[which]
+                LogUtils.debug(this, "Kalender ausgewählt: ${selectedCalendar.name} (ID: ${selectedCalendar.id})")
+                
+                calendarManager.selectedCalendarId = selectedCalendar.id
+                updateCalendarSelectionDisplay()
+                
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
+    }
 
     private fun showTimeRangePicker() {
         LogUtils.debug(this, "Zeige Zeitbereich-Picker")
@@ -343,14 +520,22 @@ class SettingsFragment : BaseFragment() {
             val scheduleEnabled = notificationSettingsManager.notificationScheduleEnabled
             val startTime = notificationSettingsManager.scheduleStartTime
             val endTime = notificationSettingsManager.scheduleEndTime
+            val calendarSyncEnabled = calendarManager.calendarSyncEnabled
+            val selectedCalendarId = calendarManager.selectedCalendarId
+            val taskCompleteNotificationsEnabled = taskNotificationManager.taskCompleteNotificationsEnabled
+            val taskDueNotificationsEnabled = taskNotificationManager.taskDueNotificationsEnabled
             
             LogUtils.info(this, """
-                Aktuelle Benachrichtigungseinstellungen:
+                Aktuelle Einstellungen:
                 - Sound URI: $soundUri
                 - Hintergrundbild: $backgroundPath
                 - Zeitplan aktiviert: $scheduleEnabled
                 - Startzeit: $startTime
                 - Endzeit: $endTime
+                - Kalendersynchronisierung aktiviert: $calendarSyncEnabled
+                - Ausgewählter Kalender-ID: $selectedCalendarId
+                - Benachrichtigungen bei abgeschlossenen Aufgaben: $taskCompleteNotificationsEnabled
+                - Benachrichtigungen bei fälligen Aufgaben: $taskDueNotificationsEnabled
             """.trimIndent())
         } catch (e: Exception) {
             LogUtils.error(this, "Fehler beim Anzeigen der aktuellen Einstellungen", e)
@@ -382,6 +567,44 @@ class SettingsFragment : BaseFragment() {
             }
         } catch (e: Exception) {
             LogUtils.error(this, "Fehler beim Aktualisieren der Ton-Anzeige", e)
+        }
+    }
+    
+    /**
+     * Aktualisiert die Anzeige des ausgewählten Kalenders in der Benutzeroberfläche
+     */
+    private fun updateCalendarSelectionDisplay() {
+        try {
+            view?.findViewById<LinearLayout>(R.id.calendar_selection_setting)?.let { selectionSetting ->
+                // Finde das TextView für den Kalender-Namen
+                val calendarNameTextView = selectionSetting.findViewById<TextView>(R.id.calendar_selection_value)
+                if (calendarNameTextView != null) {
+                    // Hole den aktuellen Kalender
+                    val selectedCalendarId = calendarManager.selectedCalendarId
+                    
+                    if (selectedCalendarId != -1L) {
+                        // Suche den Kalender in der Liste
+                        val calendars = calendarManager.getAvailableCalendars()
+                        val selectedCalendar = calendars.find { it.id == selectedCalendarId }
+                        
+                        if (selectedCalendar != null) {
+                            // Setze den Namen in die TextView
+                            calendarNameTextView.text = selectedCalendar.name
+                            LogUtils.debug(this, "Kalender-Anzeige aktualisiert: ${selectedCalendar.name}")
+                        } else {
+                            calendarNameTextView.text = "Nicht gefunden (ID: $selectedCalendarId)"
+                            LogUtils.warn(this, "Ausgewählter Kalender nicht gefunden (ID: $selectedCalendarId)")
+                        }
+                    } else {
+                        calendarNameTextView.text = "Nicht ausgewählt"
+                        LogUtils.debug(this, "Kein Kalender ausgewählt")
+                    }
+                } else {
+                    LogUtils.error(this, "TextView für Kalender-Namen nicht gefunden")
+                }
+            }
+        } catch (e: Exception) {
+            LogUtils.error(this, "Fehler beim Aktualisieren der Kalender-Anzeige", e)
         }
     }
 } 

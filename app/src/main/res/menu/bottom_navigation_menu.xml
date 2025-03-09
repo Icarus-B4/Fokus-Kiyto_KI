@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_dashboard"
-        android:icon="@drawable/ic_dashboard"
+        android:icon="@drawable/nav_dashboard_selector"
         android:title="@string/dashboard"/>
     <item
         android:id="@+id/nav_day_visualizer"
-        android:icon="@drawable/ic_timeline"
+        android:icon="@drawable/nav_timeline_selector"
         android:title="@string/day_visualizer"/>
     <item
         android:id="@+id/nav_focus"
-        android:icon="@drawable/ic_focus"
+        android:icon="@drawable/nav_focus_selector"
         android:title="@string/focus"/>
     <item
         android:id="@+id/nav_assistant"
-        android:icon="@drawable/ic_assistant"
+        android:icon="@drawable/nav_assistant_selector"
         android:title="@string/assistant"/>
     <item
         android:id="@+id/nav_tasks"
-        android:icon="@drawable/ic_tasks"
+        android:icon="@drawable/nav_tasks_selector"
         android:title="@string/tasks"/>
 </menu> 

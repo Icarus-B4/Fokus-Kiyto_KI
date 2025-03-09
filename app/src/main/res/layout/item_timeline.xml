@@ -4,30 +4,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp">
+    android:paddingTop="1dp"
+    android:paddingBottom="1dp">
 
     <!-- Vertikale Linie (Führungslinie) -->
     <View
         android:id="@+id/timelineIndicator"
         android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:background="@color/gray_dark"
-        android:alpha="0.5"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/timelineDot"
-        app:layout_constraintStart_toStartOf="@id/timelineDot"
+        android:layout_height="63dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginEnd="20dp"
+        android:alpha="0.8"
+        android:background="@color/blue"
+        app:layout_constraintEnd_toEndOf="@+id/timelineDot"
+        app:layout_constraintStart_toStartOf="@+id/timelineIcon"
         app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- Vertikale Linie (Führungslinie) -->
     <!-- Zeitpunkt-Kreis -->
+
+    <View
+        android:id="@+id/timelineIndicator2"
+        android:layout_width="2dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginEnd="10dp"
+        android:alpha="0.5"
+        android:background="@color/priority_medium"
+        app:layout_constraintEnd_toEndOf="@+id/timelineIcon"
+        app:layout_constraintStart_toStartOf="@+id/timelineIcon"
+        app:layout_constraintTop_toBottomOf="@+id/timelineIndicator3" />
+
+    <View
+        android:id="@+id/timelineIndicator3"
+        android:layout_width="2dp"
+        android:layout_height="14dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="10dp"
+        android:alpha="0.5"
+        android:background="@color/accent_dark"
+        app:layout_constraintEnd_toEndOf="@+id/timelineIcon"
+        app:layout_constraintStart_toStartOf="@+id/timelineIcon"
+        app:layout_constraintTop_toBottomOf="@+id/timelineDot" />
+
     <View
         android:id="@+id/timelineDot"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="24dp"
         android:background="@drawable/timeline_dot"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="16dp" />
 
     <!-- Icon im Kreis -->
     <ImageView
@@ -47,9 +74,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:textColor="@color/gray_light"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="@color/gray_light"
         app:layout_constraintStart_toEndOf="@id/timelineDot"
         app:layout_constraintTop_toTopOf="@id/timelineDot"
         tools:text="08:00" />
@@ -62,8 +89,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        android:textSize="16sp"
         android:textColor="@color/white"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/timelineDot"
         app:layout_constraintTop_toBottomOf="@id/tvTimelineTime"
