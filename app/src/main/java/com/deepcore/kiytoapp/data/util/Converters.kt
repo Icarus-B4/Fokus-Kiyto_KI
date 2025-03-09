@@ -35,8 +35,24 @@ class Converters {
     }
 
     @TypeConverter
-    fun toStringList(value: String): List<String> {
-        val listType = object : TypeToken<List<String>>() {}.type
-        return gson.fromJson(value, listType)
+    fun toStringList(value: String?): List<String> {
+        if (value.isNullOrEmpty()) {
+            return emptyList()
+        }
+        
+        return try {
+            val listType = object : TypeToken<List<String>>() {}.type
+            gson.fromJson(value, listType) ?: emptyList()
+        } catch (e: Exception) {
+            // Fallback für den Fall, dass der Wert kein gültiges JSON-Array ist
+            // Versuche, den String als einzelnen Eintrag zu behandeln
+            if (value.startsWith("[") && value.endsWith("]")) {
+                // Es sieht aus wie ein JSON-Array, aber es gab einen Fehler beim Parsen
+                emptyList()
+            } else {
+                // Behandle es als einzelnen String-Eintrag
+                listOf(value)
+            }
+        }
     }
 } 

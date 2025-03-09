@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp">
+
+    <!-- Vertikale Linie (Führungslinie) -->
+    <View
+        android:id="@+id/timelineIndicator"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="@color/gray_dark"
+        android:alpha="0.5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/timelineDot"
+        app:layout_constraintStart_toStartOf="@id/timelineDot"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Zeitpunkt-Kreis -->
+    <View
+        android:id="@+id/timelineDot"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="24dp"
+        android:background="@drawable/timeline_dot"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Icon im Kreis -->
+    <ImageView
+        android:id="@+id/timelineIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_tasks"
+        app:layout_constraintBottom_toBottomOf="@id/timelineDot"
+        app:layout_constraintEnd_toEndOf="@id/timelineDot"
+        app:layout_constraintStart_toStartOf="@id/timelineDot"
+        app:layout_constraintTop_toTopOf="@id/timelineDot"
+        app:tint="@color/gray_light" />
+
+    <!-- Uhrzeit -->
+    <TextView
+        android:id="@+id/tvTimelineTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/gray_light"
+        app:layout_constraintStart_toEndOf="@id/timelineDot"
+        app:layout_constraintTop_toTopOf="@id/timelineDot"
+        tools:text="08:00" />
+
+    <!-- Titel -->
+    <TextView
+        android:id="@+id/tvTimelineTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/timelineDot"
+        app:layout_constraintTop_toBottomOf="@id/tvTimelineTime"
+        tools:text="Aufwachen" />
+
+    <!-- Bearbeitungs-Button -->
+    <ImageButton
+        android:id="@+id/btnEditTask"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_edit"
+        app:layout_constraintBottom_toBottomOf="@id/timelineDot"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/timelineDot"
+        app:tint="@color/coral" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

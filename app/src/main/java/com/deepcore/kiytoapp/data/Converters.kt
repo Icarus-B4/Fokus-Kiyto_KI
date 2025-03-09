@@ -15,12 +15,22 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromString(value: String): List<String> {
-        return value.split(",").filter { it.isNotEmpty() }
+    fun fromString(value: String?): List<String> {
+        if (value.isNullOrEmpty()) {
+            return emptyList()
+        }
+        
+        return try {
+            // Versuche zuerst, es als kommagetrennte Liste zu behandeln
+            value.split(",").filter { it.isNotEmpty() }
+        } catch (e: Exception) {
+            // Fallback: Behandle es als einzelnen String-Eintrag
+            listOf(value)
+        }
     }
 
     @TypeConverter
-    fun toString(list: List<String>): String {
-        return list.joinToString(",")
+    fun toString(list: List<String>?): String {
+        return list?.joinToString(",") ?: ""
     }
 } 

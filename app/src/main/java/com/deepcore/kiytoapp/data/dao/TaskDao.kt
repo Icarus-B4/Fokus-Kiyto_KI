@@ -9,13 +9,13 @@ interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY dueDate ASC")
     fun getAllTasks(): Flow<List<Task>>
 
-    @Query("SELECT * FROM tasks WHERE isCompleted = 0 ORDER BY dueDate ASC")
+    @Query("SELECT * FROM tasks WHERE completed = 0 ORDER BY dueDate ASC")
     fun getActiveTasks(): Flow<List<Task>>
 
-    @Query("SELECT * FROM tasks WHERE isCompleted = 1 ORDER BY dueDate DESC")
+    @Query("SELECT * FROM tasks WHERE completed = 1 ORDER BY dueDate DESC")
     fun getCompletedTasks(): Flow<List<Task>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(task: Task): Long
 
     @Update
@@ -24,6 +24,6 @@ interface TaskDao {
     @Delete
     suspend fun delete(task: Task)
 
-    @Query("UPDATE tasks SET isCompleted = :completed WHERE id = :taskId")
+    @Query("UPDATE tasks SET completed = :completed WHERE id = :taskId")
     suspend fun updateCompletionStatus(taskId: Long, completed: Boolean)
 } 
