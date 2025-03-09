@@ -25,7 +25,8 @@ class TaskManager(private val context: Context) {
     suspend fun createTask(task: Task): Long {
         return try {
             Log.d(TAG, "Erstelle neue Aufgabe: $task")
-            val id = taskDao.insert(task)
+            val taskWithZeroId = task.copy(id = 0)
+            val id = taskDao.insert(taskWithZeroId)
             Log.d(TAG, "Aufgabe erfolgreich erstellt mit ID: $id")
             id
         } catch (e: Exception) {

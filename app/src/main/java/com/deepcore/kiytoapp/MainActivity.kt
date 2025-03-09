@@ -80,27 +80,47 @@ class MainActivity : BaseActivity() {
         // Menüpunkte basierend auf Login-Status aktivieren/deaktivieren
         val authManager = AuthManager(this)
         val menu = bottomNavigation.menu
-        menu.findItem(R.id.navigation_tasks)?.isEnabled = authManager.isLoggedIn()
-        menu.findItem(R.id.navigation_focus)?.isEnabled = authManager.isLoggedIn()
-        menu.findItem(R.id.navigation_assistant)?.isEnabled = authManager.isLoggedIn()
+        menu.findItem(R.id.nav_tasks)?.isEnabled = authManager.isLoggedIn()
+        menu.findItem(R.id.nav_focus)?.isEnabled = authManager.isLoggedIn()
+        menu.findItem(R.id.nav_assistant)?.isEnabled = authManager.isLoggedIn()
+        menu.findItem(R.id.nav_day_visualizer)?.isEnabled = authManager.isLoggedIn()
+        
+        // Variable zum Speichern des letzten ausgewählten Menüpunkts
+        var lastSelectedItemId = R.id.nav_dashboard
         
         bottomNavigation.setOnItemSelectedListener { item ->
-            if (!authManager.isLoggedIn() && item.itemId != R.id.navigation_dashboard) {
+            if (!authManager.isLoggedIn() && item.itemId != R.id.nav_dashboard) {
                 // Wenn nicht eingeloggt und nicht Dashboard, zum Login weiterleiten
                 startActivity(Intent(this, LoginActivity::class.java))
                 return@setOnItemSelectedListener false
             }
             
+            // Prüfen, ob der Benutzer zweimal auf den gleichen Menüpunkt geklickt hat
+            val isReselected = item.itemId == lastSelectedItemId && item.itemId == R.id.nav_day_visualizer
+            
             // Alle vorherigen Fragments aus dem Back Stack entfernen
             supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             
             val fragment = when (item.itemId) {
-                R.id.navigation_dashboard -> DashboardFragment()
-                R.id.navigation_tasks -> TaskFragment()
-                R.id.navigation_focus -> FocusModeFragment()
-                R.id.navigation_assistant -> AIChatFragment()
+                R.id.nav_dashboard -> DashboardFragment()
+                R.id.nav_tasks -> TaskFragment()
+                R.id.nav_focus -> FocusModeFragment()
+                R.id.nav_assistant -> AIChatFragment()
+                R.id.nav_day_visualizer -> {
+                    val dayVisualizerFragment = com.deepcore.kiytoapp.ui.DayVisualizerFragment()
+                    // Wenn der Benutzer zweimal auf den Tagesplaner geklickt hat, setze ein Argument
+                    if (isReselected) {
+                        val args = Bundle()
+                        args.putBoolean("toggle_action_bar", true)
+                        dayVisualizerFragment.arguments = args
+                    }
+                    dayVisualizerFragment
+                }
                 else -> return@setOnItemSelectedListener false
             }
+            
+            // Aktualisiere den letzten ausgewählten Menüpunkt
+            lastSelectedItemId = item.itemId
             
             // Fragment mit Tag ersetzen wenn es das Dashboard ist
             supportFragmentManager.beginTransaction()
@@ -110,7 +130,7 @@ class MainActivity : BaseActivity() {
                 )
                 .setReorderingAllowed(true)
                 .replace(R.id.fragmentContainer, fragment, 
-                    if (item.itemId == R.id.navigation_dashboard) "dashboard" else null)
+                    if (item.itemId == R.id.nav_dashboard) "dashboard" else null)
                 .commit()
             
             true
@@ -120,8 +140,8 @@ class MainActivity : BaseActivity() {
     override fun onBackPressed() {
         // Wenn wir uns nicht im Dashboard befinden und zurück drücken,
         // zum Dashboard navigieren
-        if (bottomNavigation.selectedItemId != R.id.navigation_dashboard) {
-            bottomNavigation.selectedItemId = R.id.navigation_dashboard
+        if (bottomNavigation.selectedItemId != R.id.nav_dashboard) {
+            bottomNavigation.selectedItemId = R.id.nav_dashboard
         } else {
             super.onBackPressed()
         }
@@ -276,7 +296,7 @@ class MainActivity : BaseActivity() {
         Toast.makeText(this, R.string.logout_success, Toast.LENGTH_SHORT).show()
         
         // Zum Dashboard zurückkehren und Stack leeren
-        bottomNavigation.selectedItemId = R.id.navigation_dashboard
+        bottomNavigation.selectedItemId = R.id.nav_dashboard
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         
         // Dashboard-Fragment neu laden

@@ -11,7 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Task::class], 
-    version = 2,  // Version auf 2 erhöht
+    version = 8,  // Version auf 8 erhöht, um mit TaskDatabase übereinzustimmen
     exportSchema = true // Schema-Export aktivieren
 )
 @TypeConverters(Converters::class)
@@ -28,6 +28,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
         
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Keine strukturellen Änderungen, nur Verbesserung der Converters
+                // Keine SQL-Anweisungen erforderlich
+            }
+        }
+        
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Keine strukturellen Änderungen, nur Verbesserung der Converters
+                // Keine SQL-Anweisungen erforderlich
+            }
+        }
+        
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -40,9 +54,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabase::class.java,
                         DATABASE_NAME
                     )
-                    .addMigrations(MIGRATION_1_2)  // Migration hinzugefügt
-                    .fallbackToDestructiveMigration()
-                    .allowMainThreadQueries() // Nur für Debugging
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)  // Migrationen hinzugefügt
+                    .fallbackToDestructiveMigration() // Destruktive Migration bei Versionskonflikten
                     .build()
                     
                     INSTANCE = instance

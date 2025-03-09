@@ -2,6 +2,7 @@ package com.deepcore.kiytoapp.data
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 @Dao
 interface TaskDao {
@@ -29,7 +30,7 @@ interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY CASE priority WHEN 'HIGH' THEN 1 WHEN 'MEDIUM' THEN 2 ELSE 3 END")
     fun getTasksSortedByPriority(): Flow<List<Task>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(task: Task): Long
 
     @Update
@@ -37,4 +38,10 @@ interface TaskDao {
 
     @Query("DELETE FROM tasks WHERE id = :taskId")
     suspend fun delete(taskId: Long)
+
+    @Query("SELECT * FROM tasks WHERE date(dueDate/1000, 'unixepoch') = date(:date/1000, 'unixepoch')")
+    fun getTasksForDate(date: Date): Flow<List<Task>>
+
+    @Query("SELECT * FROM tasks WHERE date(dueDate/1000, 'unixepoch') = date(:date/1000, 'unixepoch') ORDER BY dueDate ASC")
+    fun getTasksForDateSortedByTime(date: Date): Flow<List<Task>>
 } 
