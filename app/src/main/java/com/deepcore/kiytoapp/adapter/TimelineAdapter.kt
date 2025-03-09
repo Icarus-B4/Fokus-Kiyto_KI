@@ -40,12 +40,8 @@ class TimelineAdapter(
         // Setze den Titel
         holder.tvTitle.text = item.title
         
-        // Setze das Icon basierend auf dem Typ
-        val iconResId = when (item.type) {
-            TimelineItemType.TASK -> R.drawable.ic_tasks
-            TimelineItemType.HABIT -> R.drawable.ic_habit
-            TimelineItemType.MEETING -> R.drawable.ic_meeting
-        }
+        // Setze das Icon basierend auf dem Titel oder der Beschreibung
+        val iconResId = getIconForTask(item.title.lowercase())
         holder.ivIcon.setImageResource(iconResId)
         
         // Setze die Farbe des Dots basierend auf dem Typ
@@ -83,6 +79,29 @@ class TimelineAdapter(
             val params = holder.timelineIndicator.layoutParams
             params.height = 200 // Höhe in Pixeln
             holder.timelineIndicator.layoutParams = params
+        }
+    }
+    
+    /**
+     * Wählt das passende Icon basierend auf dem Titel der Aufgabe aus.
+     */
+    private fun getIconForTask(title: String): Int {
+        return when {
+            title.contains("aufwachen") || title.contains("wecker") -> R.drawable.ic_notifications
+            title.contains("schlafen") || title.contains("bett") -> R.drawable.ic_focus
+            title.contains("meeting") || title.contains("termin") || title.contains("besprechung") -> R.drawable.ic_meeting
+            title.contains("sport") || title.contains("training") || title.contains("workout") -> R.drawable.ic_habit
+            title.contains("essen") || title.contains("mittag") || title.contains("abendessen") || title.contains("frühstück") -> R.drawable.ic_timer
+            title.contains("musik") || title.contains("entspannen") || title.contains("meditation") -> R.drawable.ic_music
+            title.contains("kalender") || title.contains("termin") -> R.drawable.ic_calendar
+            title.contains("erinnerung") || title.contains("notiz") -> R.drawable.ic_notification
+            title.contains("arbeit") || title.contains("projekt") -> R.drawable.ic_tasks
+            title.contains("einstellung") || title.contains("setting") -> R.drawable.ic_settings
+            title.contains("kontakt") || title.contains("anruf") || title.contains("telefonat") -> R.drawable.ic_contact
+            title.contains("hilfe") || title.contains("tipp") -> R.drawable.ic_help
+            title.contains("statistik") || title.contains("analyse") -> R.drawable.ic_statistics
+            title.contains("chat") || title.contains("nachricht") -> R.drawable.ic_ai_chat
+            else -> R.drawable.ic_tasks // Standard-Icon
         }
     }
 

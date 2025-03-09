@@ -8,44 +8,49 @@
     android:paddingBottom="1dp">
 
     <!-- Vertikale Linie (Führungslinie) -->
-    <View
-        android:id="@+id/timelineIndicator"
-        android:layout_width="2dp"
-        android:layout_height="63dp"
-        android:layout_marginStart="9dp"
-        android:layout_marginEnd="20dp"
-        android:alpha="0.8"
-        android:background="@color/blue"
-        app:layout_constraintEnd_toEndOf="@+id/timelineDot"
-        app:layout_constraintStart_toStartOf="@+id/timelineIcon"
-        app:layout_constraintTop_toTopOf="parent" />
     <!-- Vertikale Linie (Führungslinie) -->
     <!-- Zeitpunkt-Kreis -->
 
     <View
-        android:id="@+id/timelineIndicator2"
-        android:layout_width="2dp"
-        android:layout_height="16dp"
+        android:id="@+id/timelineIndicator"
+        android:layout_width="1dp"
+        android:layout_height="61dp"
         android:layout_marginStart="9dp"
         android:layout_marginEnd="10dp"
-        android:alpha="0.5"
-        android:background="@color/priority_medium"
-        app:layout_constraintEnd_toEndOf="@+id/timelineIcon"
+        android:alpha="0.8"
+        android:background="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/timelineDot"
+        app:layout_constraintHorizontal_bias="0.181"
         app:layout_constraintStart_toStartOf="@+id/timelineIcon"
-        app:layout_constraintTop_toBottomOf="@+id/timelineIndicator3" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/timelineIndicator2"
+        android:layout_width="1dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginEnd="10dp"
+        android:alpha="0.7"
+        android:background="@color/accent"
+        app:layout_constraintEnd_toEndOf="@+id/timelineIcon"
+        app:layout_constraintHorizontal_bias="0.333"
+        app:layout_constraintStart_toStartOf="@+id/timelineIcon"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:id="@+id/timelineIndicator3"
-        android:layout_width="2dp"
-        android:layout_height="14dp"
+        android:layout_width="1dp"
+        android:layout_height="41dp"
         android:layout_marginStart="9dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="25dp"
         android:layout_marginEnd="10dp"
         android:alpha="0.5"
-        android:background="@color/accent_dark"
+        android:background="@color/timeline_indicator"
         app:layout_constraintEnd_toEndOf="@+id/timelineIcon"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/timelineIcon"
-        app:layout_constraintTop_toBottomOf="@+id/timelineDot" />
+        app:layout_constraintTop_toTopOf="@+id/timelineIndicator" />
 
     <View
         android:id="@+id/timelineDot"
@@ -59,14 +64,14 @@
     <!-- Icon im Kreis -->
     <ImageView
         android:id="@+id/timelineIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:src="@drawable/ic_tasks"
         app:layout_constraintBottom_toBottomOf="@id/timelineDot"
         app:layout_constraintEnd_toEndOf="@id/timelineDot"
         app:layout_constraintStart_toStartOf="@id/timelineDot"
         app:layout_constraintTop_toTopOf="@id/timelineDot"
-        app:tint="@color/gray_light" />
+        app:tint="@color/white" />
 
     <!-- Uhrzeit -->
     <TextView
@@ -108,5 +113,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/timelineDot"
         app:tint="@color/coral" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 
