@@ -24,7 +24,13 @@ data class Task(
     @TypeConverters(Converters::class)
     val created: Date = Date(),
     
-    val calendarEventId: Long? = null
+    val calendarEventId: Long? = null,
+    
+    @TypeConverters(Converters::class)
+    val startTime: Date? = null,
+    
+    @TypeConverters(Converters::class)
+    val endTime: Date? = null
 )
 
 enum class Priority {

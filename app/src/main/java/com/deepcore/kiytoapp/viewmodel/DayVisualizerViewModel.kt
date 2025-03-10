@@ -6,11 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.deepcore.kiytoapp.data.entity.Task
+import com.deepcore.kiytoapp.data.entity.Task.Priority
 import com.deepcore.kiytoapp.data.TaskDatabase
 import com.deepcore.kiytoapp.data.dao.TaskDao
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.*
+import android.util.Log
 
 class DayVisualizerViewModel(application: Application) : AndroidViewModel(application) {
     private val taskDao = TaskDatabase.getDatabase(application).taskDao()
@@ -23,6 +25,10 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
 
     private val _selectedTask = MutableLiveData<TimelineItem?>()
     val selectedTask: LiveData<TimelineItem?> = _selectedTask
+
+    companion object {
+        private const val TAG = "DayVisualizerViewModel"
+    }
 
     init {
         setSelectedDate(Date())
@@ -169,21 +175,50 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
         return TimelineItem(
             id = this.id,
             title = this.title,
-            startTime = this.dueDate ?: Date(),
-            endTime = null,
+            description = this.description,
+            startTime = this.startTime ?: this.dueDate ?: Date(),
+            endTime = this.endTime,
             completed = this.completed,
             type = when (this.priority) {
-                Task.Priority.HIGH -> TimelineItemType.MEETING
-                Task.Priority.MEDIUM -> TimelineItemType.TASK
-                Task.Priority.LOW -> TimelineItemType.HABIT
+                Priority.HIGH -> TimelineItemType.MEETING
+                Priority.MEDIUM -> TimelineItemType.TASK
+                Priority.LOW -> TimelineItemType.HABIT
+                else -> TimelineItemType.TASK // Standardwert für unbekannte Prioritäten
             }
         )
+    }
+
+    fun updateTimelineItem(timelineItem: TimelineItem) {
+        viewModelScope.launch {
+            try {
+                val task = Task(
+                    id = timelineItem.id,
+                    title = timelineItem.title,
+                    description = timelineItem.description,
+                    dueDate = timelineItem.startTime,
+                    startTime = timelineItem.startTime,
+                    endTime = timelineItem.endTime,
+                    completed = timelineItem.completed,
+                    priority = when (timelineItem.type) {
+                        TimelineItemType.TASK -> Priority.MEDIUM
+                        TimelineItemType.HABIT -> Priority.LOW
+                        TimelineItemType.MEETING -> Priority.HIGH
+                        else -> Priority.MEDIUM // Standardwert für unbekannte Typen
+                    }
+                )
+                taskDao.update(task)
+                _selectedDate.value?.let { loadTimelineItems(it) }
+            } catch (e: Exception) {
+                Log.e(TAG, "Fehler beim Aktualisieren des Timeline-Items", e)
+            }
+        }
     }
 }
 
 data class TimelineItem(
     val id: Long,
     val title: String,
+    val description: String = "",
     val startTime: Date,
     val endTime: Date?,
     val completed: Boolean = false,

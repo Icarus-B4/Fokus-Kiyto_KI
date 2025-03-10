@@ -54,7 +54,6 @@ class TaskAIService(private val context: Context) {
         Log.d(TAG, "Generating response for: $message")
         
         try {
-            // Direkte Befehlserkennung
             val normalizedMessage = message.lowercase()
             
             // Timer-Befehl
@@ -257,35 +256,29 @@ class TaskAIService(private val context: Context) {
             "minuten", "konzentration"
         )
         
-        // Spezifische Muster für Timer-Befehle
         val timerPatterns = listOf(
-            "setze\\s*timer\\s*(?:auf|für)?\\s*\\d+",    // z.B. "setze timer auf 25"
-            "stelle\\s*(?:einen)?\\s*timer\\s*(?:auf|für)?\\s*\\d+",  // z.B. "stelle einen timer auf 25"
-            "starte\\s*(?:einen)?\\s*timer\\s*(?:für|von)?\\s*\\d+",  // z.B. "starte einen timer für 25"
-            "timer\\s*(?:auf|für)?\\s*\\d+\\s*(?:minute[n]?|min)",    // z.B. "timer auf 8 minuten"
-            "(?:starte|stelle|setze)\\s*(?:einen)?\\s*timer\\s*(?:auf|für)?\\s*\\d+\\s*(?:minute[n]?|min)"  // z.B. "starte einen timer für 8 minuten"
+            "setze\\s*timer\\s*(?:auf|für)?\\s*\\d+",    
+            "stelle\\s*(?:einen)?\\s*timer\\s*(?:auf|für)?\\s*\\d+",  
+            "starte\\s*(?:einen)?\\s*timer\\s*(?:für|von)?\\s*\\d+",  
+            "timer\\s*(?:auf|für)?\\s*\\d+\\s*(?:minute[n]?|min)",    
+            "(?:starte|stelle|setze)\\s*(?:einen)?\\s*timer\\s*(?:auf|für)?\\s*\\d+\\s*(?:minute[n]?|min)"  
         )
         
         val normalizedMessage = message.lowercase()
         
-        // Prüfe auf spezifische Muster
         for (pattern in timerPatterns) {
             if (Regex(pattern, RegexOption.IGNORE_CASE).containsMatchIn(normalizedMessage)) {
-                Log.d(TAG, "Timer-Befehl erkannt durch Muster: $pattern")
-                return true
+                val minutes = extractMinutes(message)
+                if (minutes > 0) {
+                    return true
+                }
             }
         }
         
-        // Fallback: Prüfe auf allgemeine Indikatoren
         val containsIndicator = timerIndicators.any { normalizedMessage.contains(it) }
         val containsNumber = extractMinutes(message) > 0
         
-        if (containsIndicator && containsNumber) {
-            Log.d(TAG, "Timer-Befehl erkannt durch Indikatoren und Zahl")
-            return true
-        }
-        
-        return false
+        return containsIndicator && containsNumber
     }
 
     suspend fun analyzeImage(file: File): String {

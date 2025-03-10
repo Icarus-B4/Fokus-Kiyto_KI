@@ -75,7 +75,7 @@ class AddTaskFragment : Fragment() {
         super.onCreate(savedInstanceState)
         taskManager = TaskManager(requireContext())
         
-        // Sofort die Aufgabe laden
+        // Prüfe, ob wir eine Task-ID haben
         arguments?.getLong(ARG_TASK_ID, 0)?.let { taskId ->
             if (taskId != 0L) {
                 lifecycleScope.launch {
@@ -93,6 +93,48 @@ class AddTaskFragment : Fragment() {
                 }
             }
         }
+        
+        // Prüfe, ob wir direkte Daten aus dem DayVisualizerFragment haben
+        arguments?.let { args ->
+            if (args.containsKey("taskId") && !args.containsKey(ARG_TASK_ID)) {
+                val taskId = args.getLong("taskId", 0)
+                val title = args.getString("title", "")
+                val description = args.getString("description", "")
+                val startTimeMillis = args.getLong("startTime", 0)
+                val endTimeMillis = args.getLong("endTime", 0)
+                val completed = args.getBoolean("completed", false)
+                val typeStr = args.getString("type", "TASK")
+                
+                if (taskId != 0L) {
+                    // Erstelle ein temporäres Task-Objekt
+                    val startTime = if (startTimeMillis > 0) Date(startTimeMillis) else null
+                    val endTime = if (endTimeMillis > 0) Date(endTimeMillis) else null
+                    
+                    // Bestimme die Priorität basierend auf dem Typ
+                    val priority = when (typeStr) {
+                        "MEETING" -> Priority.HIGH
+                        "HABIT" -> Priority.LOW
+                        else -> Priority.MEDIUM
+                    }
+                    
+                    taskToEdit = Task(
+                        id = taskId,
+                        title = title,
+                        description = description,
+                        priority = priority,
+                        completed = completed,
+                        dueDate = startTime,
+                        startTime = startTime,
+                        endTime = endTime
+                    )
+                    
+                    // View aktualisieren, wenn sie bereits verfügbar ist
+                    view?.let { view ->
+                        updateViewWithTaskData(view)
+                    }
+                }
+            }
+        }
     }
 
     private fun updateViewWithTaskData(view: View) {
@@ -106,7 +148,10 @@ class AddTaskFragment : Fragment() {
             priorityDropdown.setText(task.priority.name, false)
             updatePriorityColors(task.priority)  // Prioritätsfarben aktualisieren
             
-            task.dueDate?.let { date ->
+            // Verwende startTime, wenn verfügbar, sonst dueDate
+            val dateToUse = task.startTime ?: task.dueDate
+            
+            dateToUse?.let { date ->
                 selectedDueDate = date
                 selectedTime = date
                 dueDateInput.setText(dateFormat.format(date))
@@ -375,6 +420,13 @@ class AddTaskFragment : Fragment() {
             return
         }
 
+        // Berechne die Endzeit (1 Stunde nach Startzeit, wenn nicht anders angegeben)
+        val calculatedEndTime = if (taskToEdit?.endTime != null) {
+            taskToEdit?.endTime
+        } else {
+            selectedDueDate?.let { Date(it.time + 3600000) } // +1 Stunde
+        }
+
         var task = Task(
             id = taskToEdit?.id ?: 0,
             title = title,
@@ -387,7 +439,11 @@ class AddTaskFragment : Fragment() {
                 .map { it.trim() }
                 .filter { it.isNotEmpty() },
             created = taskToEdit?.created ?: Date(),
-            calendarEventId = taskToEdit?.calendarEventId
+            calendarEventId = taskToEdit?.calendarEventId,
+            // Setze die Startzeit auf das ausgewählte Datum/Zeit
+            startTime = selectedDueDate,
+            // Setze die Endzeit auf die berechnete Endzeit
+            endTime = calculatedEndTime
         )
 
         lifecycleScope.launch {

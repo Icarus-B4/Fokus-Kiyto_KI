@@ -830,27 +830,33 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                     }
 
                     // Navigiere zum FocusModeFragment
-                    mainActivity.findViewById<BottomNavigationView>(R.id.bottomNavigation)?.selectedItemId = R.id.navigation_focus
+                    mainActivity.findViewById<BottomNavigationView>(R.id.bottomNavigation)?.selectedItemId = R.id.nav_focus
 
                     // Warte kurz, bis das Fragment gewechselt hat
                     view?.postDelayed({
                         val focusFragment = mainActivity.supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? FocusModeFragment
                         if (focusFragment != null) {
-                            // Verwende die neue Methode zum Setzen des Timers
+                            // Timer direkt starten
                             val viewModel = focusFragment.getViewModelInstance()
                             viewModel.updatePomodoroLength(action.minutes.toLong())
                             viewModel.setMode(PomodoroViewModel.PomodoroMode.POMODORO)
-                            viewModel.startTimer()
-                            Log.d("AIChatFragment", "Timer erfolgreich gesetzt")
+                            viewModel.startTimer() // Timer wird sofort gestartet
+                            Log.d("AIChatFragment", "Timer erfolgreich gestartet")
                         } else {
                             Log.e("AIChatFragment", "FocusModeFragment nicht gefunden")
-                            throw Exception("FocusModeFragment nicht gefunden")
+                            // Statt Exception werfen, eine Fehlermeldung anzeigen
+                            val errorMsg = ChatMessage(
+                                "Der Timer konnte nicht gestartet werden. Bitte versuchen Sie es über den Fokus-Modus.",
+                                false
+                            )
+                            adapter.addMessage(errorMsg)
+                            chatManager.addMessage(errorMsg)
                         }
-                    }, 300) // 300ms Verzögerung für den Fragment-Wechsel
+                    }, 500)
                 } catch (e: Exception) {
                     Log.e("AIChatFragment", "Fehler beim Starten des Timers", e)
                     val errorMsg = ChatMessage(
-                        "Entschuldigung, der Timer konnte nicht gestartet werden. Bitte versuchen Sie es über den Fokus-Modus.",
+                        "Der Timer konnte nicht gestartet werden. Bitte versuchen Sie es über den Fokus-Modus.",
                         false
                     )
                     adapter.addMessage(errorMsg)

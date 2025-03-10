@@ -9,7 +9,7 @@ import com.deepcore.kiytoapp.data.dao.TaskDao
 import com.deepcore.kiytoapp.data.entity.Task
 import com.deepcore.kiytoapp.data.util.Converters
 
-@Database(entities = [Task::class], version = 8)
+@Database(entities = [Task::class], version = 9)
 @TypeConverters(Converters::class)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao

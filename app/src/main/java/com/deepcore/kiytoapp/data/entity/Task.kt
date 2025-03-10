@@ -18,7 +18,9 @@ data class Task(
     val tags: List<String> = emptyList(),
     val completed: Boolean = false,
     val created: Date = Date(),
-    val calendarEventId: Long? = null
+    val calendarEventId: Long? = null,
+    val startTime: Date? = null,
+    val endTime: Date? = null
 ) {
     enum class Priority {
         LOW, MEDIUM, HIGH

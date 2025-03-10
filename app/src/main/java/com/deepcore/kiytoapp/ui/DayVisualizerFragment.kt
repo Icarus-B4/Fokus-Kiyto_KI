@@ -430,16 +430,24 @@ class DayVisualizerFragment : Fragment() {
     }
 
     private fun navigateToEditTask() {
-        val taskId = viewModel.getSelectedTaskId() ?: return
+        val timelineItem = viewModel.selectedTask.value ?: return
         val bundle = Bundle().apply {
-            putLong("taskId", taskId)
+            putLong("taskId", timelineItem.id)
+            putString("title", timelineItem.title)
+            putString("description", timelineItem.description)
+            putLong("startTime", timelineItem.startTime?.time ?: System.currentTimeMillis())
+            putLong("endTime", timelineItem.endTime?.time ?: (timelineItem.startTime?.time?.plus(3600000) ?: System.currentTimeMillis()))
+            putBoolean("completed", timelineItem.completed)
+            putString("type", timelineItem.type.name)
         }
-        // Navigation zum AddTaskFragment mit der Task-ID
+        
+        // Navigation zum AddTaskFragment mit allen Daten
         parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, AddTaskFragment().apply { arguments = bundle })
+            .replace(R.id.fragmentContainer, AddTaskFragment().apply { 
+                arguments = bundle 
+            })
             .addToBackStack(null)
             .commit()
-        showSnackbar("Aufgabe wird bearbeitet")
     }
 
     override fun onDestroyView() {
