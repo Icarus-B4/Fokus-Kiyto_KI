@@ -49,6 +49,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
 
 class DashboardFragment : BaseFragment() {
     private var _taskManager: TaskManager? = null
@@ -98,6 +100,9 @@ class DashboardFragment : BaseFragment() {
 
     private var _nextMonthButton: ImageButton? = null
     private val nextMonthButton get() = _nextMonthButton!!
+
+    private var _userStatusAnimation: LottieAnimationView? = null
+    private val userStatusAnimation get() = _userStatusAnimation!!
 
     private lateinit var authManager: AuthManager
     private lateinit var sessionManager: SessionManager
@@ -160,6 +165,7 @@ class DashboardFragment : BaseFragment() {
         _tasksValue = view.findViewById<TextView>(R.id.tasksValue)
         _productivityValue = view.findViewById<TextView>(R.id.productivityValue)
         _calendarView = view.findViewById<CalendarView>(R.id.calendarView)
+        _userStatusAnimation = view.findViewById<LottieAnimationView>(R.id.userStatusAnimation)
 
         val welcomeText = view.findViewById<TextView>(R.id.welcomeText)
         val loginButton = view.findViewById<Button>(R.id.loginButton)
@@ -176,6 +182,13 @@ class DashboardFragment : BaseFragment() {
             welcomeText.text = getString(R.string.welcome_user, user?.email?.substringBefore("@") ?: "")
             userName.text = getString(R.string.welcome_user, user?.email?.substringBefore("@") ?: "")
             loginButton.visibility = View.GONE
+            
+            // Konfiguriere die Status-Animation
+            userStatusAnimation.apply {
+                setAnimation(R.raw.status)
+                repeatCount = LottieDrawable.INFINITE
+                playAnimation()
+            }
             
             // Zeige personalisierte Elemente
             userProfileCard.visibility = View.VISIBLE
@@ -196,6 +209,13 @@ class DashboardFragment : BaseFragment() {
             welcomeText.text = getString(R.string.welcome_guest)
             userName.text = getString(R.string.welcome_guest)
             loginButton.visibility = View.VISIBLE
+            
+            // Konfiguriere die Status-Animation auch für nicht eingeloggte Benutzer
+            userStatusAnimation.apply {
+                setAnimation(R.raw.status)
+                repeatCount = LottieDrawable.INFINITE
+                playAnimation()
+            }
             
             // Verstecke personalisierte Elemente
             userProfileCard.visibility = View.GONE
@@ -350,7 +370,7 @@ class DashboardFragment : BaseFragment() {
                 productivityValue.text = "$productivity%"
 
                 // Aktualisiere Chart-Daten für den ausgewählten Tag
-                updateDailyActivityData(dayTasks)
+                updateDailyActivityData(dayTasks, timestamp)
                 
             } catch (e: Exception) {
                 Log.e("DashboardFragment", "Fehler beim Laden der Aufgaben für das Datum", e)
@@ -372,52 +392,6 @@ class DashboardFragment : BaseFragment() {
         }
     }
 
-    private fun loadTasksForDate(timestamp: Long) {
-        lifecycleScope.launch {
-            try {
-                val allTasks = taskManager.getAllTasks().first()
-                
-                val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
-                val startOfDay = calendar.apply {
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }.timeInMillis
-
-                val endOfDay = calendar.apply {
-                    set(Calendar.HOUR_OF_DAY, 23)
-                    set(Calendar.MINUTE, 59)
-                    set(Calendar.SECOND, 59)
-                    set(Calendar.MILLISECOND, 999)
-                }.timeInMillis
-
-                val dayTasks = allTasks.filter { task ->
-                    task.created.time in startOfDay..endOfDay
-                }
-
-                val totalTasks = dayTasks.size
-                val completedTasks = dayTasks.count { it.completed }
-                
-                // Fokuszeit für das ausgewählte Datum laden
-                val focusTime = if (timestamp == Calendar.getInstance().timeInMillis) {
-                    sessionManager.getTotalFocusTimeForToday()
-                } else {
-                    sessionManager.getTotalFocusTimeForDate(timestamp)
-                }
-                
-                // Update Stats für den ausgewählten Tag
-                userStats.text = getString(R.string.today_stats, totalTasks, focusTime)
-
-                // Aktualisiere Chart-Daten für den ausgewählten Tag
-                updateDailyActivityData(dayTasks)
-                
-            } catch (e: Exception) {
-                Log.e("DashboardFragment", "Fehler beim Laden der Aufgaben für das Datum", e)
-            }
-        }
-    }
-
     private fun updateChartData() {
         lifecycleScope.launch {
             try {
@@ -428,7 +402,7 @@ class DashboardFragment : BaseFragment() {
         }
     }
 
-    private fun updateDailyActivityData(tasks: List<Task> = emptyList()) {
+    private fun updateDailyActivityData(tasks: List<Task> = emptyList(), selectedTimestamp: Long = System.currentTimeMillis()) {
         try {
             val entries = ArrayList<Entry>()
             val focusEntries = ArrayList<Entry>()
@@ -436,29 +410,34 @@ class DashboardFragment : BaseFragment() {
             
             val calendar = Calendar.getInstance()
             val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-            val today = Calendar.getInstance().apply {
+            
+            // Verwende das ausgewählte Datum anstatt immer heute
+            val selectedDate = Calendar.getInstance().apply {
+                timeInMillis = selectedTimestamp
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
             }
             
-            // Aktivitätsdaten für die letzten 24 Stunden
+            val isSelectedDateToday = isToday(selectedTimestamp)
+            
+            // Aktivitätsdaten für die 24 Stunden des ausgewählten Tages
             for (hour in 0..23) {
-                val startTime = today.apply {
-                    set(Calendar.HOUR_OF_DAY, hour)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                }.timeInMillis
+                val startTime = selectedDate.clone() as Calendar
+                startTime.set(Calendar.HOUR_OF_DAY, hour)
+                startTime.set(Calendar.MINUTE, 0)
+                startTime.set(Calendar.SECOND, 0)
+                val startTimeMillis = startTime.timeInMillis
 
-                val endTime = today.apply {
-                    set(Calendar.HOUR_OF_DAY, hour)
-                    set(Calendar.MINUTE, 59)
-                    set(Calendar.SECOND, 59)
-                }.timeInMillis
+                val endTime = selectedDate.clone() as Calendar
+                endTime.set(Calendar.HOUR_OF_DAY, hour)
+                endTime.set(Calendar.MINUTE, 59)
+                endTime.set(Calendar.SECOND, 59)
+                val endTimeMillis = endTime.timeInMillis
 
-                // Wenn die Stunde in der Zukunft liegt, setze 0
-                if (hour > currentHour) {
+                // Wenn das ausgewählte Datum heute ist und die Stunde in der Zukunft liegt, setze 0
+                if (isSelectedDateToday && hour > currentHour) {
                     entries.add(Entry(hour.toFloat(), 0f))
                     focusEntries.add(Entry(hour.toFloat(), 0f))
                     taskEntries.add(Entry(hour.toFloat(), 0f))
@@ -467,14 +446,14 @@ class DashboardFragment : BaseFragment() {
 
                 // Berechne tatsächliche Aktivität
                 val tasksInHour = tasks.filter { task ->
-                    task.created.time in startTime..endTime
+                    task.created.time in startTimeMillis..endTimeMillis
                 }
                 
                 // Berechne Fokuszeit in dieser Stunde (0-60 Minuten)
-                val focusTimeInHour = if (hour == currentHour) {
+                val focusTimeInHour = if (isSelectedDateToday && hour == currentHour) {
                     sessionManager.getTotalFocusTimeForToday().toFloat()
                 } else {
-                    sessionManager.getTotalFocusTimeForDate(startTime).toFloat()
+                    sessionManager.getTotalFocusTimeForDate(startTimeMillis).toFloat()
                 }.coerceIn(0f, 60f)
                 
                 // Berechne Aktivität basierend auf realen Daten
@@ -711,6 +690,17 @@ class DashboardFragment : BaseFragment() {
                             val openTasks = totalTasks - completedTasks
                             
                             userStats.text = getString(R.string.day_stats, dateStr, completedTasks, openTasks, formatFocusTime(focusTime))
+                            
+                            // Aktualisiere auch die Produktivität
+                            val productivity = if (totalTasks > 0) {
+                                (completedTasks.toFloat() / totalTasks.toFloat() * 100).toInt()
+                            } else {
+                                0
+                            }
+                            productivityValue.text = "$productivity%"
+                            
+                            // Aktualisiere die Diagrammdaten für das ausgewählte Datum
+                            updateDailyActivityData(dayTasks, currentDate)
                         }
                     }
                     
@@ -741,12 +731,18 @@ class DashboardFragment : BaseFragment() {
         loadPrioritizedTasks()
         loadDailyStats(calendarView.date)
         startPeriodicUpdates()
+        
+        // Animation fortsetzen
+        userStatusAnimation.resumeAnimation()
     }
     
     override fun onPause() {
         super.onPause()
         // Stoppe die periodische Aktualisierung, wenn das Fragment nicht sichtbar ist
         updateJob?.cancel()
+        
+        // Animation pausieren
+        userStatusAnimation.pauseAnimation()
     }
     
     fun refreshTasks() {
@@ -771,6 +767,7 @@ class DashboardFragment : BaseFragment() {
         _monthYearText = null
         _prevMonthButton = null
         _nextMonthButton = null
+        _userStatusAnimation = null
         inspirationManager.shutdown()
     }
     

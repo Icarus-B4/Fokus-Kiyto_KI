@@ -59,11 +59,14 @@
                         android:orientation="horizontal"
                         android:padding="16dp">
 
-                        <ImageView
+                        <com.airbnb.lottie.LottieAnimationView
+                            android:id="@+id/userStatusAnimation"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:layout_marginEnd="16dp"
-                            android:src="@drawable/ic_user_avatar" />
+                            app:lottie_autoPlay="true"
+                            app:lottie_loop="true"
+                            app:lottie_rawRes="@raw/status" />
 
                         <LinearLayout
                             android:layout_width="0dp"

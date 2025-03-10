@@ -45,7 +45,7 @@ class SplashActivity : BaseActivity() {
     private fun setupAnimation() {
         val lottieView = findViewById<LottieAnimationView>(R.id.splashAnimation)
         
-        lottieView.setAnimation(R.raw.splash_animation)
+        lottieView.setAnimation(R.raw.splashscreen_animation)
         lottieView.repeatCount = 0
         lottieView.playAnimation()
         
