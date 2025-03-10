@@ -3,7 +3,9 @@
 <div align="center">
   <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" alt="Fokus-Kiyto Logo" width="120"/>
   <br>
-  <h3>Eine KI-gestützte Produktivitäts-App für Android</h3>
+  
+### Eine KI-gestützte Produktivitäts-App für Android
+
 </div>
 
 ## 📱 Über die App
