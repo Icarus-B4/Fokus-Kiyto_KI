@@ -356,14 +356,14 @@ class SettingsFragment : BaseFragment() {
         }
         
         // Hintergrund-Einstellung
-        view.findViewById<LinearLayout>(R.id.notification_background_setting)?.let { backgroundSetting ->
+        view.findViewById<LinearLayout>(R.id.theme_background_setting)?.let { backgroundSetting ->
             LogUtils.debug(this, "Hintergrund-Einstellung gefunden")
             backgroundSetting.setOnClickListener {
                 LogUtils.debug(this, "Hintergrund-Einstellung geklickt, starte Bild-Picker")
                 pickImage.launch("image/*")
             }
         } ?: run {
-            LogUtils.error(this, "Hintergrund-Einstellung nicht gefunden (notification_background_setting)")
+            LogUtils.error(this, "Hintergrund-Einstellung nicht gefunden (theme_background_setting)")
         }
 
         // Melodie-Einstellung

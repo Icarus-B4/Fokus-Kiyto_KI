@@ -327,33 +327,6 @@
                             android:layout_gravity="center_vertical" />
                     </LinearLayout>
 
-                    <!-- Hintergrund -->
-                    <LinearLayout
-                        android:id="@+id/notification_background_setting"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:orientation="horizontal"
-                        android:padding="8dp">
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:alpha="0.7"
-                            android:src="@drawable/ic_theme"
-                            app:tint="@color/white" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:alpha="0.7"
-                            android:text="@string/notification_background"
-                            android:textColor="@color/white" />
-                    </LinearLayout>
-
                     <!-- Melodie -->
                     <LinearLayout
                         android:id="@+id/notification_sound_setting"
@@ -443,22 +416,64 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#F10F0E0E"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:padding="16dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_theme"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="@string/theme"
-                    android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:textColor="@color/white" />
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_theme"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/theme"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+
+                <!-- Untermenü für Erscheinungsbild -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+
+                    <!-- Hintergrund -->
+                    <LinearLayout
+                        android:id="@+id/theme_background_setting"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:alpha="0.7"
+                            android:src="@drawable/ic_theme"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:alpha="0.7"
+                            android:text="@string/notification_background"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
