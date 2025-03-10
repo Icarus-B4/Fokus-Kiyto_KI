@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.deepcore.kiytoapp.AddTaskFragment
 import com.deepcore.kiytoapp.R
+import com.deepcore.kiytoapp.SettingsFragment
 import com.deepcore.kiytoapp.adapter.TimelineAdapter
 import com.deepcore.kiytoapp.databinding.FragmentDayVisualizerBinding
 import com.deepcore.kiytoapp.viewmodel.DayVisualizerViewModel
@@ -304,15 +305,52 @@ class DayVisualizerFragment : Fragment() {
     private fun setupCalendarButtons() {
         binding.apply {
             btnCalendarSettings.setOnClickListener {
-                showSnackbar("Kalender-Einstellungen")
+                // Öffne die Kalender-Einstellungen
+                val settingsFragment = SettingsFragment()
+                val args = Bundle()
+                args.putString("scroll_to", "calendar")
+                settingsFragment.arguments = args
+                
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.fade_in,
+                        R.anim.fade_out
+                    )
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragmentContainer, settingsFragment)
+                    .addToBackStack(null)
+                    .commit()
             }
             
             btnNotifications.setOnClickListener {
-                showSnackbar("Benachrichtigungen")
+                // Öffne die Benachrichtigungseinstellungen
+                val settingsFragment = SettingsFragment()
+                val args = Bundle()
+                args.putString("scroll_to", "notifications")
+                settingsFragment.arguments = args
+                
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.fade_in,
+                        R.anim.fade_out
+                    )
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragmentContainer, settingsFragment)
+                    .addToBackStack(null)
+                    .commit()
             }
             
             btnSettings.setOnClickListener {
-                showSnackbar("Einstellungen")
+                // Öffne die allgemeinen Einstellungen
+                parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.fade_in,
+                        R.anim.fade_out
+                    )
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragmentContainer, SettingsFragment())
+                    .addToBackStack(null)
+                    .commit()
             }
         }
     }

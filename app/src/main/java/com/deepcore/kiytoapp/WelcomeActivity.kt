@@ -27,7 +27,7 @@ class WelcomeActivity : BaseActivity() {
         welcomeAnimation = findViewById(R.id.welcomeAnimation)
         
         welcomeAnimation.apply {
-            setAnimation(R.raw.chat_animation)  // Animation aus dem raw Ordner
+            setAnimation(R.raw.wilkommen_animation)  // Animation aus dem raw Ordner
             playAnimation()
             repeatCount = LottieDrawable.INFINITE
             repeatMode = LottieDrawable.RESTART

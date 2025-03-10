@@ -1,7 +1,7 @@
 # 🚀 Fokus-Kiyto KI
 
 <div align="center">
-  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" alt="Fokus-Kiyto Logo" width="120"/>
+  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" alt="Fokus-Kiyto Logo" width="120"/>
   <br>
   <h3>Eine KI-gestützte Produktivitäts-App für Android</h3>
 </div>
@@ -43,17 +43,20 @@ Fokus-Kiyto KI ist eine moderne Produktivitäts-App, die fortschrittliche KI-Tec
 ## 🛠️ Setup
 
 1. Klone das Repository:
+
 ```bash
 git clone https://github.com/Icarus-B4/Fokus-Kiyto_KI.git
 cd Fokus-Kiyto_KI
 ```
 
 2. API-Key Konfiguration:
+
 - Kopiere `config.properties.example` zu `config.properties`
 - Füge deinen OpenAI API-Key in `config.properties` ein
 - Die Datei wird nicht ins Git-Repository aufgenommen
 
 3. Build und Installation:
+
 ```bash
 ./gradlew assembleDebug
 ```
@@ -61,6 +64,7 @@ cd Fokus-Kiyto_KI
 ## 🔑 API-Keys
 
 Die App benötigt einen OpenAI API-Key für die KI-Funktionen. Dieser kann auf zwei Arten konfiguriert werden:
+
 1. In der `config.properties` Datei
 2. In den App-Einstellungen
 
@@ -103,5 +107,5 @@ Projektlink: [https://github.com/DEIN_USERNAME/Fokus-Kiyto_KI](https://github.co
 ---
 
 <div align="center">
-  <sub>Mit ❤️ entwickelt in Berlin</sub>
-</div> 
+  <sub>Mit ❤️ entwickelt in Bern</sub>
+</div>

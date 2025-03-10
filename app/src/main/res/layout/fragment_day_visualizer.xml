@@ -6,7 +6,8 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#F60F0E0E">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,8 +31,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:paddingHorizontal="8dp"
                         android:paddingVertical="4dp">
 
@@ -41,9 +42,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="März 2025"
+                            android:textColor="@color/white"
                             android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/white" />
+                            android:textStyle="bold" />
 
                         <ImageButton
                             android:id="@+id/btnCalendarSettings"
@@ -73,22 +74,22 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Di"
-                                android:textSize="14sp"
-                                android:textColor="@color/gray_light" />
+                                android:textColor="@color/gray_light"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvDay1"
@@ -98,8 +99,8 @@
                                 android:background="@drawable/calendar_day_background"
                                 android:gravity="center"
                                 android:text="4"
-                                android:textSize="16sp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tvCounter1"
@@ -107,23 +108,23 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="0/20"
-                                android:textSize="12sp"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Mi"
-                                android:textSize="14sp"
-                                android:textColor="@color/gray_light" />
+                                android:textColor="@color/gray_light"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvDay2"
@@ -133,8 +134,8 @@
                                 android:background="@drawable/calendar_day_background"
                                 android:gravity="center"
                                 android:text="5"
-                                android:textSize="16sp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tvCounter2"
@@ -142,23 +143,23 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="0/20"
-                                android:textSize="12sp"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Do"
-                                android:textSize="14sp"
-                                android:textColor="@color/gray_light" />
+                                android:textColor="@color/gray_light"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvDay3"
@@ -168,8 +169,8 @@
                                 android:background="@drawable/calendar_day_background"
                                 android:gravity="center"
                                 android:text="6"
-                                android:textSize="16sp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tvCounter3"
@@ -177,23 +178,23 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="0/20"
-                                android:textSize="12sp"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Fr"
-                                android:textSize="14sp"
-                                android:textColor="@color/gray_light" />
+                                android:textColor="@color/gray_light"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvDay4"
@@ -203,8 +204,8 @@
                                 android:background="@drawable/calendar_day_background"
                                 android:gravity="center"
                                 android:text="7"
-                                android:textSize="16sp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tvCounter4"
@@ -212,23 +213,23 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="0/20"
-                                android:textSize="12sp"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Sa"
-                                android:textSize="14sp"
-                                android:textColor="@color/gray_light" />
+                                android:textColor="@color/gray_light"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvDay5"
@@ -238,8 +239,8 @@
                                 android:background="@drawable/calendar_day_background"
                                 android:gravity="center"
                                 android:text="8"
-                                android:textSize="16sp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tvCounter5"
@@ -247,23 +248,23 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="0/20"
-                                android:textSize="12sp"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="So"
-                                android:textSize="14sp"
-                                android:textColor="@color/gray_light" />
+                                android:textColor="@color/gray_light"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvDay6"
@@ -273,8 +274,8 @@
                                 android:background="@drawable/calendar_day_background_selected"
                                 android:gravity="center"
                                 android:text="9"
-                                android:textSize="16sp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tvCounter6"
@@ -282,23 +283,23 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="0/20"
-                                android:textSize="12sp"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Mo"
-                                android:textSize="14sp"
-                                android:textColor="@color/gray_light" />
+                                android:textColor="@color/gray_light"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvDay7"
@@ -308,8 +309,8 @@
                                 android:background="@drawable/calendar_day_background"
                                 android:gravity="center"
                                 android:text="10"
-                                android:textSize="16sp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tvCounter7"
@@ -317,8 +318,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="0/20"
-                                android:textSize="12sp"
-                                android:textColor="@color/gray" />
+                                android:textColor="@color/gray"
+                                android:textSize="12sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -331,9 +332,9 @@
                 android:layout_marginTop="32dp"
                 android:gravity="center"
                 android:text="Keine Aufgaben für diesen Tag"
+                android:textColor="@color/gray"
                 android:textSize="16sp"
                 android:textStyle="italic"
-                android:textColor="@color/gray"
                 android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView

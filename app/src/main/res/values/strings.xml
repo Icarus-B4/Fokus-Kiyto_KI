@@ -236,4 +236,17 @@
     <string name="x_tweeter">X-tweeter</string>
     <string name="e_mail">E-Mail:</string>
     <string name="day_visualizer">Tagesplaner</string>
+    <string name="calendar_settings">Kalender-Einstellungen</string>
+    <string name="calendar_sync">Kalender synchronisieren</string>
+    <string name="calendar_sync_description">Aufgaben mit dem Gerätekalender synchronisieren</string>
+    <string name="calendar_selection">Kalender auswählen</string>
+    <string name="calendar_permission_required">Kalender-Berechtigung erforderlich</string>
+    <string name="calendar_permission_message">Um Aufgaben mit dem Kalender zu synchronisieren, benötigt die App die Berechtigung für den Zugriff auf den Kalender.</string>
+    <string name="notification_task_complete">Aufgabe abgeschlossen</string>
+    <string name="notification_task_due">Aufgabe fällig</string>
+    <string name="notification_task_complete_message">Die Aufgabe \"%1$s\" wurde erfolgreich abgeschlossen.</string>
+    <string name="notification_task_due_message">Die Aufgabe \"%1$s\" ist jetzt fällig.</string>
+    <string name="notification_settings">Benachrichtigungseinstellungen</string>
+    <string name="notification_task_complete_enabled">Bei abgeschlossenen Aufgaben benachrichtigen</string>
+    <string name="notification_task_due_enabled">Bei fälligen Aufgaben benachrichtigen</string>
 </resources>

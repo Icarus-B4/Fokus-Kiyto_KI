@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F1121212"
+    android:background="#F7121212"
     android:padding="16dp">
 
     <com.google.android.material.tabs.TabLayout
