@@ -2,6 +2,7 @@ package com.deepcore.kiytoapp.update
 
 import android.content.Context
 import com.deepcore.kiytoapp.BuildConfig
+import com.deepcore.kiytoapp.R
 import com.deepcore.kiytoapp.util.LogUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,26 +31,23 @@ class UpdateManager(private val context: Context) {
 
     suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
         try {
-            val url = URL("$GITHUB_API_BASE/releases")
+            LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
+            val url = URL("$GITHUB_API_BASE/releases/latest")
             val connection = url.openConnection()
+            connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+            
             val response = connection.getInputStream().bufferedReader().use { it.readText() }
+            val release = JSONObject(response)
             
-            val releases = JSONObject(response).getJSONArray("releases")
-            if (releases.length() > 0) {
-                val latestRelease = releases.getJSONObject(0)
-                latestVersion = latestRelease.getString("tag_name").removePrefix("v")
-                updateDescription = latestRelease.getString("body")
-                updateUrl = latestRelease.getString("html_url")
-                
-                updateAvailable = compareVersions(BuildConfig.VERSION_NAME, latestVersion ?: "") < 0
-                saveUpdateStatus(Date())
-                
-                return@withContext updateAvailable
-            }
+            latestVersion = release.getString("tag_name").removePrefix("v")
+            updateDescription = release.getString("body")
+            updateUrl = release.getString("html_url")
             
-            updateAvailable = false
+            updateAvailable = compareVersions(BuildConfig.VERSION_NAME, latestVersion ?: "") < 0
             saveUpdateStatus(Date())
-            return@withContext false
+            
+            LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Verfügbar: $updateAvailable")
+            return@withContext updateAvailable
             
         } catch (e: Exception) {
             LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates", e)
