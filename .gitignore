@@ -57,3 +57,4 @@ secrets.properties
 
 # Build configuration
 app/release/
+kiyto-release-key.base64
