@@ -53,18 +53,28 @@ jobs:
           echo "Debug: Current directory"
           pwd
           
+          echo "Debug: Java version"
+          java -version
+          
           echo "Debug: Android SDK check"
           echo "ANDROID_HOME=$ANDROID_HOME"
           ls -la $ANDROID_HOME
+          
+          echo "Debug: Build tools check"
+          ls -la $ANDROID_HOME/build-tools/
           
           echo "Debug: Keystore location check"
           ls -la keystore/
           
           echo "Debug: Environment variables"
           env | grep SIGNING
+          env | grep OPENAI
           
           echo "Debug: Project directory check"
           ls -la
+          
+          echo "Debug: Gradle version"
+          ./gradlew --version
           
           echo "Debug: Gradle wrapper check"
           if [ ! -f gradlew ]; then
@@ -85,6 +95,8 @@ jobs:
           else
             echo "Warning: No gradle.properties found, creating default"
             echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
+            echo "android.useAndroidX=true" >> gradle.properties
+            echo "android.enableJetifier=true" >> gradle.properties
           fi
           
           echo "Debug: Local properties check"
@@ -96,13 +108,49 @@ jobs:
             echo "sdk.dir=$ANDROID_HOME" > local.properties
           fi
           
-          echo "Debug: Starting Gradle build"
-          ./gradlew clean assembleRelease --info --stacktrace || {
+          echo "Debug: Resource directory check"
+          echo "Checking res directory structure:"
+          ls -R app/src/main/res/
+          
+          echo "Debug: Raw resources check"
+          if [ -d app/src/main/res/raw ]; then
+            echo "Raw resources found:"
+            ls -la app/src/main/res/raw/
+          else
+            echo "Warning: Raw resources directory not found"
+          fi
+          
+          echo "Debug: Dependencies check"
+          ./gradlew app:dependencies --configuration releaseRuntimeClasspath
+          
+          echo "Debug: Build configuration check"
+          echo "Checking build.gradle.kts:"
+          if [ -f app/build.gradle.kts ]; then
+            echo "build.gradle.kts found"
+            grep -A 10 "buildTypes {" app/build.gradle.kts
+            grep -A 10 "signingConfigs {" app/build.gradle.kts
+          else
+            echo "Error: build.gradle.kts not found!"
+            exit 1
+          fi
+          
+          echo "Debug: Starting clean with info output"
+          ./gradlew clean --info
+          
+          echo "Debug: Starting Gradle build with full debug output"
+          ./gradlew assembleRelease --debug --stacktrace || {
             echo "Debug: Gradle build failed, checking logs"
+            echo "Debug: Gradle home directory"
+            ls -la $HOME/.gradle
+            
+            echo "Debug: Project build directory"
+            ls -la app/build
+            
             if [ -f app/build/outputs/logs/manifest-merger-release-report.txt ]; then
               echo "Manifest merger log:"
               cat app/build/outputs/logs/manifest-merger-release-report.txt
             fi
+            
             if [ -d app/build/reports ]; then
               echo "Build reports:"
               ls -R app/build/reports
@@ -111,6 +159,16 @@ jobs:
                 cat app/build/reports/lint-results-release.html
               fi
             fi
+            
+            echo "Debug: Gradle daemon logs"
+            if [ -d $HOME/.gradle/daemon ]; then
+              ls -la $HOME/.gradle/daemon
+              for log in $HOME/.gradle/daemon/*/*.out.log; do
+                echo "Log file: $log"
+                tail -n 100 "$log"
+              done
+            fi
+            
             exit 1
           }
           
