@@ -168,6 +168,9 @@ jobs:
               // Accompanist
               implementation("com.google.accompanist:accompanist-permissions:0.32.0")
               
+              // Lottie
+              implementation("com.airbnb.android:lottie:6.1.0")
+              
               // Testing
               testImplementation("junit:junit:4.13.2")
               androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -260,6 +263,30 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
               <string name="app_name">KiytoApp</string>
+              
+              <!-- Login Strings -->
+              <string name="welcome_title">Willkommen bei KiytoApp</string>
+              <string name="login_subtitle">Bitte melden Sie sich an, um fortzufahren</string>
+              <string name="email">E-Mail</string>
+              <string name="password">Passwort</string>
+              <string name="login">Anmelden</string>
+              <string name="register">Registrieren</string>
+              <string name="forgot_password">Passwort vergessen?</string>
+              
+              <!-- About Me Strings -->
+              <string name="web_content">Webseite</string>
+              <string name="x_tweeter">Twitter</string>
+              <string name="e_mail">E-Mail</string>
+              
+              <!-- AI Recommendations Strings -->
+              <string name="productivity_analysis">Produktivitätsanalyse</string>
+              <string name="focus_recommendations">Fokus-Empfehlungen</string>
+              <string name="task_optimization">Aufgabenoptimierung</string>
+              <string name="no_tasks_yet">Noch keine Aufgaben vorhanden</string>
+              
+              <!-- Chat Strings -->
+              <string name="message_hint">Nachricht eingeben...</string>
+              <string name="send_message">Senden</string>
           </resources>
           EOF
           
@@ -267,6 +294,12 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
               <style name="Theme.KiytoApp" parent="android:Theme.Material.Light.NoActionBar" />
+              
+              <!-- Material3 Styles -->
+              <style name="TextAppearance.Material3.TitleLarge" parent="android:TextAppearance.Large">
+                  <item name="android:textSize">22sp</item>
+                  <item name="android:textStyle">bold</item>
+              </style>
           </resources>
           EOF
 
@@ -307,6 +340,9 @@ jobs:
           # Room
           -keep class * extends androidx.room.RoomDatabase
           -dontwarn androidx.room.paging.**
+          
+          # Lottie
+          -keep class com.airbnb.android.** { *; }
           EOF
 
       - name: Setup Gradle Properties
@@ -436,4 +472,360 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Additional Layouts
+        run: |
+          # Create layout directory if it doesn't exist
+          mkdir -p app/src/main/res/layout
+          
+          # Create activity_main.xml
+          cat > app/src/main/res/layout/activity_main.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context=".MainActivity">
+          
+              <TextView
+                  android:id="@+id/welcomeTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/app_name"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/animationView"
+                  android:layout_width="200dp"
+                  android:layout_height="200dp"
+                  android:layout_marginTop="24dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/welcomeTextView"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_login.xml
+          cat > app/src/main/res/layout/activity_login.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <TextView
+                  android:id="@+id/titleTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="64dp"
+                  android:text="@string/welcome_title"
+                  android:textSize="24sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <TextView
+                  android:id="@+id/subtitleTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="8dp"
+                  android:text="@string/login_subtitle"
+                  android:textSize="16sp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
+          
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/animationView"
+                  android:layout_width="120dp"
+                  android:layout_height="120dp"
+                  android:layout_marginTop="16dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/subtitleTextView"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+          
+              <EditText
+                  android:id="@+id/emailEditText"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="24dp"
+                  android:hint="@string/email"
+                  android:inputType="textEmailAddress"
+                  android:padding="12dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/animationView"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+              <EditText
+                  android:id="@+id/passwordEditText"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:hint="@string/password"
+                  android:inputType="textPassword"
+                  android:padding="12dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/emailEditText"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+              <Button
+                  android:id="@+id/loginButton"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="24dp"
+                  android:text="@string/login"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+              <Button
+                  android:id="@+id/registerButton"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="8dp"
+                  android:text="@string/register"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/loginButton"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+              <TextView
+                  android:id="@+id/forgotPasswordTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:text="@string/forgot_password"
+                  android:textColor="#0000FF"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/registerButton" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_about_me.xml
+          cat > app/src/main/res/layout/activity_about_me.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <TextView
+                  android:id="@+id/titleTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:text="@string/app_name"
+                  android:textSize="24sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/profileAnimationView"
+                  android:layout_width="120dp"
+                  android:layout_height="120dp"
+                  android:layout_marginTop="24dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/success_animation" />
+          
+              <TextView
+                  android:id="@+id/webContentTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:text="@string/web_content"
+                  android:textSize="18sp"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/profileAnimationView" />
+          
+              <TextView
+                  android:id="@+id/twitterTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:text="@string/x_tweeter"
+                  android:textSize="18sp"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/webContentTextView" />
+          
+              <TextView
+                  android:id="@+id/emailTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:text="@string/e_mail"
+                  android:textSize="18sp"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/twitterTextView" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_ai_recommendations.xml
+          cat > app/src/main/res/layout/activity_ai_recommendations.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <TextView
+                  android:id="@+id/titleTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:text="@string/app_name"
+                  android:textSize="24sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/aiAnimationView"
+                  android:layout_width="100dp"
+                  android:layout_height="100dp"
+                  android:layout_marginTop="16dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+          
+              <TextView
+                  android:id="@+id/productivityAnalysisTextView"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:text="@string/productivity_analysis"
+                  android:textSize="18sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/aiAnimationView" />
+          
+              <TextView
+                  android:id="@+id/focusRecommendationsTextView"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="24dp"
+                  android:text="@string/focus_recommendations"
+                  android:textSize="18sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/productivityAnalysisTextView" />
+          
+              <TextView
+                  android:id="@+id/taskOptimizationTextView"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="24dp"
+                  android:text="@string/task_optimization"
+                  android:textSize="18sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/focusRecommendationsTextView" />
+          
+              <TextView
+                  android:id="@+id/noTasksTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/no_tasks_yet"
+                  android:textSize="16sp"
+                  android:visibility="gone"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_chat.xml
+          cat > app/src/main/res/layout/activity_chat.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/chatAnimationView"
+                  android:layout_width="80dp"
+                  android:layout_height="80dp"
+                  android:layout_marginTop="8dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+          
+              <androidx.recyclerview.widget.RecyclerView
+                  android:id="@+id/messagesRecyclerView"
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  android:layout_marginTop="8dp"
+                  android:layout_marginBottom="16dp"
+                  app:layout_constraintBottom_toTopOf="@+id/messageEditText"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/chatAnimationView" />
+          
+              <EditText
+                  android:id="@+id/messageEditText"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:hint="@string/message_hint"
+                  android:inputType="textMultiLine"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toStartOf="@+id/sendButton"
+                  app:layout_constraintStart_toStartOf="parent" />
+          
+              <Button
+                  android:id="@+id/sendButton"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="8dp"
+                  android:text="@string/send_message"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toEndOf="@+id/messageEditText" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF 
