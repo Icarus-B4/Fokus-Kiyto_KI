@@ -167,6 +167,97 @@ jobs:
           }
           EOF
 
+      - name: Create App Structure
+        run: |
+          # Create main directory structure
+          mkdir -p app/src/main/java/com/icarus/kiytoapp
+          mkdir -p app/src/main/res/layout
+          mkdir -p app/src/main/res/values
+          
+          # Create AndroidManifest.xml
+          cat > app/src/main/AndroidManifest.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:name=".KiytoApplication"
+                  android:allowBackup="true"
+                  android:icon="@mipmap/ic_launcher"
+                  android:label="@string/app_name"
+                  android:roundIcon="@mipmap/ic_launcher_round"
+                  android:supportsRtl="true"
+                  android:theme="@style/Theme.KiytoApp">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+          
+          # Create Application class
+          cat > app/src/main/java/com/icarus/kiytoapp/KiytoApplication.kt << 'EOF'
+          package com.icarus.kiytoapp
+          
+          import android.app.Application
+          import dagger.hilt.android.HiltAndroidApp
+          
+          @HiltAndroidApp
+          class KiytoApplication : Application()
+          EOF
+          
+          # Create MainActivity
+          cat > app/src/main/java/com/icarus/kiytoapp/MainActivity.kt << 'EOF'
+          package com.icarus.kiytoapp
+          
+          import android.os.Bundle
+          import androidx.activity.ComponentActivity
+          import androidx.activity.compose.setContent
+          import androidx.compose.material3.Text
+          import androidx.compose.runtime.Composable
+          import androidx.compose.ui.tooling.preview.Preview
+          import dagger.hilt.android.AndroidEntryPoint
+          
+          @AndroidEntryPoint
+          class MainActivity : ComponentActivity() {
+              override fun onCreate(savedInstanceState: Bundle?) {
+                  super.onCreate(savedInstanceState)
+                  setContent {
+                      MainScreen()
+                  }
+              }
+          }
+          
+          @Composable
+          fun MainScreen() {
+              Text(text = "Welcome to KiytoApp!")
+          }
+          
+          @Preview
+          @Composable
+          fun MainScreenPreview() {
+              MainScreen()
+          }
+          EOF
+          
+          # Create basic resources
+          cat > app/src/main/res/values/strings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <string name="app_name">KiytoApp</string>
+          </resources>
+          EOF
+          
+          cat > app/src/main/res/values/themes.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="Theme.KiytoApp" parent="android:Theme.Material.Light.NoActionBar" />
+          </resources>
+          EOF
+
       - name: Create Proguard Rules
         run: |
           cat > app/proguard-rules.pro << 'EOF'
