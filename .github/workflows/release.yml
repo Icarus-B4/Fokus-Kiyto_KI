@@ -167,10 +167,11 @@ jobs:
                   maven { url = uri("https://maven.google.com") }
                   maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
               }
-              versionCatalogs {
-                  register("libs") {
-                      from(files("gradle/libs.versions.toml"))
-                  }
+          }
+
+          dependencyResolutionManagement.versionCatalogs {
+              create("libs") {
+                  from(files("gradle/libs.versions.toml"))
               }
           }
 
@@ -200,6 +201,7 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           OPENAI_API_KEY: "dummy-key"
+          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
         run: |
           # Verify environment
           java -version
@@ -213,6 +215,11 @@ jobs:
           cat settings.gradle.kts
           cat build.gradle.kts
           
+          # Create gradle.properties for build scan
+          echo "gradle.enterprise.url=https://ge.gradle.org" >> gradle.properties
+          echo "gradle.enterprise.build.scan.terms-of-service-url=https://gradle.com/terms-of-service" >> gradle.properties
+          echo "gradle.enterprise.build.scan.terms-of-service-agree=yes" >> gradle.properties
+          
           # Clean and build
           ./gradlew clean assembleRelease --no-daemon --info --stacktrace \
             -Pandroid.useAndroidX=true \
@@ -224,10 +231,6 @@ jobs:
               echo "Manifest merger log:"
               cat app/build/outputs/logs/manifest-merger-release-report.txt
             fi
-            
-            echo "Gradle scan report..."
-            ./gradlew --stop
-            ./gradlew assembleRelease --scan
             
             exit 1
           }
