@@ -23,27 +23,54 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android Build Tools
+      - name: Install Android SDK Components
         run: |
-          yes | sdkmanager --install "build-tools;33.0.0"
+          echo "Installing Android SDK components..."
+          mkdir -p $ANDROID_HOME/cmdline-tools/latest
+          
+          echo "Installing build tools..."
+          yes | sdkmanager \
+            "platform-tools" \
+            "build-tools;33.0.0" \
+            "platforms;android-33" \
+            "extras;android;m2repository" \
+            "extras;google;m2repository"
+          
+          echo "Accepting licenses..."
           yes | sdkmanager --licenses
+          
+          echo "Setting build tools path..."
           echo "ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/33.0.0" >> $GITHUB_ENV
           echo "$ANDROID_HOME/build-tools/33.0.0" >> $GITHUB_PATH
+          
+          echo "Verifying installation..."
+          ls -la $ANDROID_HOME/build-tools/33.0.0/
+          $ANDROID_HOME/build-tools/33.0.0/aapt version
 
       - name: Setup Gradle
         run: |
           mkdir -p gradle
-          echo '[versions]' > gradle/libs.versions.toml
-          echo 'firebase-crashlytics-buildtools = "2.9.9"' >> gradle/libs.versions.toml
-          echo 'generativeai = "0.1.1"' >> gradle/libs.versions.toml
-          echo 'cronet-embedded = "119.6045.31"' >> gradle/libs.versions.toml
-          echo 'androidx-adapters = "1.0.0"' >> gradle/libs.versions.toml
-          echo '' >> gradle/libs.versions.toml
-          echo '[libraries]' >> gradle/libs.versions.toml
-          echo 'firebase-crashlytics-buildtools = { module = "com.google.firebase:firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }' >> gradle/libs.versions.toml
-          echo 'generativeai = { module = "com.google.ai.generativeai:generativeai", version.ref = "generativeai" }' >> gradle/libs.versions.toml
-          echo 'cronet-embedded = { module = "org.chromium.net:cronet-embedded", version.ref = "cronet-embedded" }' >> gradle/libs.versions.toml
-          echo 'androidx-adapters = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "androidx-adapters" }' >> gradle/libs.versions.toml
+          cat << EOF > gradle/libs.versions.toml
+[versions]
+firebase-crashlytics-buildtools = "2.9.9"
+generativeai = "0.1.1"
+cronet-embedded = "119.6045.31"
+androidx-adapters = "1.0.0"
+
+[libraries]
+firebase-crashlytics-buildtools = { module = "com.google.firebase:firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
+generativeai = { module = "com.google.ai.generativeai:generativeai", version.ref = "generativeai" }
+cronet-embedded = { module = "org.chromium.net:cronet-embedded", version.ref = "cronet-embedded" }
+androidx-adapters = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "androidx-adapters" }
+EOF
+
+      - name: Setup Gradle Properties
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" > gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.parallel=false" >> gradle.properties
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -68,35 +95,26 @@ jobs:
           SIGNING_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           OPENAI_API_KEY: "dummy-key"
         run: |
-          export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=512m -Dkotlin.daemon.jvm.options=-Xmx2g"
-          export JAVA_TOOL_OPTIONS="-Xmx4g"
-          
-          echo "Debug: Build environment"
+          # Verify environment
           java -version
           echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "GRADLE_OPTS=$GRADLE_OPTS"
-          echo "JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS"
+          echo "PATH=$PATH"
           
-          echo "Debug: Clean build"
-          ./gradlew clean --no-daemon --info
-          
-          echo "Debug: Assemble release"
-          ./gradlew assembleRelease --no-daemon --info \
-            --stacktrace \
+          # Clean and build
+          ./gradlew clean assembleRelease --no-daemon --info --stacktrace \
             -Pandroid.useAndroidX=true \
             -Pandroid.enableJetifier=true || {
             
-            echo "Debug: Build failed, checking logs"
+            echo "Build failed, checking logs..."
+            
             if [ -f app/build/outputs/logs/manifest-merger-release-report.txt ]; then
               echo "Manifest merger log:"
               cat app/build/outputs/logs/manifest-merger-release-report.txt
             fi
             
-            echo "Debug: Gradle properties"
-            find . -name "gradle.properties" -exec cat {} \;
-            
-            echo "Debug: Memory usage"
-            free -h
+            echo "Gradle scan report..."
+            ./gradlew --stop
+            ./gradlew assembleRelease --scan
             
             exit 1
           }
@@ -110,7 +128,7 @@ jobs:
         run: |
           set -e
           
-          echo "Debug: Signing APK"
+          echo "Signing APK..."
           $BUILD_TOOLS_PATH/zipalign -v -p 4 \
             app/build/outputs/apk/release/app-release-unsigned.apk \
             app/build/outputs/apk/release/app-release-aligned.apk
