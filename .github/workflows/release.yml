@@ -74,6 +74,138 @@ jobs:
           }
           EOF
 
+      - name: Create App build.gradle
+        run: |
+          mkdir -p app
+          cat > app/build.gradle.kts << 'EOF'
+          plugins {
+              alias(libs.plugins.androidApplication)
+              alias(libs.plugins.kotlinAndroid)
+              alias(libs.plugins.kotlinKapt)
+              alias(libs.plugins.hilt)
+              alias(libs.plugins.navigation.safeargs)
+          }
+
+          android {
+              namespace = "com.icarus.kiytoapp"
+              compileSdk = 34
+
+              defaultConfig {
+                  applicationId = "com.icarus.kiytoapp"
+                  minSdk = 24
+                  targetSdk = 34
+                  versionCode = 1
+                  versionName = "1.0"
+                  testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+              }
+
+              buildTypes {
+                  release {
+                      isMinifyEnabled = true
+                      isShrinkResources = true
+                      proguardFiles(
+                          getDefaultProguardFile("proguard-android-optimize.txt"),
+                          "proguard-rules.pro"
+                      )
+                  }
+              }
+
+              buildFeatures {
+                  compose = true
+                  buildConfig = true
+              }
+
+              composeOptions {
+                  kotlinCompilerExtensionVersion = "1.5.8"
+              }
+
+              compileOptions {
+                  sourceCompatibility = JavaVersion.VERSION_17
+                  targetCompatibility = JavaVersion.VERSION_17
+              }
+
+              kotlinOptions {
+                  jvmTarget = "17"
+              }
+
+              packaging {
+                  resources {
+                      excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                  }
+              }
+          }
+
+          dependencies {
+              implementation(libs.core.ktx)
+              implementation(libs.lifecycle.runtime.ktx)
+              implementation(libs.activity.compose)
+              implementation(platform(libs.compose.bom))
+              implementation(libs.ui)
+              implementation(libs.ui.graphics)
+              implementation(libs.ui.tooling.preview)
+              implementation(libs.material3)
+              implementation(libs.navigation.fragment)
+              implementation(libs.navigation.ui)
+              implementation(libs.bundles.room)
+              implementation(libs.hilt.android)
+              implementation(libs.bundles.retrofit)
+              implementation(libs.coil)
+              implementation(libs.coil.compose)
+              implementation(libs.accompanist.permissions)
+              implementation(libs.generativeai)
+
+              kapt(libs.hilt.compiler)
+              kapt(libs.room.compiler)
+
+              testImplementation(libs.junit)
+              androidTestImplementation(libs.androidx.test.ext.junit)
+              androidTestImplementation(libs.espresso.core)
+              androidTestImplementation(platform(libs.compose.bom))
+              androidTestImplementation(libs.ui.test.junit4)
+              debugImplementation(libs.ui.tooling)
+              debugImplementation(libs.ui.test.manifest)
+          }
+          EOF
+
+      - name: Create Proguard Rules
+        run: |
+          cat > app/proguard-rules.pro << 'EOF'
+          # Allgemeine Android Regeln
+          -keepattributes *Annotation*
+          -keepattributes SourceFile,LineNumberTable
+          -keep public class * extends java.lang.Exception
+          -keep class com.icarus.kiytoapp.data.** { *; }
+          -keep class com.icarus.kiytoapp.domain.** { *; }
+          
+          # Retrofit
+          -keepattributes Signature
+          -keepattributes Exceptions
+          -keep class retrofit2.** { *; }
+          -keepclasseswithmembers class * {
+              @retrofit2.http.* <methods>;
+          }
+          
+          # OkHttp
+          -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
+          -dontwarn org.codehaus.mojo.animal_sniffer.*
+          -dontwarn okhttp3.internal.platform.**
+          
+          # Gson
+          -keepattributes Signature
+          -keepattributes *Annotation*
+          -dontwarn sun.misc.**
+          -keep class com.google.gson.** { *; }
+          
+          # Hilt
+          -keepclasseswithmembers class * {
+              @dagger.* <methods>;
+          }
+          
+          # Room
+          -keep class * extends androidx.room.RoomDatabase
+          -dontwarn androidx.room.paging.**
+          EOF
+
       - name: Setup Gradle Properties
         run: |
           echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" > gradle.properties
