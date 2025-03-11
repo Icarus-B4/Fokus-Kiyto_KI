@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.deepcore.kiytoapp">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.APP_CALENDAR" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.APP_MUSIC" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.RINGTONE_PICKER" />
+        </intent>
+        <package android:name="com.samsung.android.calendar" />
+        <package android:name="com.samsung.android.app.music" />
+        <package android:name="com.sec.android.app.music" />
+    </queries>
+
+    <application
+        android:name=".KiytoApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.KiytoApp"
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="31">
+        
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.App.Starting"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar"/>
+
+        <activity
+            android:name=".auth.LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar"/>
+
+        <activity
+            android:name=".auth.RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar" />
+
+        <activity
+            android:name=".VideoSummaryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp"/>
+
+        <activity
+            android:name=".ResultsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar"/>
+
+        <activity
+            android:name=".SavedSummariesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar"/>
+
+        <activity
+            android:name=".NewTaskActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar"/>
+
+        <activity
+            android:name=".MindMapActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp"/>
+
+        <activity
+            android:name=".ai.AIRecommendationsActivity"
+            android:exported="false"
+            android:label="@string/ai_recommendations"
+            android:theme="@style/Theme.KiytoApp.AIRecommendations"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".debug.DebugActivity"
+            android:exported="false"
+            android:label="Debug Logs"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AboutMeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KiytoApp.NoActionBar" />
+            
+        <!-- Service für Aufgaben-Benachrichtigungen -->
+        <service
+            android:name=".services.TaskNotificationService"
+            android:enabled="true"
+            android:exported="false" />
+            
+        <!-- Receiver für Aufgaben-Benachrichtigungen -->
+        <receiver
+            android:name=".services.TaskDueCheckReceiver"
+            android:enabled="true"
+            android:exported="false" />
+            
+        <!-- Receiver für Gerätestart -->
+        <receiver
+            android:name=".services.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
