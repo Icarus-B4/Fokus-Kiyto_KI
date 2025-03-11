@@ -50,36 +50,31 @@ jobs:
       - name: Setup Gradle
         run: |
           mkdir -p gradle
-          cat << 'EOF' > gradle/libs.versions.toml
-            [versions]
-            firebase-crashlytics-buildtools = "2.9.9"
-            generativeai = "0.2.2"
-            cronet-embedded = "119.6045.31"
-            androidx-adapters = "3.5.1"
+          echo '[versions]' > gradle/libs.versions.toml
+          echo 'firebase-crashlytics-buildtools = "2.9.9"' >> gradle/libs.versions.toml
+          echo 'generativeai = "0.2.2"' >> gradle/libs.versions.toml
+          echo 'cronet-embedded = "119.6045.31"' >> gradle/libs.versions.toml
+          echo 'androidx-adapters = "3.5.1"' >> gradle/libs.versions.toml
+          echo '' >> gradle/libs.versions.toml
+          echo '[libraries]' >> gradle/libs.versions.toml
+          echo 'firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }' >> gradle/libs.versions.toml
+          echo 'generativeai = { group = "com.google.ai.generativeai", name = "generativeai", version.ref = "generativeai" }' >> gradle/libs.versions.toml
+          echo 'cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }' >> gradle/libs.versions.toml
+          echo 'androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }' >> gradle/libs.versions.toml
 
-            [libraries]
-            firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
-            generativeai = { group = "com.google.ai.generativeai", name = "generativeai", version.ref = "generativeai" }
-            cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }
-            androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }
-          EOF
-
-          # Setup repositories
-          cat << 'EOF' > settings.gradle.kts
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        maven { url = uri("https://jitpack.io") }
-        maven { url = uri("https://maven.google.com") }
-        maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
-    }
-}
-
-rootProject.name = "KiytoApp"
-include(":app")
-EOF
+          echo 'dependencyResolutionManagement {' > settings.gradle.kts
+          echo '    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)' >> settings.gradle.kts
+          echo '    repositories {' >> settings.gradle.kts
+          echo '        google()' >> settings.gradle.kts
+          echo '        mavenCentral()' >> settings.gradle.kts
+          echo '        maven { url = uri("https://jitpack.io") }' >> settings.gradle.kts
+          echo '        maven { url = uri("https://maven.google.com") }' >> settings.gradle.kts
+          echo '        maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }' >> settings.gradle.kts
+          echo '    }' >> settings.gradle.kts
+          echo '}' >> settings.gradle.kts
+          echo '' >> settings.gradle.kts
+          echo 'rootProject.name = "KiytoApp"' >> settings.gradle.kts
+          echo 'include(":app")' >> settings.gradle.kts
 
       - name: Setup Gradle Properties
         run: |
