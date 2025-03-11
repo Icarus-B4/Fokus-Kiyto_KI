@@ -64,6 +64,7 @@ jobs:
               id("org.jetbrains.kotlin.android") version "1.9.22" apply false
               id("org.jetbrains.kotlin.jvm") version "1.9.22" apply false
               id("androidx.navigation.safeargs.kotlin") version "2.7.7" apply false
+              id("com.google.dagger.hilt.android") version "2.50" apply false
           }
           EOF
 
@@ -319,6 +320,37 @@ jobs:
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.parallel=false" >> gradle.properties
 
+      - name: Setup Settings Gradle
+        run: |
+          cat > settings.gradle.kts << 'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google() {
+                      content {
+                          // Explicitly include androidx.navigation
+                          includeGroupByRegex("androidx\\.navigation.*")
+                      }
+                  }
+                  mavenCentral()
+                  maven { url = uri("https://jitpack.io") }
+                  maven { url = uri("https://maven.google.com") }
+                  maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
+              }
+          }
+
+          rootProject.name = "KiytoApp"
+          include(":app")
+          EOF
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -408,34 +440,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-
-      - name: Setup Settings Gradle
-        run: |
-          cat > settings.gradle.kts << 'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google() {
-                      content {
-                          // Explicitly include androidx.navigation
-                          includeGroupByRegex("androidx\\.navigation.*")
-                      }
-                  }
-                  mavenCentral()
-                  maven { url = uri("https://jitpack.io") }
-                  maven { url = uri("https://maven.google.com") }
-                  maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
-              }
-          }
-
-          rootProject.name = "KiytoApp"
-          include(":app")
-          EOF 
