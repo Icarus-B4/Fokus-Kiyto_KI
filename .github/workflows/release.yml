@@ -28,10 +28,18 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Decode Keystore
+      - name: Create Keystore
         run: |
-          echo "${{ secrets.SIGNING_KEY }}" > keystore.jks.base64
-          base64 -d keystore.jks.base64 > app/release.keystore
+          mkdir -p app/keystore
+          keytool -genkey -v \
+            -keystore app/keystore/release.keystore \
+            -alias ${{ secrets.KEY_ALIAS }} \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass ${{ secrets.KEY_STORE_PASSWORD }} \
+            -keypass ${{ secrets.KEY_PASSWORD }} \
+            -dname "CN=KiytoApp, OU=Development, O=Icarus-B4, L=Unknown, S=Unknown, C=DE"
 
       - name: Build Release APK
         run: ./gradlew assembleRelease
@@ -43,7 +51,7 @@ jobs:
       - name: Sign APK
         run: |
           zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-aligned.apk
-          apksigner sign --ks app/release.keystore \
+          apksigner sign --ks app/keystore/release.keystore \
             --ks-key-alias ${{ secrets.KEY_ALIAS }} \
             --ks-pass pass:${{ secrets.KEY_STORE_PASSWORD }} \
             --key-pass pass:${{ secrets.KEY_PASSWORD }} \
