@@ -94,6 +94,28 @@ jobs:
           echo "Debug: Project structure"
           tree -L 3 || ls -R
           
+          echo "Debug: Version catalog check"
+          if [ -f gradle/libs.versions.toml ]; then
+            echo "Version catalog found:"
+            cat gradle/libs.versions.toml
+          else
+            echo "Warning: No version catalog found, creating default"
+            mkdir -p gradle
+            cat << EOF > gradle/libs.versions.toml
+[versions]
+firebase-crashlytics-buildtools = "2.9.9"
+generativeai = "0.1.1"
+cronet-embedded = "119.6045.31"
+androidx-adapters = "1.0.0"
+
+[libraries]
+firebase-crashlytics-buildtools = { module = "com.google.firebase:firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
+generativeai = { module = "com.google.ai.generativeai:generativeai", version.ref = "generativeai" }
+cronet-embedded = { module = "org.chromium.net:cronet-embedded", version.ref = "cronet-embedded" }
+androidx-adapters = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "androidx-adapters" }
+EOF
+          fi
+          
           echo "Debug: Gradle wrapper properties"
           if [ -f gradle/wrapper/gradle-wrapper.properties ]; then
             echo "Gradle wrapper properties content:"
@@ -153,43 +175,43 @@ jobs:
           ./gradlew clean --info
           
           echo "Debug: Starting Gradle build with full debug output"
-          ./gradlew assembleRelease \
-            --debug \
+          export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=512m -Dkotlin.daemon.jvm.options=-Xmx2g"
+          export JAVA_TOOL_OPTIONS="-Xmx4g"
+          
+          ./gradlew --no-daemon --info clean
+          ./gradlew --no-daemon --info assembleRelease \
             --stacktrace \
             --scan \
             -Dorg.gradle.debug=true \
-            -Dorg.gradle.daemon=false \
             -Dorg.gradle.parallel=false \
-            -Dorg.gradle.configureondemand=false || {
-            echo "Debug: Gradle build failed, checking logs"
-            echo "Debug: Gradle home directory"
-            ls -la $HOME/.gradle
+            -Dorg.gradle.configureondemand=false \
+            -Pandroid.useAndroidX=true \
+            -Pandroid.enableJetifier=true || {
             
-            echo "Debug: Project build directory"
-            ls -la app/build
+            echo "Debug: Build failed, checking additional logs"
             
-            if [ -f app/build/outputs/logs/manifest-merger-release-report.txt ]; then
-              echo "Manifest merger log:"
-              cat app/build/outputs/logs/manifest-merger-release-report.txt
-            fi
+            echo "Debug: Checking for common build issues"
+            echo "1. Checking Android SDK packages:"
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
             
-            if [ -d app/build/reports ]; then
-              echo "Build reports:"
-              ls -R app/build/reports
-              if [ -f app/build/reports/lint-results-release.html ]; then
-                echo "Lint report:"
-                cat app/build/reports/lint-results-release.html
-              fi
-            fi
+            echo "2. Checking Gradle dependencies:"
+            ./gradlew --no-daemon app:dependencies > dependencies.txt
+            echo "Dependencies written to dependencies.txt"
             
-            echo "Debug: Gradle daemon logs"
-            if [ -d $HOME/.gradle/daemon ]; then
-              ls -la $HOME/.gradle/daemon
-              for log in $HOME/.gradle/daemon/*/*.out.log; do
-                echo "Log file: $log"
-                tail -n 100 "$log"
-              done
-            fi
+            echo "3. Checking Android manifest:"
+            cat app/src/main/AndroidManifest.xml
+            
+            echo "4. Checking build cache:"
+            ls -la $HOME/.gradle/caches
+            
+            echo "5. Checking Gradle properties:"
+            find . -name "gradle.properties" -exec cat {} \;
+            
+            echo "6. Memory usage during build:"
+            free -h
+            
+            echo "7. Disk space:"
+            df -h
             
             exit 1
           }
