@@ -105,6 +105,9 @@ class SettingsFragment : BaseFragment() {
                     getString(R.string.notification_background_updated),
                     Toast.LENGTH_SHORT
                 ).show()
+                
+                // Zeige eine Test-Benachrichtigung
+                notificationHelper.showTestNotification()
             } catch (e: Exception) {
                 LogUtils.error(this, "Fehler beim Aktualisieren des Hintergrundbilds", e)
                 Toast.makeText(
@@ -359,8 +362,51 @@ class SettingsFragment : BaseFragment() {
         view.findViewById<LinearLayout>(R.id.theme_background_setting)?.let { backgroundSetting ->
             LogUtils.debug(this, "Hintergrund-Einstellung gefunden")
             backgroundSetting.setOnClickListener {
-                LogUtils.debug(this, "Hintergrund-Einstellung geklickt, starte Bild-Picker")
-                pickImage.launch("image/*")
+                LogUtils.debug(this, "Hintergrund-Einstellung geklickt, zeige Optionen")
+                
+                // Dialog mit Optionen anzeigen
+                val options = arrayOf(
+                    getString(R.string.wallpaper_selector),
+                    getString(R.string.choose_image)
+                )
+                
+                AlertDialog.Builder(requireContext())
+                    .setTitle(getString(R.string.notification_background))
+                    .setItems(options) { _, which ->
+                        when (which) {
+                            0 -> {
+                                // Wallpaper-Auswähler anzeigen
+                                val dialog = com.deepcore.kiytoapp.settings.WallpaperSelectorDialog.newInstance()
+                                dialog.setWallpaperSelectedListener(object : com.deepcore.kiytoapp.settings.WallpaperSelectorDialog.WallpaperSelectedListener {
+                                    override fun onWallpaperSelected(wallpaperId: Int) {
+                                        LogUtils.debug(this@SettingsFragment, "Wallpaper ausgewählt: $wallpaperId")
+                                        
+                                        // Speichere die Wallpaper-ID als Hintergrundbild-Pfad
+                                        notificationSettingsManager.backgroundImagePath = "drawable://$wallpaperId"
+                                        
+                                        // Aktualisiere den Benachrichtigungskanal
+                                        notificationHelper.createNotificationChannel()
+                                        
+                                        Toast.makeText(
+                                            requireContext(),
+                                            getString(R.string.notification_background_updated),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        
+                                        // Zeige eine Test-Benachrichtigung
+                                        notificationHelper.showTestNotification()
+                                    }
+                                })
+                                dialog.show(parentFragmentManager, "wallpaper_selector")
+                            }
+                            1 -> {
+                                // Bild-Picker starten
+                                LogUtils.debug(this, "Starte Bild-Picker")
+                                pickImage.launch("image/*")
+                            }
+                        }
+                    }
+                    .show()
             }
         } ?: run {
             LogUtils.error(this, "Hintergrund-Einstellung nicht gefunden (theme_background_setting)")

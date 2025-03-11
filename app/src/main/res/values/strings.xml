@@ -249,4 +249,12 @@
     <string name="notification_settings">Benachrichtigungseinstellungen</string>
     <string name="notification_task_complete_enabled">Bei abgeschlossenen Aufgaben benachrichtigen</string>
     <string name="notification_task_due_enabled">Bei fälligen Aufgaben benachrichtigen</string>
+    <string name="select_wallpaper">Hintergrund auswählen</string>
+    <string name="dark_red">Dunkelrot</string>
+    <string name="black_yellow">Schwarz-Gelb</string>
+    <string name="black_dark">Schwarz-Dunkel</string>
+    <string name="dark_blue">Dunkelblau</string>
+    <string name="dark_purple">Dunkelviolett</string>
+    <string name="wallpaper_selector">Wallpaper auswählen</string>
+    <string name="choose_image">Eigenes Bild auswählen</string>
 </resources>

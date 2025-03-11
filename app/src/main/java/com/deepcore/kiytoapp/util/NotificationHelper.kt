@@ -14,6 +14,8 @@ import com.deepcore.kiytoapp.MainActivity
 import com.deepcore.kiytoapp.R
 import com.deepcore.kiytoapp.settings.NotificationSettingsManager
 import android.widget.Toast
+import android.graphics.Bitmap
+import android.graphics.Canvas
 
 class NotificationHelper(private val context: Context) {
     
@@ -154,6 +156,61 @@ class NotificationHelper(private val context: Context) {
                 notificationBuilder.setSound(soundUri)
                 LogUtils.debug(this, "Sound für Benachrichtigung explizit gesetzt: $soundUri")
             }
+            
+            // Setze den Hintergrund, wenn vorhanden
+            val backgroundPath = settingsManager.backgroundImagePath
+            if (!backgroundPath.isNullOrEmpty()) {
+                LogUtils.debug(this, "Versuche Hintergrundbild zu setzen: $backgroundPath")
+                
+                // Prüfe, ob es sich um eine Drawable-Ressource handelt
+                if (backgroundPath.startsWith("drawable://")) {
+                    try {
+                        val resourceId = backgroundPath.substringAfter("drawable://").toInt()
+                        LogUtils.debug(this, "Verwende Drawable-Ressource mit ID: $resourceId")
+                        
+                        // Konvertiere die Drawable-Ressource in ein Bitmap
+                        val drawable = context.resources.getDrawable(resourceId, null)
+                        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+                        val canvas = Canvas(bitmap)
+                        drawable.setBounds(0, 0, canvas.width, canvas.height)
+                        drawable.draw(canvas)
+                        
+                        // Setze den Hintergrund als Drawable-Ressource
+                        notificationBuilder.setStyle(
+                            NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .bigLargeIcon(null as android.graphics.Bitmap?)
+                        )
+                        
+                        // Setze die Hintergrundfarbe basierend auf der Ressource
+                        when (resourceId) {
+                            R.drawable.bg_dark_red -> notificationBuilder.setColor(context.getColor(android.R.color.holo_red_dark))
+                            R.drawable.bg_black_yellow -> notificationBuilder.setColor(context.getColor(android.R.color.holo_orange_dark))
+                            R.drawable.bg_black_dark -> notificationBuilder.setColor(context.getColor(android.R.color.darker_gray))
+                            R.drawable.bg_dark_blue -> notificationBuilder.setColor(context.getColor(android.R.color.holo_blue_dark))
+                            R.drawable.bg_dark_purple -> notificationBuilder.setColor(context.getColor(android.R.color.holo_purple))
+                        }
+                    } catch (e: Exception) {
+                        LogUtils.error(this, "Fehler beim Setzen des Drawable-Hintergrunds", e)
+                    }
+                } else {
+                    // Versuche, den Hintergrund als URI zu setzen
+                    try {
+                        val backgroundUri = Uri.parse(backgroundPath)
+                        LogUtils.debug(this, "Verwende Hintergrund-URI: $backgroundUri")
+                        
+                        // Setze den Hintergrund als Bild
+                        val bitmap = android.provider.MediaStore.Images.Media.getBitmap(context.contentResolver, backgroundUri)
+                        notificationBuilder.setStyle(
+                            NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .bigLargeIcon(null as android.graphics.Bitmap?)
+                        )
+                    } catch (e: Exception) {
+                        LogUtils.error(this, "Fehler beim Setzen des Hintergrundbilds", e)
+                    }
+                }
+            }
                 
             val notification = notificationBuilder.build()
             
@@ -232,11 +289,11 @@ class NotificationHelper(private val context: Context) {
     }
     
     /**
-     * Sendet eine Test-Benachrichtigung, um den aktuellen Sound zu testen
+     * Sendet eine Test-Benachrichtigung, um den aktuellen Sound und Hintergrund zu testen
      */
-    private fun showTestNotification() {
+    fun showTestNotification() {
         showTimerCompleteNotification(
-            "Benachrichtigungston wurde aktualisiert",
+            "Benachrichtigungseinstellungen aktualisiert",
             "Dies ist eine Test-Benachrichtigung"
         )
     }

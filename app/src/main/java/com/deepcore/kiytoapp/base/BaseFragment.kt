@@ -39,8 +39,23 @@ open class BaseFragment : Fragment() {
             // Setze zuerst das Standard-Hintergrundbild, um sicherzustellen, dass immer ein Hintergrund vorhanden ist
             view.setBackgroundResource(R.drawable.default_focus_background)
             
+            // Aktualisiere die Toolbar mit dem Standard-Hintergrund
+            updateToolbarBackground(R.drawable.default_focus_background)
+            
             notificationSettingsManager.backgroundImagePath?.let { path ->
                 try {
+                    // Prüfe, ob es sich um eine Drawable-Ressource handelt
+                    if (path.startsWith("drawable://")) {
+                        val resourceId = path.substringAfter("drawable://").toInt()
+                        view.setBackgroundResource(resourceId)
+                        
+                        // Aktualisiere die Toolbar mit dem ausgewählten Hintergrund
+                        updateToolbarBackground(resourceId)
+                        
+                        return@let
+                    }
+                    
+                    // Es handelt sich um einen URI
                     val uri = android.net.Uri.parse(path)
                     
                     Glide.with(context.applicationContext) // Verwende applicationContext, um Lifecycle-Probleme zu vermeiden
@@ -53,21 +68,71 @@ open class BaseFragment : Fragment() {
                             ) {
                                 if (isAdded && !isDetached) { // Prüfe, ob das Fragment noch angehängt ist
                                     view.background = resource
+                                    
+                                    // Aktualisiere die Toolbar mit dem ausgewählten Hintergrund
+                                    updateToolbarWithDrawable(resource)
                                 }
                             }
 
                             override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {
                                 if (isAdded && !isDetached) { // Prüfe, ob das Fragment noch angehängt ist
                                     view.setBackgroundResource(R.drawable.default_focus_background)
+                                    
+                                    // Aktualisiere die Toolbar mit dem Standard-Hintergrund
+                                    updateToolbarBackground(R.drawable.default_focus_background)
                                 }
                             }
                         })
                 } catch (e: Exception) {
-                    Log.e("BaseFragment", "Fehler beim Laden des Hintergrundbilds", e)
+                    Log.e("BaseFragment", "Fehler beim Laden des Hintergrundbilds: ${e.message}", e)
+                    // Bei einem Fehler setzen wir den Standard-Hintergrund
+                    view.setBackgroundResource(R.drawable.default_focus_background)
+                    
+                    // Aktualisiere die Toolbar mit dem Standard-Hintergrund
+                    updateToolbarBackground(R.drawable.default_focus_background)
                 }
             }
         } catch (e: Exception) {
             Log.e("BaseFragment", "Fehler beim Aktualisieren des Hintergrundbilds", e)
+        }
+    }
+
+    /**
+     * Aktualisiert die Toolbar mit dem angegebenen Hintergrund-Ressourcen-ID.
+     */
+    protected fun updateToolbarBackground(resourceId: Int) {
+        try {
+            val activity = activity as? androidx.appcompat.app.AppCompatActivity ?: return
+            activity.supportActionBar?.let { actionBar ->
+                actionBar.setBackgroundDrawable(resources.getDrawable(resourceId, activity.theme))
+            }
+            
+            // Setze die Statusleiste immer auf schwarz
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                activity.window.statusBarColor = resources.getColor(android.R.color.black, activity.theme)
+            }
+        } catch (e: Exception) {
+            Log.e("BaseFragment", "Fehler beim Aktualisieren der Toolbar", e)
+        }
+    }
+
+    /**
+     * Aktualisiert die Toolbar mit dem angegebenen Drawable.
+     */
+    protected fun updateToolbarWithDrawable(drawable: android.graphics.drawable.Drawable) {
+        try {
+            val activity = activity as? androidx.appcompat.app.AppCompatActivity ?: return
+            val newDrawable = drawable.constantState?.newDrawable()?.mutate()
+            if (newDrawable != null) {
+                activity.supportActionBar?.setBackgroundDrawable(newDrawable)
+            }
+            
+            // Setze die Statusleiste immer auf schwarz
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                activity.window.statusBarColor = resources.getColor(android.R.color.black, activity.theme)
+            }
+        } catch (e: Exception) {
+            Log.e("BaseFragment", "Fehler beim Aktualisieren der Toolbar mit Drawable", e)
         }
     }
 
