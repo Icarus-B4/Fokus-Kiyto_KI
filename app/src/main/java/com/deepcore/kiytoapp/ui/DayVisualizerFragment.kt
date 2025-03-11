@@ -77,18 +77,20 @@ class DayVisualizerFragment : Fragment() {
         
         // Beobachte die Timeline-Items
         viewModel.timelineItems.observe(viewLifecycleOwner) { items ->
-            timelineAdapter.submitList(items)
-            
-            // Zeige eine Nachricht an, wenn keine Aufgaben vorhanden sind
-            binding.emptyStateMessage.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
-            binding.timelineRecyclerView.visibility = if (items.isEmpty()) View.GONE else View.VISIBLE
-            
             if (items.isEmpty()) {
+                // Wenn keine Aufgaben vorhanden sind, lade Beispieldaten
                 loadSampleData()
+            } else {
+                // Wenn Aufgaben vorhanden sind, zeige sie an
+                timelineAdapter.submitList(items)
+                
+                // Aktualisiere die Counter unter den Tagen
+                updateTaskCounters(items)
             }
             
-            // Aktualisiere die Counter unter den Tagen
-            updateTaskCounters(items)
+            // Die RecyclerView ist immer sichtbar, die Nachricht immer ausgeblendet
+            binding.timelineRecyclerView.visibility = View.VISIBLE
+            binding.emptyStateMessage.visibility = View.GONE
         }
         
         // Setze einen Klick-Listener auf den gesamten Fragment-Container
@@ -234,6 +236,9 @@ class DayVisualizerFragment : Fragment() {
     }
     
     private fun updateTaskCounters(tasks: List<TimelineItem>) {
+        // Wenn keine Aufgaben vorhanden sind, mache nichts
+        if (tasks.isEmpty()) return
+        
         // Zähle die Aufgaben pro Tag
         val calendar = Calendar.getInstance()
         val taskCounters = IntArray(7) { 0 }
@@ -252,17 +257,18 @@ class DayVisualizerFragment : Fragment() {
                 Calendar.SATURDAY -> 4
                 Calendar.SUNDAY -> 5
                 Calendar.MONDAY -> 6
-                else -> -1
+                else -> -1 // Ungültiger Tag
             }
             
+            // Erhöhe den Zähler für den entsprechenden Tag
             if (dayIndex >= 0) {
                 taskCounters[dayIndex]++
             }
         }
         
-        // Aktualisiere die Counter-Texte
+        // Aktualisiere die Zähler in der UI
         val counterViews = listOf(
-            binding.tvCounter1, binding.tvCounter2, binding.tvCounter3, 
+            binding.tvCounter1, binding.tvCounter2, binding.tvCounter3,
             binding.tvCounter4, binding.tvCounter5, binding.tvCounter6, binding.tvCounter7
         )
         
@@ -408,7 +414,7 @@ class DayVisualizerFragment : Fragment() {
                 title = "Aufwachen",
                 startTime = wakeUpTime,
                 endTime = null,
-                completed = true,
+                completed = false,
                 type = TimelineItemType.HABIT
             ),
             TimelineItem(
@@ -421,8 +427,12 @@ class DayVisualizerFragment : Fragment() {
             )
         )
         
-        // Speichere die Beispieldaten in der Datenbank
-        viewModel.saveSampleTimelineItems(sampleItems)
+        // Setze die Beispieldaten direkt im ViewModel, ohne sie in der Datenbank zu speichern
+        viewModel.setSampleTimelineItems(sampleItems)
+        
+        // Zeige die RecyclerView an, da wir jetzt Daten haben
+        binding.timelineRecyclerView.visibility = View.VISIBLE
+        binding.emptyStateMessage.visibility = View.GONE
     }
 
     private fun showSnackbar(message: String) {
