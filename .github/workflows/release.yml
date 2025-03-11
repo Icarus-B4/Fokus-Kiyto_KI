@@ -272,6 +272,8 @@ jobs:
               <string name="login">Anmelden</string>
               <string name="register">Registrieren</string>
               <string name="forgot_password">Passwort vergessen?</string>
+              <string name="register_subtitle">Erstellen Sie ein neues Konto</string>
+              <string name="confirm_password">Passwort bestätigen</string>
               
               <!-- About Me Strings -->
               <string name="web_content">Webseite</string>
@@ -287,6 +289,26 @@ jobs:
               <!-- Chat Strings -->
               <string name="message_hint">Nachricht eingeben...</string>
               <string name="send_message">Senden</string>
+              
+              <!-- Task Strings -->
+              <string name="task_title">Aufgabentitel</string>
+              <string name="task_description">Aufgabenbeschreibung</string>
+              <string name="due_date">Fälligkeitsdatum</string>
+              <string name="due_time">Fälligkeitszeit</string>
+              <string name="priority">Priorität</string>
+              <string name="tags">Tags</string>
+              <string name="save">Speichern</string>
+              <string name="active_tasks">Aktive Aufgaben</string>
+              <string name="completed_tasks">Erledigte Aufgaben</string>
+              
+              <!-- Mindmap Strings -->
+              <string name="mindmap_description">Mindmap-Beschreibung</string>
+              <string name="zoom_in">Vergrößern</string>
+              <string name="zoom_out">Verkleinern</string>
+              <string name="reset_view">Ansicht zurücksetzen</string>
+              
+              <!-- Settings Strings -->
+              <string name="settings">Einstellungen</string>
           </resources>
           EOF
           
@@ -299,6 +321,14 @@ jobs:
               <style name="TextAppearance.Material3.TitleLarge" parent="android:TextAppearance.Large">
                   <item name="android:textSize">22sp</item>
                   <item name="android:textStyle">bold</item>
+              </style>
+              
+              <style name="Widget.Material3.Button.IconButton" parent="android:Widget.Button">
+                  <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+                  <item name="android:minWidth">48dp</item>
+                  <item name="android:minHeight">48dp</item>
+                  <item name="android:padding">12dp</item>
+                  <item name="android:textColor">?android:attr/textColorPrimary</item>
               </style>
           </resources>
           EOF
@@ -511,6 +541,16 @@ jobs:
                   app:lottie_autoPlay="true"
                   app:lottie_loop="true"
                   app:lottie_rawRes="@raw/loading_animation" />
+              
+              <Button
+                  android:id="@+id/settingsButton"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_margin="16dp"
+                  android:text="@string/settings"
+                  style="@style/Widget.Material3.Button.IconButton"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
           
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
@@ -826,6 +866,474 @@ jobs:
                   app:layout_constraintBottom_toBottomOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toEndOf="@+id/messageEditText" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_mindmap.xml
+          cat > app/src/main/res/layout/activity_mindmap.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <TextView
+                  android:id="@+id/descriptionTextView"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/mindmap_description"
+                  android:textSize="16sp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <FrameLayout
+                  android:id="@+id/mindmapContainer"
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  android:layout_marginTop="16dp"
+                  app:layout_constraintBottom_toTopOf="@+id/controlsLayout"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/descriptionTextView" />
+          
+              <LinearLayout
+                  android:id="@+id/controlsLayout"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent">
+          
+                  <Button
+                      android:id="@+id/zoomInButton"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/zoom_in" />
+          
+                  <Button
+                      android:id="@+id/zoomOutButton"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginStart="8dp"
+                      android:text="@string/zoom_out" />
+          
+                  <Button
+                      android:id="@+id/resetViewButton"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginStart="8dp"
+                      android:text="@string/reset_view" />
+              </LinearLayout>
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_new_task.xml
+          cat > app/src/main/res/layout/activity_new_task.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <TextView
+                  android:id="@+id/titleHeaderTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/app_name"
+                  android:textSize="24sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <ScrollView
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  android:layout_marginTop="16dp"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/titleHeaderTextView">
+          
+                  <LinearLayout
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical">
+          
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="@string/task_title"
+                          android:textSize="16sp"
+                          android:textStyle="bold" />
+          
+                      <EditText
+                          android:id="@+id/taskTitleEditText"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="8dp"
+                          android:hint="@string/task_title"
+                          android:inputType="text" />
+          
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="16dp"
+                          android:text="@string/task_description"
+                          android:textSize="16sp"
+                          android:textStyle="bold" />
+          
+                      <EditText
+                          android:id="@+id/taskDescriptionEditText"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="8dp"
+                          android:gravity="top|start"
+                          android:hint="@string/task_description"
+                          android:inputType="textMultiLine"
+                          android:lines="5" />
+          
+                      <LinearLayout
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="16dp"
+                          android:orientation="horizontal">
+          
+                          <LinearLayout
+                              android:layout_width="0dp"
+                              android:layout_height="wrap_content"
+                              android:layout_weight="1"
+                              android:orientation="vertical">
+          
+                              <TextView
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:text="@string/due_date"
+                                  android:textSize="16sp"
+                                  android:textStyle="bold" />
+          
+                              <Button
+                                  android:id="@+id/dueDateButton"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:text="@string/due_date" />
+                          </LinearLayout>
+          
+                          <LinearLayout
+                              android:layout_width="0dp"
+                              android:layout_height="wrap_content"
+                              android:layout_marginStart="8dp"
+                              android:layout_weight="1"
+                              android:orientation="vertical">
+          
+                              <TextView
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:text="@string/due_time"
+                                  android:textSize="16sp"
+                                  android:textStyle="bold" />
+          
+                              <Button
+                                  android:id="@+id/dueTimeButton"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:text="@string/due_time" />
+                          </LinearLayout>
+                      </LinearLayout>
+          
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="16dp"
+                          android:text="@string/priority"
+                          android:textSize="16sp"
+                          android:textStyle="bold" />
+          
+                      <Spinner
+                          android:id="@+id/prioritySpinner"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="8dp" />
+          
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="16dp"
+                          android:text="@string/tags"
+                          android:textSize="16sp"
+                          android:textStyle="bold" />
+          
+                      <EditText
+                          android:id="@+id/tagsEditText"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="8dp"
+                          android:hint="@string/tags"
+                          android:inputType="text" />
+          
+                      <Button
+                          android:id="@+id/saveButton"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="24dp"
+                          android:text="@string/save" />
+                  </LinearLayout>
+              </ScrollView>
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_register.xml
+          cat > app/src/main/res/layout/activity_register.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <TextView
+                  android:id="@+id/titleTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="64dp"
+                  android:text="@string/app_name"
+                  android:textSize="24sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <TextView
+                  android:id="@+id/subtitleTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="8dp"
+                  android:text="@string/register_subtitle"
+                  android:textSize="16sp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
+          
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/animationView"
+                  android:layout_width="120dp"
+                  android:layout_height="120dp"
+                  android:layout_marginTop="16dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/subtitleTextView"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+          
+              <EditText
+                  android:id="@+id/emailEditText"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="24dp"
+                  android:hint="@string/email"
+                  android:inputType="textEmailAddress"
+                  android:padding="12dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/animationView"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+              <EditText
+                  android:id="@+id/passwordEditText"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:hint="@string/password"
+                  android:inputType="textPassword"
+                  android:padding="12dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/emailEditText"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+              <EditText
+                  android:id="@+id/confirmPasswordEditText"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:hint="@string/confirm_password"
+                  android:inputType="textPassword"
+                  android:padding="12dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+              <Button
+                  android:id="@+id/registerButton"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="24dp"
+                  android:text="@string/register"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/confirmPasswordEditText"
+                  app:layout_constraintWidth_percent="0.8" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_saved_summaries.xml
+          cat > app/src/main/res/layout/activity_saved_summaries.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <TextView
+                  android:id="@+id/titleTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/app_name"
+                  android:textSize="24sp"
+                  android:textStyle="bold"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <com.google.android.material.tabs.TabLayout
+                  android:id="@+id/tabLayout"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/titleTextView">
+          
+                  <com.google.android.material.tabs.TabItem
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/active_tasks" />
+          
+                  <com.google.android.material.tabs.TabItem
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/completed_tasks" />
+              </com.google.android.material.tabs.TabLayout>
+          
+              <androidx.viewpager2.widget.ViewPager2
+                  android:id="@+id/viewPager"
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  android:layout_marginTop="8dp"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_task_edit.xml
+          cat > app/src/main/res/layout/activity_task_edit.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+          
+              <ScrollView
+                  android:layout_width="0dp"
+                  android:layout_height="0dp"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent">
+          
+                  <LinearLayout
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical">
+          
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="@string/task_title"
+                          android:textSize="16sp"
+                          android:textStyle="bold" />
+          
+                      <EditText
+                          android:id="@+id/taskTitleEditText"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="8dp"
+                          android:hint="@string/task_title"
+                          android:inputType="text" />
+          
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="16dp"
+                          android:text="@string/task_description"
+                          android:textSize="16sp"
+                          android:textStyle="bold" />
+          
+                      <EditText
+                          android:id="@+id/taskDescriptionEditText"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="8dp"
+                          android:gravity="top|start"
+                          android:hint="@string/task_description"
+                          android:inputType="textMultiLine"
+                          android:lines="5" />
+          
+                      <LinearLayout
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="16dp"
+                          android:orientation="horizontal">
+          
+                          <LinearLayout
+                              android:layout_width="0dp"
+                              android:layout_height="wrap_content"
+                              android:layout_weight="1"
+                              android:orientation="vertical">
+          
+                              <TextView
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:text="@string/due_date"
+                                  android:textSize="16sp"
+                                  android:textStyle="bold" />
+          
+                              <Button
+                                  android:id="@+id/dueDateButton"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:text="@string/due_date" />
+                          </LinearLayout>
+                      </LinearLayout>
+          
+                      <Button
+                          android:id="@+id/saveButton"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:layout_marginTop="24dp"
+                          android:text="@string/save" />
+                  </LinearLayout>
+              </ScrollView>
           
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF 
