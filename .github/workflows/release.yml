@@ -50,19 +50,19 @@ jobs:
       - name: Setup Gradle
         run: |
           mkdir -p gradle
-          echo 'versions = {' > gradle/libs.versions.toml
-          echo '    firebase-crashlytics-buildtools = "2.9.9",' >> gradle/libs.versions.toml
-          echo '    generativeai = "0.2.2",' >> gradle/libs.versions.toml
-          echo '    cronet-embedded = "119.6045.31",' >> gradle/libs.versions.toml
-          echo '    androidx-adapters = "1.0.0"' >> gradle/libs.versions.toml
-          echo '}' >> gradle/libs.versions.toml
-          echo '' >> gradle/libs.versions.toml
-          echo 'libraries = {' >> gradle/libs.versions.toml
-          echo '    firebase-crashlytics-buildtools = { module = "com.google.firebase:firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" },' >> gradle/libs.versions.toml
-          echo '    generativeai = { module = "com.google.ai.generativeai:generativeai", version.ref = "generativeai" },' >> gradle/libs.versions.toml
-          echo '    cronet-embedded = { module = "org.chromium.net:cronet-embedded", version.ref = "cronet-embedded" },' >> gradle/libs.versions.toml
-          echo '    androidx-adapters = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "androidx-adapters" }' >> gradle/libs.versions.toml
-          echo '}' >> gradle/libs.versions.toml
+          cat > gradle/libs.versions.toml << 'EOL'
+[versions]
+firebase-crashlytics-buildtools = "2.9.9"
+generativeai = "0.2.2"
+cronet-embedded = "119.6045.31"
+androidx-adapters = "1.0.0"
+
+[libraries]
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
+generativeai = { group = "com.google.ai.generativeai", name = "generativeai", version.ref = "generativeai" }
+cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }
+androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }
+EOL
 
       - name: Setup Gradle Properties
         run: |
