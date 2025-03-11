@@ -76,15 +76,30 @@ jobs:
           echo "Debug: Gradle version"
           ./gradlew --version
           
-          echo "Debug: Gradle wrapper check"
-          if [ ! -f gradlew ]; then
-            echo "Error: Gradle wrapper not found!"
+          echo "Debug: Memory info"
+          free -h
+          
+          echo "Debug: Disk space"
+          df -h
+          
+          echo "Debug: Gradle settings check"
+          if [ -f settings.gradle.kts ]; then
+            echo "Settings gradle content:"
+            cat settings.gradle.kts
+          else
+            echo "Error: settings.gradle.kts not found!"
             exit 1
           fi
           
-          echo "Debug: Android manifest check"
-          if [ ! -f app/src/main/AndroidManifest.xml ]; then
-            echo "Error: Android manifest not found!"
+          echo "Debug: Project structure"
+          tree -L 3 || ls -R
+          
+          echo "Debug: Gradle wrapper properties"
+          if [ -f gradle/wrapper/gradle-wrapper.properties ]; then
+            echo "Gradle wrapper properties content:"
+            cat gradle/wrapper/gradle-wrapper.properties
+          else
+            echo "Error: gradle-wrapper.properties not found!"
             exit 1
           fi
           
@@ -138,7 +153,14 @@ jobs:
           ./gradlew clean --info
           
           echo "Debug: Starting Gradle build with full debug output"
-          ./gradlew assembleRelease --debug --stacktrace || {
+          ./gradlew assembleRelease \
+            --debug \
+            --stacktrace \
+            --scan \
+            -Dorg.gradle.debug=true \
+            -Dorg.gradle.daemon=false \
+            -Dorg.gradle.parallel=false \
+            -Dorg.gradle.configureondemand=false || {
             echo "Debug: Gradle build failed, checking logs"
             echo "Debug: Gradle home directory"
             ls -la $HOME/.gradle
