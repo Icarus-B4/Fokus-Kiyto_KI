@@ -55,7 +55,7 @@ jobs:
             firebase-crashlytics-buildtools = "2.9.9"
             generativeai = "0.2.2"
             cronet-embedded = "119.6045.31"
-            androidx-adapters = "1.0.0"
+            androidx-adapters = "3.5.1"
 
             [libraries]
             firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
@@ -63,6 +63,23 @@ jobs:
             cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }
             androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }
           EOF
+
+          # Setup repositories
+          cat << 'EOF' > settings.gradle.kts
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+        maven { url = uri("https://maven.google.com") }
+        maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
+    }
+}
+
+rootProject.name = "KiytoApp"
+include(":app")
+EOF
 
       - name: Setup Gradle Properties
         run: |
