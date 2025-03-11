@@ -63,18 +63,34 @@ jobs:
       - name: Sign APK
         env:
           BUILD_TOOLS_PATH: ${{ env.ANDROID_BUILD_TOOLS }}
+          SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
         run: |
-          echo "Debug: Build tools check"
+          echo "Debug: Build tools path check"
+          echo "BUILD_TOOLS_PATH=$BUILD_TOOLS_PATH"
           ls -la $BUILD_TOOLS_PATH
-          echo "Debug: APK location check"
+          
+          echo "Debug: APK files check before signing"
           ls -la app/build/outputs/apk/release/
+          
+          echo "Debug: Keystore check"
+          ls -la keystore/
+          
+          echo "Debug: Running zipalign"
           $BUILD_TOOLS_PATH/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-aligned.apk
-          $BUILD_TOOLS_PATH/apksigner sign --ks keystore/release.keystore \
-            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
-            --ks-pass pass:${{ secrets.KEY_STORE_PASSWORD }} \
-            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
+          
+          echo "Debug: Running apksigner"
+          $BUILD_TOOLS_PATH/apksigner sign --verbose \
+            --ks keystore/release.keystore \
+            --ks-key-alias "$SIGNING_KEY_ALIAS" \
+            --ks-pass "pass:$SIGNING_STORE_PASSWORD" \
+            --key-pass "pass:$SIGNING_KEY_PASSWORD" \
             --out app/build/outputs/apk/release/app-release.apk \
             app/build/outputs/apk/release/app-release-aligned.apk
+          
+          echo "Debug: Final APK check"
+          ls -la app/build/outputs/apk/release/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1

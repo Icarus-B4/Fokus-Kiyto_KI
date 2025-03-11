@@ -65,19 +65,19 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("${rootProject.projectDir}/keystore/release.keystore")
-            println("Debug: Keystore path = ${storeFile?.absolutePath}")
-            println("Debug: Project dir = ${rootProject.projectDir}")
-            println("Debug: Current dir = ${projectDir}")
+            println("Debug: Keystore Konfiguration:")
+            println("Debug: Absoluter Pfad = ${storeFile?.absolutePath}")
+            println("Debug: Existiert = ${storeFile?.exists()}")
+            println("Debug: Lesbar = ${storeFile?.canRead()}")
+            println("Debug: Projektverzeichnis = ${rootProject.projectDir}")
+            println("Debug: Arbeitsverzeichnis = ${projectDir}")
             storePassword = System.getenv("SIGNING_STORE_PASSWORD")
             keyAlias = System.getenv("SIGNING_KEY_ALIAS")
             keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
-            println("Debug: Keystore config - alias=${keyAlias}, password exists=${storePassword != null}, keyPassword exists=${keyPassword != null}")
-            println("Debug: All env variables:")
-            System.getenv().forEach { (key, value) ->
-                if (key.startsWith("SIGNING_")) {
-                    println("$key exists")
-                }
-            }
+            println("Debug: Umgebungsvariablen:")
+            println("Debug: SIGNING_STORE_PASSWORD existiert = ${System.getenv("SIGNING_STORE_PASSWORD") != null}")
+            println("Debug: SIGNING_KEY_ALIAS existiert = ${System.getenv("SIGNING_KEY_ALIAS") != null}")
+            println("Debug: SIGNING_KEY_PASSWORD existiert = ${System.getenv("SIGNING_KEY_PASSWORD") != null}")
         }
     }
 
