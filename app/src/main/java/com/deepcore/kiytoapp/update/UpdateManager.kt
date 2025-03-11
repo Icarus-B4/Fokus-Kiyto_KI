@@ -33,30 +33,38 @@ class UpdateManager(private val context: Context) {
             LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
             
             // GitHub API aufrufen für Releases
-            val url = URL("$GITHUB_API_BASE/releases/latest")
+            val url = URL("$GITHUB_API_BASE/releases")
             val connection = url.openConnection()
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
             
             val response = connection.getInputStream().bufferedReader().use { it.readText() }
-            val jsonResponse = JSONObject(response)
+            val jsonArray = JSONObject("{\"releases\":$response}").getJSONArray("releases")
             
-            // Versionsinformationen extrahieren
-            latestVersion = jsonResponse.getString("tag_name").removePrefix("v")
-            updateDescription = jsonResponse.getString("body")
-            updateUrl = jsonResponse.getString("html_url")
-            
-            // Versions-Vergleich
-            val currentVersion = BuildConfig.VERSION_NAME
-            updateAvailable = compareVersions(currentVersion, latestVersion ?: "0.0.0") < 0
-            
-            // Update-Status speichern
-            saveUpdateStatus(Date())
-            
-            LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Verfügbar: $updateAvailable")
-            updateAvailable
+            if (jsonArray.length() > 0) {
+                val latestRelease = jsonArray.getJSONObject(0)
+                
+                // Versionsinformationen extrahieren
+                latestVersion = latestRelease.getString("tag_name").removePrefix("v")
+                updateDescription = latestRelease.getString("body")
+                updateUrl = latestRelease.getString("html_url")
+                
+                // Versions-Vergleich
+                val currentVersion = BuildConfig.VERSION_NAME
+                updateAvailable = compareVersions(currentVersion, latestVersion ?: "0.0.0") < 0
+                
+                // Update-Status speichern
+                saveUpdateStatus(Date())
+                
+                LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Verfügbar: $updateAvailable")
+                updateAvailable
+            } else {
+                LogUtils.debug(this@UpdateManager, "Keine Releases gefunden")
+                false
+            }
             
         } catch (e: Exception) {
             LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates", e)
+            // Zeige Fehler-Animation
             false
         }
     }
