@@ -258,7 +258,17 @@
     <string name="wallpaper_selector">Wallpaper auswählen</string>
     <string name="choose_image">Eigenes Bild auswählen</string>
     <!-- Update System -->
+    <string name="update_status">Update-Status</string>
+    <string name="current_version">Aktuelle Version: %s</string>
+    <string name="latest_version">Neueste Version: %s</string>
     <string name="update_available">Update verfügbar</string>
+    <string name="update_available_message">Ein Update ist verfügbar!</string>
+    <string name="no_update_available_message">Ihre App ist auf dem neuesten Stand.</string>
+    <string name="update_description">Änderungen in dieser Version:</string>
+    <string name="last_checked">Zuletzt überprüft am: %s</string>
+    <string name="never_checked">Noch nie auf Updates überprüft</string>
+    <string name="check_for_updates">Auf Updates prüfen</string>
+    <string name="debug_logs">Debug-Logs</string>
     <string name="download_update">Jetzt herunterladen</string>
     <string name="remind_me_later">Später erinnern</string>
     <string name="checking_for_updates">Suche nach Updates...</string>

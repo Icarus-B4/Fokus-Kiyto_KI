@@ -1,82 +1,96 @@
 package com.deepcore.kiytoapp.update
 
 import android.content.Context
-import android.content.SharedPreferences
+import com.deepcore.kiytoapp.BuildConfig
 import com.deepcore.kiytoapp.util.LogUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URL
+import java.util.*
 
 class UpdateManager(private val context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    
     companion object {
-        private const val PREFS_NAME = "update_settings"
-        private const val KEY_LAST_UPDATE_CHECK = "last_update_check"
-        private const val KEY_LATEST_VERSION = "latest_version"
-        private const val KEY_UPDATE_AVAILABLE = "update_available"
-        private const val KEY_UPDATE_DESCRIPTION = "update_description"
-        private const val KEY_UPDATE_URL = "update_url"
+        private const val GITHUB_API_BASE = "https://api.github.com/repos/Icarus-B4/Fokus-Kiyto_KI"
+        private const val PREFS_NAME = "update_prefs"
+        private const val LAST_CHECK_KEY = "last_update_check"
+        private const val UPDATE_STATUS_KEY = "update_status"
     }
 
-    var lastUpdateCheck: Long
-        get() = prefs.getLong(KEY_LAST_UPDATE_CHECK, 0)
-        private set(value) = prefs.edit().putLong(KEY_LAST_UPDATE_CHECK, value).apply()
+    var latestVersion: String? = null
+        private set
+    var updateDescription: String? = null
+        private set
+    var updateUrl: String? = null
+        private set
+    var updateAvailable: Boolean = false
+        private set
 
-    var latestVersion: String?
-        get() = prefs.getString(KEY_LATEST_VERSION, null)
-        private set(value) = prefs.edit().putString(KEY_LATEST_VERSION, value).apply()
+    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    var updateAvailable: Boolean
-        get() = prefs.getBoolean(KEY_UPDATE_AVAILABLE, false)
-        private set(value) = prefs.edit().putBoolean(KEY_UPDATE_AVAILABLE, value).apply()
+    suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
+            
+            // GitHub API aufrufen für Releases
+            val url = URL("$GITHUB_API_BASE/releases/latest")
+            val connection = url.openConnection()
+            connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+            
+            val response = connection.getInputStream().bufferedReader().use { it.readText() }
+            val jsonResponse = JSONObject(response)
+            
+            // Versionsinformationen extrahieren
+            latestVersion = jsonResponse.getString("tag_name").removePrefix("v")
+            updateDescription = jsonResponse.getString("body")
+            updateUrl = jsonResponse.getString("html_url")
+            
+            // Versions-Vergleich
+            val currentVersion = BuildConfig.VERSION_NAME
+            updateAvailable = compareVersions(currentVersion, latestVersion ?: "0.0.0") < 0
+            
+            // Update-Status speichern
+            saveUpdateStatus(Date())
+            
+            LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Verfügbar: $updateAvailable")
+            updateAvailable
+            
+        } catch (e: Exception) {
+            LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates", e)
+            false
+        }
+    }
 
-    var updateDescription: String?
-        get() = prefs.getString(KEY_UPDATE_DESCRIPTION, null)
-        private set(value) = prefs.edit().putString(KEY_UPDATE_DESCRIPTION, value).apply()
-
-    var updateUrl: String?
-        get() = prefs.getString(KEY_UPDATE_URL, null)
-        private set(value) = prefs.edit().putString(KEY_UPDATE_URL, value).apply()
-
-    suspend fun checkForUpdates(currentVersion: String, repoUrl: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                val url = URL("$repoUrl/releases/latest")
-                val connection = url.openConnection()
-                val response = connection.getInputStream().bufferedReader().use { it.readText() }
-                val jsonResponse = JSONObject(response)
-
-                val latestVersion = jsonResponse.getString("tag_name")
-                val description = jsonResponse.getString("body")
-                val downloadUrl = jsonResponse.getString("html_url")
-
-                this@UpdateManager.latestVersion = latestVersion
-                this@UpdateManager.updateDescription = description
-                this@UpdateManager.updateUrl = downloadUrl
-                this@UpdateManager.lastUpdateCheck = System.currentTimeMillis()
-
-                val hasUpdate = latestVersion != currentVersion
-                this@UpdateManager.updateAvailable = hasUpdate
-
-                LogUtils.debug(this, "Update-Check durchgeführt: Version $latestVersion verfügbar")
-                hasUpdate
-            } catch (e: Exception) {
-                LogUtils.error(this, "Fehler beim Prüfen auf Updates", e)
-                false
+    private fun compareVersions(version1: String, version2: String): Int {
+        val v1Parts = version1.split(".")
+        val v2Parts = version2.split(".")
+        
+        for (i in 0 until maxOf(v1Parts.size, v2Parts.size)) {
+            val v1 = v1Parts.getOrNull(i)?.toIntOrNull() ?: 0
+            val v2 = v2Parts.getOrNull(i)?.toIntOrNull() ?: 0
+            
+            when {
+                v1 < v2 -> return -1
+                v1 > v2 -> return 1
             }
         }
+        return 0
     }
 
-    fun clearUpdateStatus() {
+    private fun saveUpdateStatus(checkDate: Date) {
         prefs.edit().apply {
-            remove(KEY_LATEST_VERSION)
-            remove(KEY_UPDATE_AVAILABLE)
-            remove(KEY_UPDATE_DESCRIPTION)
-            remove(KEY_UPDATE_URL)
+            putLong(LAST_CHECK_KEY, checkDate.time)
+            putBoolean(UPDATE_STATUS_KEY, updateAvailable)
             apply()
         }
-        LogUtils.debug(this, "Update-Status zurückgesetzt")
+    }
+
+    fun getLastCheckDate(): Date? {
+        val timestamp = prefs.getLong(LAST_CHECK_KEY, 0)
+        return if (timestamp > 0) Date(timestamp) else null
+    }
+
+    fun getUpdateStatus(): Boolean {
+        return prefs.getBoolean(UPDATE_STATUS_KEY, false)
     }
 } 

@@ -5,15 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.Fragment
+import com.deepcore.kiytoapp.BuildConfig
 import com.deepcore.kiytoapp.R
-import com.deepcore.kiytoapp.base.BaseFragment
+import com.deepcore.kiytoapp.util.LogUtils
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
-class UpdateStatusFragment : BaseFragment() {
+class UpdateStatusFragment : Fragment() {
     private lateinit var updateManager: UpdateManager
-    
+    private lateinit var lastCheckedText: TextView
+    private lateinit var versionText: TextView
+    private lateinit var statusText: TextView
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,28 +31,41 @@ class UpdateStatusFragment : BaseFragment() {
         
         updateManager = UpdateManager(requireContext())
         
-        // Aktualisiere die Status-Anzeige
-        updateStatusDisplay(view)
+        // Initialisiere Views
+        lastCheckedText = view.findViewById(R.id.lastCheckedText)
+        versionText = view.findViewById(R.id.versionText)
+        statusText = view.findViewById(R.id.statusText)
+        
+        // Zeige Update-Status
+        updateStatusDisplay()
     }
-    
-    private fun updateStatusDisplay(view: View) {
-        val currentVersion = com.deepcore.kiytoapp.BuildConfig.VERSION_NAME
-        val latestVersion = updateManager.latestVersion ?: currentVersion
-        val lastCheck = updateManager.lastUpdateCheck
-        
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-        val lastCheckString = if (lastCheck > 0) dateFormat.format(Date(lastCheck)) else "-"
-        
-        view.findViewById<TextView>(R.id.currentVersionText)?.text = 
-            "Aktuelle Version: $currentVersion"
+
+    private fun updateStatusDisplay() {
+        try {
+            // Zeige aktuelle Version
+            val currentVersion = BuildConfig.VERSION_NAME
+            versionText.text = getString(R.string.current_version, currentVersion)
             
-        view.findViewById<TextView>(R.id.latestVersionText)?.text = 
-            "Neueste Version: $latestVersion"
+            // Zeige letztes Prüfdatum
+            updateManager.getLastCheckDate()?.let { lastCheck ->
+                val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+                lastCheckedText.text = getString(R.string.last_checked, dateFormat.format(lastCheck))
+            } ?: run {
+                lastCheckedText.text = getString(R.string.never_checked)
+            }
             
-        view.findViewById<TextView>(R.id.lastCheckText)?.text = 
-            "Zuletzt geprüft: $lastCheckString"
+            // Zeige Update-Status
+            val latestVersion = updateManager.latestVersion ?: currentVersion
+            val statusMessage = if (updateManager.updateAvailable) {
+                getString(R.string.update_available_message) + "\n" +
+                getString(R.string.latest_version, latestVersion)
+            } else {
+                getString(R.string.no_update_available_message)
+            }
+            statusText.text = statusMessage
             
-        view.findViewById<TextView>(R.id.updateStatusText)?.text = 
-            if (updateManager.updateAvailable) "Status: Update verfügbar" else "Status: Auf dem neuesten Stand"
+        } catch (e: Exception) {
+            LogUtils.error(this, "Fehler beim Aktualisieren des Update-Status", e)
+        }
     }
 } 

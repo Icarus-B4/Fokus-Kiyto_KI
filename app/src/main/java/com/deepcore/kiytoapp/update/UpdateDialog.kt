@@ -5,66 +5,67 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.airbnb.lottie.LottieAnimationView
 import com.deepcore.kiytoapp.R
-import com.deepcore.kiytoapp.databinding.DialogUpdateBinding
-import com.deepcore.kiytoapp.util.LogUtils
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class UpdateDialog : DialogFragment() {
-    private var _binding: DialogUpdateBinding? = null
-    private val binding get() = _binding!!
-
-    private var updateDescription: String? = null
-    private var updateUrl: String? = null
-
     companion object {
+        private const val ARG_DESCRIPTION = "description"
+        private const val ARG_URL = "url"
+
         fun newInstance(description: String, url: String): UpdateDialog {
             return UpdateDialog().apply {
-                updateDescription = description
-                updateUrl = url
+                arguments = Bundle().apply {
+                    putString(ARG_DESCRIPTION, description)
+                    putString(ARG_URL, url)
+                }
             }
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = DialogUpdateBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        
-        binding.updateDescription.text = updateDescription
-        
-        binding.downloadButton.setOnClickListener {
-            LogUtils.debug(this, "Download-Button geklickt")
-            updateUrl?.let { url ->
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                startActivity(intent)
-            }
-            dismiss()
-        }
-        
-        binding.laterButton.setOnClickListener {
-            LogUtils.debug(this, "Später-Button geklickt")
-            dismiss()
         }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState).apply {
-            window?.setBackgroundDrawableResource(R.drawable.rounded_dialog_background)
-        }
-    }
+        val description = requireArguments().getString(ARG_DESCRIPTION)
+        val url = requireArguments().getString(ARG_URL)
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        val view = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_update, null)
+
+        // Initialisiere Views
+        val updateAnimation = view.findViewById<LottieAnimationView>(R.id.updateAnimation)
+        val descriptionText = view.findViewById<TextView>(R.id.updateDescriptionText)
+        val downloadButton = view.findViewById<MaterialButton>(R.id.downloadButton)
+        val remindButton = view.findViewById<MaterialButton>(R.id.remindButton)
+
+        // Setze Beschreibung
+        descriptionText.text = description
+
+        // Starte Animation
+        updateAnimation.setAnimation(R.raw.update_available)
+        updateAnimation.playAnimation()
+
+        // Setze Click-Listener
+        downloadButton.setOnClickListener {
+            // Öffne den Download-Link
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+            dismiss()
+        }
+
+        remindButton.setOnClickListener {
+            // Schließe den Dialog
+            dismiss()
+        }
+
+        return MaterialAlertDialogBuilder(requireContext())
+            .setView(view)
+            .create()
+            .apply {
+                // Setze den Dialog auf nicht abbrechbar
+                setCanceledOnTouchOutside(false)
+            }
     }
 } 

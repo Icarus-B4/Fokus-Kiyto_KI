@@ -269,7 +269,7 @@ class SettingsFragment : BaseFragment() {
                 else -> {}
             }
         }
-        
+
     }
     
     private fun setupCalendarSettings() {
@@ -665,20 +665,25 @@ class SettingsFragment : BaseFragment() {
     
     private fun checkForUpdates() {
         lifecycleScope.launch {
-            val currentVersion = BuildConfig.VERSION_NAME
-            val repoUrl = "https://api.github.com/repos/YourUsername/KiytoApp"
-            
-            if (updateManager.checkForUpdates(currentVersion, repoUrl)) {
-                updateManager.updateDescription?.let { description ->
-                    updateManager.updateUrl?.let { url ->
-                        val dialog = UpdateDialog.newInstance(description, url)
-                        dialog.show(parentFragmentManager, "update_dialog")
+            try {
+                if (updateManager.checkForUpdates()) {
+                    updateManager.updateDescription?.let { description ->
+                        updateManager.updateUrl?.let { url ->
+                            val dialog = UpdateDialog.newInstance(description, url)
+                            dialog.show(parentFragmentManager, "update_dialog")
+                        }
                     }
+                } else {
+                    Toast.makeText(requireContext(), "Keine Updates verfügbar", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(requireContext(), "Keine Updates verfügbar", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                LogUtils.error(this@SettingsFragment, "Fehler beim Prüfen auf Updates", e)
+                Toast.makeText(
+                    requireContext(),
+                    "Fehler beim Prüfen auf Updates",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-
         }
     }
     

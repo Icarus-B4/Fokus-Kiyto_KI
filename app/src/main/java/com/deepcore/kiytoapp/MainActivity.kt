@@ -3,6 +3,7 @@ package com.deepcore.kiytoapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -377,16 +378,17 @@ class MainActivity : BaseActivity() {
 
     private fun checkForUpdates() {
         lifecycleScope.launch {
-            val currentVersion = BuildConfig.VERSION_NAME
-            val repoUrl = "https://api.github.com/repos/YourUsername/KiytoApp"
-            
-            if (updateManager.checkForUpdates(currentVersion, repoUrl)) {
-                updateManager.updateDescription?.let { description ->
-                    updateManager.updateUrl?.let { url ->
-                        val dialog = UpdateDialog.newInstance(description, url)
-                        dialog.show(supportFragmentManager, "update_dialog")
+            try {
+                if (updateManager.checkForUpdates()) {
+                    updateManager.updateDescription?.let { description ->
+                        updateManager.updateUrl?.let { url ->
+                            val dialog = UpdateDialog.newInstance(description, url)
+                            dialog.show(supportFragmentManager, "update_dialog")
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Fehler beim Prüfen auf Updates", e)
             }
         }
     }
