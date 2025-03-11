@@ -48,12 +48,20 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-        run: ./gradlew assembleRelease --stacktrace
+          OPENAI_API_KEY: "dummy-key"
+        run: |
+          echo "Debug: Keystore location check"
+          ls -la keystore/
+          echo "Debug: Environment variables"
+          env | grep SIGNING
+          ./gradlew assembleRelease --info --stacktrace
 
       - name: Sign APK
         env:
           BUILD_TOOLS_PATH: ${{ env.ANDROID_BUILD_TOOLS }}
         run: |
+          echo "Debug: Build tools check"
+          ls -la $BUILD_TOOLS_PATH
           $BUILD_TOOLS_PATH/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-aligned.apk
           $BUILD_TOOLS_PATH/apksigner sign --ks keystore/release.keystore \
             --ks-key-alias ${{ secrets.KEY_ALIAS }} \

@@ -65,9 +65,11 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("${rootProject.projectDir}/keystore/release.keystore")
+            println("Debug: Keystore path = ${storeFile?.absolutePath}")
             storePassword = System.getenv("SIGNING_STORE_PASSWORD")
             keyAlias = System.getenv("SIGNING_KEY_ALIAS")
             keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+            println("Debug: Keystore config - alias=${keyAlias}, password exists=${storePassword != null}, keyPassword exists=${keyPassword != null}")
         }
     }
 
