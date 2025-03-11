@@ -30,9 +30,9 @@ jobs:
 
       - name: Create Keystore
         run: |
-          mkdir -p app/keystore
+          mkdir -p keystore
           keytool -genkey -v \
-            -keystore app/keystore/release.keystore \
+            -keystore keystore/release.keystore \
             -alias ${{ secrets.KEY_ALIAS }} \
             -keyalg RSA \
             -keysize 2048 \
@@ -51,7 +51,7 @@ jobs:
       - name: Sign APK
         run: |
           zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-aligned.apk
-          apksigner sign --ks app/keystore/release.keystore \
+          apksigner sign --ks keystore/release.keystore \
             --ks-key-alias ${{ secrets.KEY_ALIAS }} \
             --ks-pass pass:${{ secrets.KEY_STORE_PASSWORD }} \
             --key-pass pass:${{ secrets.KEY_PASSWORD }} \
