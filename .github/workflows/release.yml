@@ -12,6 +12,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -19,6 +21,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: wrapper
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -47,34 +54,17 @@ jobs:
           ls -la $ANDROID_HOME/build-tools/33.0.0/
           $ANDROID_HOME/build-tools/33.0.0/aapt version
 
-      - name: Setup Gradle
+      - name: Create Root build.gradle
         run: |
-          mkdir -p gradle
-          echo '[versions]' > gradle/libs.versions.toml
-          echo 'firebase-crashlytics-buildtools = "2.9.9"' >> gradle/libs.versions.toml
-          echo 'generativeai = "0.2.2"' >> gradle/libs.versions.toml
-          echo 'cronet-embedded = "119.6045.31"' >> gradle/libs.versions.toml
-          echo 'androidx-adapters = "3.5.1"' >> gradle/libs.versions.toml
-          echo '' >> gradle/libs.versions.toml
-          echo '[libraries]' >> gradle/libs.versions.toml
-          echo 'firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }' >> gradle/libs.versions.toml
-          echo 'generativeai = { group = "com.google.ai.generativeai", name = "generativeai", version.ref = "generativeai" }' >> gradle/libs.versions.toml
-          echo 'cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }' >> gradle/libs.versions.toml
-          echo 'androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }' >> gradle/libs.versions.toml
-
-          echo 'dependencyResolutionManagement {' > settings.gradle.kts
-          echo '    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)' >> settings.gradle.kts
-          echo '    repositories {' >> settings.gradle.kts
-          echo '        google()' >> settings.gradle.kts
-          echo '        mavenCentral()' >> settings.gradle.kts
-          echo '        maven { url = uri("https://jitpack.io") }' >> settings.gradle.kts
-          echo '        maven { url = uri("https://maven.google.com") }' >> settings.gradle.kts
-          echo '        maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }' >> settings.gradle.kts
-          echo '    }' >> settings.gradle.kts
-          echo '}' >> settings.gradle.kts
-          echo '' >> settings.gradle.kts
-          echo 'rootProject.name = "KiytoApp"' >> settings.gradle.kts
-          echo 'include(":app")' >> settings.gradle.kts
+          cat > build.gradle.kts << 'EOF'
+          // Top-level build file
+          plugins {
+              id("com.android.application") version "8.2.2" apply false
+              id("com.android.library") version "8.2.2" apply false
+              id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+              id("org.jetbrains.kotlin.jvm") version "1.9.22" apply false
+          }
+          EOF
 
       - name: Setup Gradle Properties
         run: |
@@ -83,6 +73,49 @@ jobs:
           echo "android.enableJetifier=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.parallel=false" >> gradle.properties
+
+      - name: Setup Version Catalog
+        run: |
+          mkdir -p gradle
+          cat > gradle/libs.versions.toml << 'EOF'
+          [versions]
+          firebase-crashlytics-buildtools = "2.9.9"
+          generativeai = "0.2.2"
+          cronet-embedded = "119.6045.31"
+          androidx-adapters = "3.5.1"
+
+          [libraries]
+          firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
+          generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeai" }
+          cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }
+          androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }
+          EOF
+
+      - name: Setup Settings Gradle
+        run: |
+          cat > settings.gradle.kts << 'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+                  maven { url = uri("https://jitpack.io") }
+                  maven { url = uri("https://maven.google.com") }
+                  maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
+              }
+          }
+
+          rootProject.name = "KiytoApp"
+          include(":app")
+          EOF
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -111,6 +144,13 @@ jobs:
           java -version
           echo "ANDROID_HOME=$ANDROID_HOME"
           echo "PATH=$PATH"
+          
+          # Debug Gradle files
+          echo "Checking Gradle files:"
+          ls -la
+          ls -la gradle/
+          cat settings.gradle.kts
+          cat build.gradle.kts
           
           # Clean and build
           ./gradlew clean assembleRelease --no-daemon --info --stacktrace \
