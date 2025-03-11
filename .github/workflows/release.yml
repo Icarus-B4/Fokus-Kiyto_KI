@@ -167,6 +167,11 @@ jobs:
                   maven { url = uri("https://maven.google.com") }
                   maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
               }
+          }
+
+          enableFeaturePreview("VERSION_CATALOGS")
+          
+          dependencyResolutionManagement {
               versionCatalogs {
                   create("libs") {
                       from(files("gradle/libs.versions.toml"))
