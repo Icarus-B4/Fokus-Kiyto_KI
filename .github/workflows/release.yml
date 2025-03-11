@@ -50,19 +50,19 @@ jobs:
       - name: Setup Gradle
         run: |
           mkdir -p gradle
-          cat > gradle/libs.versions.toml << 'EOL'
-[versions]
-firebase-crashlytics-buildtools = "2.9.9"
-generativeai = "0.2.2"
-cronet-embedded = "119.6045.31"
-androidx-adapters = "1.0.0"
+          cat << 'EOF' > gradle/libs.versions.toml
+            [versions]
+            firebase-crashlytics-buildtools = "2.9.9"
+            generativeai = "0.2.2"
+            cronet-embedded = "119.6045.31"
+            androidx-adapters = "1.0.0"
 
-[libraries]
-firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
-generativeai = { group = "com.google.ai.generativeai", name = "generativeai", version.ref = "generativeai" }
-cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }
-androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }
-EOL
+            [libraries]
+            firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
+            generativeai = { group = "com.google.ai.generativeai", name = "generativeai", version.ref = "generativeai" }
+            cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronet-embedded" }
+            androidx-adapters = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidx-adapters" }
+          EOF
 
       - name: Setup Gradle Properties
         run: |
