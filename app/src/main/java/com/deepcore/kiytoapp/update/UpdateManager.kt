@@ -30,42 +30,30 @@ class UpdateManager(private val context: Context) {
 
     suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
         try {
-            LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
-            
-            // GitHub API aufrufen für Releases
             val url = URL("$GITHUB_API_BASE/releases")
             val connection = url.openConnection()
-            connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
-            
             val response = connection.getInputStream().bufferedReader().use { it.readText() }
-            val jsonArray = JSONObject("{\"releases\":$response}").getJSONArray("releases")
             
-            if (jsonArray.length() > 0) {
-                val latestRelease = jsonArray.getJSONObject(0)
-                
-                // Versionsinformationen extrahieren
+            val releases = JSONObject(response).getJSONArray("releases")
+            if (releases.length() > 0) {
+                val latestRelease = releases.getJSONObject(0)
                 latestVersion = latestRelease.getString("tag_name").removePrefix("v")
                 updateDescription = latestRelease.getString("body")
                 updateUrl = latestRelease.getString("html_url")
                 
-                // Versions-Vergleich
-                val currentVersion = BuildConfig.VERSION_NAME
-                updateAvailable = compareVersions(currentVersion, latestVersion ?: "0.0.0") < 0
-                
-                // Update-Status speichern
+                updateAvailable = compareVersions(BuildConfig.VERSION_NAME, latestVersion ?: "") < 0
                 saveUpdateStatus(Date())
                 
-                LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Verfügbar: $updateAvailable")
-                updateAvailable
-            } else {
-                LogUtils.debug(this@UpdateManager, "Keine Releases gefunden")
-                false
+                return@withContext updateAvailable
             }
+            
+            updateAvailable = false
+            saveUpdateStatus(Date())
+            return@withContext false
             
         } catch (e: Exception) {
             LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates", e)
-            // Zeige Fehler-Animation
-            false
+            throw e
         }
     }
 
