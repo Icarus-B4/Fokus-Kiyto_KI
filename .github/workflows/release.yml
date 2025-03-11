@@ -52,7 +52,7 @@ jobs:
           mkdir -p gradle
           echo 'versions = {' > gradle/libs.versions.toml
           echo '    firebase-crashlytics-buildtools = "2.9.9",' >> gradle/libs.versions.toml
-          echo '    generativeai = "0.1.0",' >> gradle/libs.versions.toml
+          echo '    generativeai = "0.2.2",' >> gradle/libs.versions.toml
           echo '    cronet-embedded = "119.6045.31",' >> gradle/libs.versions.toml
           echo '    androidx-adapters = "1.0.0"' >> gradle/libs.versions.toml
           echo '}' >> gradle/libs.versions.toml
