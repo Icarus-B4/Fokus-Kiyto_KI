@@ -257,4 +257,9 @@
     <string name="dark_purple">Dunkelviolett</string>
     <string name="wallpaper_selector">Wallpaper auswählen</string>
     <string name="choose_image">Eigenes Bild auswählen</string>
+    <!-- Update System -->
+    <string name="update_available">Update verfügbar</string>
+    <string name="download_update">Jetzt herunterladen</string>
+    <string name="remind_me_later">Später erinnern</string>
+    <string name="checking_for_updates">Suche nach Updates...</string>
 </resources>

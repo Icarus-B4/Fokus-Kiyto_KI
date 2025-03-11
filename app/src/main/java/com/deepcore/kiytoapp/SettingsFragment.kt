@@ -16,16 +16,21 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
 import com.deepcore.kiytoapp.ai.APISettingsDialog
 import com.deepcore.kiytoapp.base.BaseFragment
 import com.deepcore.kiytoapp.debug.DebugActivity
 import com.deepcore.kiytoapp.settings.CalendarManager
 import com.deepcore.kiytoapp.settings.NotificationSettingsManager
 import com.deepcore.kiytoapp.settings.TaskNotificationManager
+import com.deepcore.kiytoapp.update.UpdateDialog
+import com.deepcore.kiytoapp.update.UpdateManager
 import com.deepcore.kiytoapp.util.LogUtils
 import com.deepcore.kiytoapp.util.NotificationHelper
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
+import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -34,6 +39,7 @@ class SettingsFragment : BaseFragment() {
     private lateinit var notificationHelper: NotificationHelper
     private lateinit var calendarManager: CalendarManager
     private lateinit var taskNotificationManager: TaskNotificationManager
+    private lateinit var updateManager: UpdateManager
 
     private val pickSound = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         LogUtils.debug(this, "Ton-Picker Ergebnis: ${result.resultCode}")
@@ -159,6 +165,7 @@ class SettingsFragment : BaseFragment() {
         notificationHelper = NotificationHelper(requireContext())
         calendarManager = CalendarManager(requireContext())
         taskNotificationManager = TaskNotificationManager(requireContext())
+        updateManager = UpdateManager(requireContext())
 
         // Zeige aktuelle Einstellungen in Logs
         showCurrentSettings()
@@ -262,6 +269,7 @@ class SettingsFragment : BaseFragment() {
                 else -> {}
             }
         }
+        
     }
     
     private fun setupCalendarSettings() {
@@ -653,4 +661,41 @@ class SettingsFragment : BaseFragment() {
             LogUtils.error(this, "Fehler beim Aktualisieren der Kalender-Anzeige", e)
         }
     }
+
+    
+    private fun checkForUpdates() {
+        lifecycleScope.launch {
+            val currentVersion = BuildConfig.VERSION_NAME
+            val repoUrl = "https://api.github.com/repos/YourUsername/KiytoApp"
+            
+            if (updateManager.checkForUpdates(currentVersion, repoUrl)) {
+                updateManager.updateDescription?.let { description ->
+                    updateManager.updateUrl?.let { url ->
+                        val dialog = UpdateDialog.newInstance(description, url)
+                        dialog.show(parentFragmentManager, "update_dialog")
+                    }
+                }
+            } else {
+                Toast.makeText(requireContext(), "Keine Updates verfügbar", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+    }
+    
+    private fun showUpdateStatus() {
+        val currentVersion = BuildConfig.VERSION_NAME
+        val latestVersion = updateManager.latestVersion ?: currentVersion
+        
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Update-Status")
+            .setMessage("""
+                Aktuelle Version: $currentVersion
+                Neueste Version: $latestVersion
+                
+                ${if (updateManager.updateAvailable) "Ein Update ist verfügbar!" else "Ihre App ist auf dem neuesten Stand."}
+            """.trimIndent())
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
 } 

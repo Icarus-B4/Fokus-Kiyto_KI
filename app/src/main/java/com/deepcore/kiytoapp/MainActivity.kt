@@ -22,6 +22,9 @@ import com.deepcore.kiytoapp.auth.LoginActivity
 import com.deepcore.kiytoapp.base.BaseActivity
 import com.deepcore.kiytoapp.databinding.ActivityMainBinding
 import com.deepcore.kiytoapp.ui.FocusModeFragment
+import com.deepcore.kiytoapp.update.UpdateDialog
+import com.deepcore.kiytoapp.update.UpdateManager
+import com.deepcore.kiytoapp.update.UpdateSystemFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -41,6 +44,7 @@ class MainActivity : BaseActivity() {
     private lateinit var adapter: ChatAdapter
     private lateinit var binding: ActivityMainBinding
     private var isSpeaking: Boolean = false
+    private lateinit var updateManager: UpdateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +75,9 @@ class MainActivity : BaseActivity() {
         binding.menuButton.setOnClickListener { button ->
             showCustomPopupMenu(button)
         }
+
+        updateManager = UpdateManager(this)
+        checkForUpdates()
     }
 
     private fun setupBottomNavigation() {
@@ -288,6 +295,20 @@ class MainActivity : BaseActivity() {
             startActivity(Intent(this, AIRecommendationsActivity::class.java))
             popupWindow.dismiss()
         }
+
+        // Update System
+        popupView.findViewById<TextView>(R.id.menu_update)?.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+                )
+                .setReorderingAllowed(true)
+                .replace(R.id.fragmentContainer, UpdateSystemFragment())
+                .addToBackStack(null)
+                .commit()
+            popupWindow.dismiss()
+        }
         
         // Logout/Login Button anpassen
         val logoutButton = popupView.findViewById<TextView>(R.id.menu_logout)
@@ -351,6 +372,22 @@ class MainActivity : BaseActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun checkForUpdates() {
+        lifecycleScope.launch {
+            val currentVersion = BuildConfig.VERSION_NAME
+            val repoUrl = "https://api.github.com/repos/YourUsername/KiytoApp"
+            
+            if (updateManager.checkForUpdates(currentVersion, repoUrl)) {
+                updateManager.updateDescription?.let { description ->
+                    updateManager.updateUrl?.let { url ->
+                        val dialog = UpdateDialog.newInstance(description, url)
+                        dialog.show(supportFragmentManager, "update_dialog")
+                    }
+                }
+            }
         }
     }
 
