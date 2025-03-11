@@ -202,6 +202,13 @@
                             android:layout_height="120dp"
                             android:layout_marginBottom="16dp" />
 
+                        <!-- Kategorie-PieChart -->
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/categoryPieChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:layout_marginBottom="16dp" />
+
                         <!-- Statistik-Werte -->
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -289,6 +296,41 @@
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Monatsnavigation -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="8dp">
+
+                    <ImageButton
+                        android:id="@+id/prevMonthButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_chevron_left"
+                        android:contentDescription="@string/previous_month" />
+
+                    <TextView
+                        android:id="@+id/monthYearText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/nextMonthButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="@string/next_month" />
+                </LinearLayout>
 
                 <CalendarView
                     android:id="@+id/calendarView"

@@ -166,6 +166,10 @@ class DashboardFragment : BaseFragment() {
         _productivityValue = view.findViewById<TextView>(R.id.productivityValue)
         _calendarView = view.findViewById<CalendarView>(R.id.calendarView)
         _userStatusAnimation = view.findViewById<LottieAnimationView>(R.id.userStatusAnimation)
+        _monthYearText = view.findViewById<TextView>(R.id.monthYearText)
+        _prevMonthButton = view.findViewById<ImageButton>(R.id.prevMonthButton)
+        _nextMonthButton = view.findViewById<ImageButton>(R.id.nextMonthButton)
+        _categoryPieChart = view.findViewById<PieChart>(R.id.categoryPieChart)
 
         val welcomeText = view.findViewById<TextView>(R.id.welcomeText)
         val loginButton = view.findViewById<Button>(R.id.loginButton)
@@ -778,24 +782,34 @@ class DashboardFragment : BaseFragment() {
     }
 
     private fun setupMonthNavigation() {
-        updateMonthYearText()
-        
-        prevMonthButton.setOnClickListener {
-            currentDate.add(Calendar.MONTH, -1)
+        try {
             updateMonthYearText()
-            updateCharts()
-        }
-        
-        nextMonthButton.setOnClickListener {
-            currentDate.add(Calendar.MONTH, 1)
-            updateMonthYearText()
-            updateCharts()
+            
+            prevMonthButton.setOnClickListener {
+                currentDate.add(Calendar.MONTH, -1)
+                updateMonthYearText()
+                updateCharts()
+                calendarView.date = currentDate.timeInMillis
+            }
+            
+            nextMonthButton.setOnClickListener {
+                currentDate.add(Calendar.MONTH, 1)
+                updateMonthYearText()
+                updateCharts()
+                calendarView.date = currentDate.timeInMillis
+            }
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler bei der Monatsnavigation", e)
         }
     }
 
     private fun updateMonthYearText() {
-        val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        monthYearText.text = monthFormat.format(currentDate.time)
+        try {
+            val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            monthYearText.text = monthFormat.format(currentDate.time)
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler beim Aktualisieren des Monatstextes", e)
+        }
     }
 
     private fun setupPieChart() {

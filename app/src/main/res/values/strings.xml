@@ -272,4 +272,6 @@
     <string name="download_update">Jetzt herunterladen</string>
     <string name="remind_me_later">Später erinnern</string>
     <string name="checking_for_updates">Suche nach Updates...</string>
+    <string name="previous_month">Vorheriger Monat</string>
+    <string name="next_month">Nächster Monat</string>
 </resources>
