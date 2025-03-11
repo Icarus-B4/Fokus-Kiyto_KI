@@ -168,9 +168,6 @@ jobs:
               // Accompanist
               implementation("com.google.accompanist:accompanist-permissions:0.32.0")
               
-              // GenerativeAI
-              implementation("com.google.ai.generativeai:generativeai:0.2.2")
-
               // Testing
               testImplementation("junit:junit:4.13.2")
               androidTestImplementation("androidx.test.ext:junit:1.1.5")
