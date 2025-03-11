@@ -66,10 +66,18 @@ android {
         create("release") {
             storeFile = file("${rootProject.projectDir}/keystore/release.keystore")
             println("Debug: Keystore path = ${storeFile?.absolutePath}")
+            println("Debug: Project dir = ${rootProject.projectDir}")
+            println("Debug: Current dir = ${projectDir}")
             storePassword = System.getenv("SIGNING_STORE_PASSWORD")
             keyAlias = System.getenv("SIGNING_KEY_ALIAS")
             keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
             println("Debug: Keystore config - alias=${keyAlias}, password exists=${storePassword != null}, keyPassword exists=${keyPassword != null}")
+            println("Debug: All env variables:")
+            System.getenv().forEach { (key, value) ->
+                if (key.startsWith("SIGNING_")) {
+                    println("$key exists")
+                }
+            }
         }
     }
 
