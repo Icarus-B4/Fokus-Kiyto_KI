@@ -24,7 +24,8 @@ jobs:
         run: |
           yes | sdkmanager --install "build-tools;33.0.0"
           yes | sdkmanager --licenses
-          echo "${ANDROID_HOME}/build-tools/33.0.0" >> $GITHUB_PATH
+          echo "ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/33.0.0" >> $GITHUB_ENV
+          echo "$ANDROID_HOME/build-tools/33.0.0" >> $GITHUB_PATH
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -43,16 +44,18 @@ jobs:
             -dname "CN=KiytoApp, OU=Development, O=Icarus-B4, L=Unknown, S=Unknown, C=DE"
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+        run: ./gradlew assembleRelease --stacktrace
 
       - name: Sign APK
+        env:
+          BUILD_TOOLS_PATH: ${{ env.ANDROID_BUILD_TOOLS }}
         run: |
-          ${ANDROID_HOME}/build-tools/33.0.0/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-aligned.apk
-          ${ANDROID_HOME}/build-tools/33.0.0/apksigner sign --ks keystore/release.keystore \
+          $BUILD_TOOLS_PATH/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-aligned.apk
+          $BUILD_TOOLS_PATH/apksigner sign --ks keystore/release.keystore \
             --ks-key-alias ${{ secrets.KEY_ALIAS }} \
             --ks-pass pass:${{ secrets.KEY_STORE_PASSWORD }} \
             --key-pass pass:${{ secrets.KEY_PASSWORD }} \
