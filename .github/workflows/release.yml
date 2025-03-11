@@ -50,19 +50,19 @@ jobs:
       - name: Setup Gradle
         run: |
           mkdir -p gradle
-          cat << EOF > gradle/libs.versions.toml
-[versions]
-firebase-crashlytics-buildtools = "2.9.9"
-generativeai = "0.1.1"
-cronet-embedded = "119.6045.31"
-androidx-adapters = "1.0.0"
-
-[libraries]
-firebase-crashlytics-buildtools = { module = "com.google.firebase:firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" }
-generativeai = { module = "com.google.ai.generativeai:generativeai", version.ref = "generativeai" }
-cronet-embedded = { module = "org.chromium.net:cronet-embedded", version.ref = "cronet-embedded" }
-androidx-adapters = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "androidx-adapters" }
-EOF
+          echo 'versions = {' > gradle/libs.versions.toml
+          echo '    firebase-crashlytics-buildtools = "2.9.9",' >> gradle/libs.versions.toml
+          echo '    generativeai = "0.1.0",' >> gradle/libs.versions.toml
+          echo '    cronet-embedded = "119.6045.31",' >> gradle/libs.versions.toml
+          echo '    androidx-adapters = "1.0.0"' >> gradle/libs.versions.toml
+          echo '}' >> gradle/libs.versions.toml
+          echo '' >> gradle/libs.versions.toml
+          echo 'libraries = {' >> gradle/libs.versions.toml
+          echo '    firebase-crashlytics-buildtools = { module = "com.google.firebase:firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools" },' >> gradle/libs.versions.toml
+          echo '    generativeai = { module = "com.google.ai.generativeai:generativeai", version.ref = "generativeai" },' >> gradle/libs.versions.toml
+          echo '    cronet-embedded = { module = "org.chromium.net:cronet-embedded", version.ref = "cronet-embedded" },' >> gradle/libs.versions.toml
+          echo '    androidx-adapters = { module = "androidx.test.espresso:espresso-idling-resource", version.ref = "androidx-adapters" }' >> gradle/libs.versions.toml
+          echo '}' >> gradle/libs.versions.toml
 
       - name: Setup Gradle Properties
         run: |
