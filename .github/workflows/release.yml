@@ -174,20 +174,17 @@ jobs:
                   maven { url = uri("https://maven.google.com") }
                   maven { url = uri("https://androidx.dev/snapshots/latest/artifacts/repository") }
               }
+              versionCatalogs {
+                  create("libs") {
+                      from(files("gradle/libs.versions.toml"))
+                  }
+              }
           }
 
           enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
           rootProject.name = "KiytoApp"
           include(":app")
-
-          dependencyResolutionManagement {
-              versionCatalogs {
-                  create("libs") {
-                      from(file("gradle/libs.versions.toml"))
-                  }
-              }
-          }
           EOF
 
       - name: Grant execute permission for gradlew
