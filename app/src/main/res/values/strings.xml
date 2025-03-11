@@ -2,7 +2,7 @@
     <string name="app_name">Fokus</string>
     <string name="ki_chat_button">KI Chat öffnen</string>
     <string name="focus_mode">Fokus-Modus</string>
-    <string name="welcome_title">Willkommen zurück!</string>
+    <string name="welcome_title">Willkommen bei Fokus</string>
     <string name="welcome_description">Fokus ist der Schlüssel zum Erfolg. Mit unserer App helfen wir dir dabei, deine Aufgaben effizient zu organisieren und dich auf das Wesentliche zu konzentrieren.</string>
     <string name="feature_ai_tasks">KI-gestützte Aufgabenpriorisierung</string>
     <string name="feature_focus_mode">Intelligenter Fokus-Modus</string>
@@ -16,7 +16,7 @@
     <string name="today">Heute</string>
     <string name="weekly_overview">Wochenübersicht</string>
     <string name="focus_time">Fokuszeit</string>
-    <string name="completed_tasks">Abgeschlossene Aufgaben</string>
+    <string name="completed_tasks">Erledigte Aufgaben</string>
     <string name="pomodoros">Pomodoros</string>
     <string name="productivity">Produktivität</string>
     <string name="active_days">%d aktive Tage</string>
@@ -38,11 +38,11 @@
     <string name="tasks_format">%d Aufgaben</string>
     <string name="pomodoros_format">%d Einheiten</string>
     <string name="new_task">Neue Aufgabe</string>
-    <string name="task_title">Titel</string>
+    <string name="task_title">Aufgabentitel</string>
     <string name="task_description">Beschreibung</string>
     <string name="priority">Priorität</string>
     <string name="due_date">Fälligkeitsdatum</string>
-    <string name="due_time">Uhrzeit</string>
+    <string name="due_time">Fälligkeitszeit</string>
     <string name="no_description">Keine Beschreibung vorhanden</string>
     <string name="tags">Tags (durch Komma getrennt)</string>
     <string name="save">Speichern</string>
@@ -83,8 +83,9 @@
     <string name="no_tasks_message">Keine Aufgaben vorhanden</string>
     <string name="ai_assistant">KI-Assistent</string>
     <!-- Chat -->
+    <string name="chat">Chat mit Kiyto</string>
     <string name="message_hint">Nachricht eingeben...</string>
-    <string name="send_message">Nachricht senden</string>
+    <string name="send_message">Senden</string>
     <string name="task_help">Aufgabenhilfe</string>
     <string name="focus_help">Fokus-Tipps</string>
     <string name="productivity_help">Produktivitäts Tipps</string>
@@ -129,7 +130,7 @@
     <string name="productivity_tips">Nutzen Sie Sprachbefehle für schnelles Erstellen von Aufgaben\n• Planen Sie regelmäßige Fokus-Sessions\n• Überprüfen Sie Ihre Statistiken wöchentlich\n• Priorisieren Sie Ihre Aufgaben mit KI-Unterstützung</string>
     <string name="productivity_tips2">Es ist einen Standard APK-KEY Installiert. Unter Einstellungen können Sie Ihren eigenen Schlüssel OPENAI-API-KEY eingeben. Es muss über ein genügendes Guthaben verfügbar sein.</string>
     <string name="statistics">Statistiken</string>
-    <string name="no_tasks_yet">Noch keine Aufgaben vorhanden</string>
+    <string name="no_tasks_yet">Noch keine Aufgaben vorhanden. Erstelle Aufgaben, um KI-Empfehlungen zu erhalten.</string>
     <string name="calendar">Kalender</string>
     <string name="welcome_user">Willkommen, %1$s!</string>
     <string name="today_stats">%1$d Aufgaben heute, %2$d min Fokuszeit</string>
@@ -151,8 +152,8 @@
     <string name="password">Passwort</string>
     <string name="confirm_password">Passwort bestätigen</string>
     <string name="forgot_password">Passwort vergessen?</string>
-    <string name="login_subtitle">Melden Sie sich an, um Ihre Produktivität zu steigern</string>
-    <string name="register_subtitle">Erstellen Sie ein Konto, um loszulegen</string>
+    <string name="login_subtitle">Melde dich an, um deine Produktivität zu steigern</string>
+    <string name="register_subtitle">Erstelle ein neues Konto</string>
     <string name="error_fields_empty">Bitte füllen Sie alle Felder aus</string>
     <string name="error_invalid_email">Bitte geben Sie eine gültige E-Mail-Adresse ein</string>
     <string name="error_invalid_credentials">Ungültige Anmeldedaten</string>
@@ -177,7 +178,7 @@
     <string name="delete_message">Nachricht löschen</string>
     <string name="toggle_view">Ansicht wechseln</string>
     <string name="mindmap_view">Mind Map</string>
-    <string name="mindmap_description">Visualisierung der Aufgaben als Mind Map</string>
+    <string name="mindmap_description">Visualisiere deine Gedanken und Aufgaben</string>
     <string name="zoom_in">Vergrößern</string>
     <string name="zoom_out">Verkleinern</string>
     <string name="reset_view">Ansicht zurücksetzen</string>
@@ -203,9 +204,9 @@
     <string name="notification_sound">Melodie</string>
     <string name="notification_schedule">Zeitplan</string>
     <string name="ai_recommendations">KI-Empfehlungen</string>
-    <string name="productivity_analysis">Produktivitätsanalyse</string>
-    <string name="focus_recommendations">Fokus-Empfehlungen</string>
-    <string name="task_optimization">Aufgabenoptimierung</string>
+    <string name="productivity_analysis">Produktivitätsanalyse: Basierend auf deinen letzten Aufgaben, bist du am produktivsten zwischen 9 und 11 Uhr.</string>
+    <string name="focus_recommendations">Fokus-Empfehlungen: Versuche, deine wichtigsten Aufgaben in 25-Minuten-Blöcken zu erledigen.</string>
+    <string name="task_optimization">Aufgabenoptimierung: Gruppiere ähnliche Aufgaben, um Kontext-Wechsel zu reduzieren.</string>
     <string name="error_loading_recommendations">Fehler beim Laden der Empfehlungen</string>
     <string name="loading_recommendations">Empfehlungen werden geladen...</string>
     <string name="no_recommendations">Keine Empfehlungen verfügbar</string>
@@ -232,9 +233,9 @@
     <string name="notification_background_error">Fehler beim Aktualisieren des Benachrichtigungshintergrunds</string>
     <string name="welcome_message">👋 Hallo! Ich bin Kiyto, Ihr persönlicher KI-Assistent. Ich kann Ihnen bei verschiedenen Aufgaben helfen:\n\n• Aufgaben erstellen und verwalten\n• Timer setzen\n• Kalendereinträge erstellen\n• Bilder analysieren\n• Dokumente zusammenfassen\n• und vieles mehr!\n\nWie kann ich Ihnen heute helfen?</string>
     <string name="openai_api_key">OpenAI API-KEY</string>
-    <string name="web_content">web content</string>
-    <string name="x_tweeter">X-tweeter</string>
-    <string name="e_mail">E-Mail:</string>
+    <string name="web_content">Webseite: https://fox-blog-social.vercel.app/</string>
+    <string name="x_tweeter">X/Twitter: @KiytoApp</string>
+    <string name="e_mail">E-Mail: cupparikun@gmail.com</string>
     <string name="day_visualizer">Tagesplaner</string>
     <string name="calendar_settings">Kalender-Einstellungen</string>
     <string name="calendar_sync">Kalender synchronisieren</string>
@@ -274,4 +275,6 @@
     <string name="checking_for_updates">Suche nach Updates...</string>
     <string name="previous_month">Vorheriger Monat</string>
     <string name="next_month">Nächster Monat</string>
+    <!-- About Me Strings -->
+    <string name="about_me">Über mich</string>
 </resources>

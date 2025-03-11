@@ -26,6 +26,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: wrapper
+          cache-read-only: false
+          gradle-home-cache-cleanup: true
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY || 'default-key' }}
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -382,6 +385,9 @@ jobs:
           echo "android.enableJetifier=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.parallel=false" >> gradle.properties
+          echo "gradle.enterprise.url=https://ge.gradle.org" >> gradle.properties
+          echo "gradle.enterprise.build.scan.terms-of-service-url=https://gradle.com/terms-of-service" >> gradle.properties
+          echo "gradle.enterprise.build.scan.terms-of-service-agree=yes" >> gradle.properties
 
       - name: Setup Settings Gradle
         run: |
@@ -412,6 +418,422 @@ jobs:
 
           rootProject.name = "KiytoApp"
           include(":app")
+          EOF
+
+      # Create Lottie Animation Files before building
+      - name: Create Lottie Animation Files
+        run: |
+          # Create raw directory for Lottie animations
+          mkdir -p app/src/main/res/raw
+          
+          # Create a simple JSON for Lottie (minimal placeholder)
+          cat > app/src/main/res/raw/loading_animation.json << 'EOF'
+          {"v":"5.5.7","meta":{"g":"LottieFiles AE 0.1.20","a":"","k":"","d":"","tc":""},"fr":30,"ip":0,"op":60,"w":512,"h":512,"nm":"Loading","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"Shape Layer 1","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"t":59,"s":[360]}],"ix":10},"p":{"a":0,"k":[256,256,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[200,200],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"st","c":{"a":0,"k":[0.2,0.4,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":20,"ix":5},"lc":2,"lj":1,"ml":4,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Ellipse 1","np":3,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":60,"st":0,"bm":0}],"markers":[]}
+          EOF
+          
+          # Create a second animation for variety
+          cat > app/src/main/res/raw/success_animation.json << 'EOF'
+          {"v":"5.5.7","meta":{"g":"LottieFiles AE 0.1.20","a":"","k":"","d":"","tc":""},"fr":30,"ip":0,"op":60,"w":512,"h":512,"nm":"Success","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"Check","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[256,256,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":15,"s":[0,0,100]},{"t":30,"s":[100,100,100]}],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0]],"v":[[-50,0],[0,50],[100,-50]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"st","c":{"a":0,"k":[0.2,0.8,0.4,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":20,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Check","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.667],"y":[1]},"o":{"x":[0.333],"y":[0]},"t":30,"s":[0]},{"t":45,"s":[100]}],"ix":1},"e":{"a":1,"k":[{"i":{"x":[0.667],"y":[1]},"o":{"x":[0.333],"y":[0]},"t":25,"s":[0]},{"t":40,"s":[100]}],"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false}],"ip":0,"op":60,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"Circle","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[256,256,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":0,"s":[0,0,100]},{"t":15,"s":[100,100,100]}],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[200,200],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"fl","c":{"a":0,"k":[0.2,0.8,0.4,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Ellipse 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":60,"st":0,"bm":0}],"markers":[]}
+          EOF
+
+      # Create all layout files before building
+      - name: Create Additional Layouts
+        run: |
+          # Create layout directory if it doesn't exist
+          mkdir -p app/src/main/res/layout
+          
+          # Create activity_main.xml
+          cat > app/src/main/res/layout/activity_main.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context=".MainActivity">
+          
+              <TextView
+                  android:id="@+id/welcomeTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/app_name"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/animationView"
+                  android:layout_width="200dp"
+                  android:layout_height="200dp"
+                  android:layout_marginTop="24dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/welcomeTextView"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+              
+              <Button
+                  android:id="@+id/settingsButton"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_margin="16dp"
+                  android:text="@string/settings"
+                  style="@style/Widget.Material3.Button.IconButton"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+          
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_about_me.xml
+          cat > app/src/main/res/layout/activity_about_me.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+              
+              <TextView
+                  android:id="@+id/aboutMeTitle"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:text="@string/app_name"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+                  
+              <TextView
+                  android:id="@+id/webContentLabel"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:layout_marginStart="24dp"
+                  android:text="@string/web_content"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/aboutMeTitle" />
+                  
+              <TextView
+                  android:id="@+id/xTweeterLabel"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="24dp"
+                  android:text="@string/x_tweeter"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/webContentLabel" />
+                  
+              <TextView
+                  android:id="@+id/emailLabel"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="24dp"
+                  android:text="@string/e_mail"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/xTweeterLabel" />
+                  
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/aboutMeAnimation"
+                  android:layout_width="200dp"
+                  android:layout_height="200dp"
+                  android:layout_marginTop="32dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/emailLabel"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/success_animation" />
+                  
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_ai_recommendations.xml
+          cat > app/src/main/res/layout/activity_ai_recommendations.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+              
+              <TextView
+                  android:id="@+id/aiRecommendationsTitle"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:text="@string/ai_recommendations"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+                  
+              <TextView
+                  android:id="@+id/productivityAnalysisLabel"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="32dp"
+                  android:layout_marginStart="24dp"
+                  android:layout_marginEnd="24dp"
+                  android:text="@string/productivity_analysis"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/aiRecommendationsTitle" />
+                  
+              <TextView
+                  android:id="@+id/focusRecommendationsLabel"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="24dp"
+                  android:layout_marginEnd="24dp"
+                  android:text="@string/focus_recommendations"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/productivityAnalysisLabel" />
+                  
+              <TextView
+                  android:id="@+id/taskOptimizationLabel"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="24dp"
+                  android:layout_marginEnd="24dp"
+                  android:text="@string/task_optimization"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/focusRecommendationsLabel" />
+                  
+              <TextView
+                  android:id="@+id/noTasksYetLabel"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/no_tasks_yet"
+                  android:visibility="gone"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+                  
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/aiRecommendationsAnimation"
+                  android:layout_width="200dp"
+                  android:layout_height="200dp"
+                  android:layout_marginTop="32dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/taskOptimizationLabel"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+                  
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_chat.xml
+          cat > app/src/main/res/layout/activity_chat.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+              
+              <TextView
+                  android:id="@+id/chatTitle"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:text="@string/chat"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+                  
+              <androidx.recyclerview.widget.RecyclerView
+                  android:id="@+id/chatRecyclerView"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginBottom="16dp"
+                  app:layout_constraintBottom_toTopOf="@+id/messageInputLayout"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/chatTitle" />
+                  
+              <com.google.android.material.textfield.TextInputLayout
+                  android:id="@+id/messageInputLayout"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="16dp"
+                  android:layout_marginEnd="8dp"
+                  android:layout_marginBottom="16dp"
+                  android:hint="@string/message_hint"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toStartOf="@+id/sendMessageButton"
+                  app:layout_constraintStart_toStartOf="parent">
+                  
+                  <com.google.android.material.textfield.TextInputEditText
+                      android:id="@+id/messageEditText"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:inputType="textMultiLine"
+                      android:maxLines="4" />
+                      
+              </com.google.android.material.textfield.TextInputLayout>
+              
+              <Button
+                  android:id="@+id/sendMessageButton"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginEnd="16dp"
+                  android:text="@string/send_message"
+                  app:layout_constraintBottom_toBottomOf="@+id/messageInputLayout"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="@+id/messageInputLayout" />
+                  
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/chatLoadingAnimation"
+                  android:layout_width="100dp"
+                  android:layout_height="100dp"
+                  android:visibility="gone"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+                  
+          </androidx.constraintlayout.widget.ConstraintLayout>
+          EOF
+          
+          # Create activity_login.xml
+          cat > app/src/main/res/layout/activity_login.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+              
+              <TextView
+                  android:id="@+id/welcomeTitle"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="64dp"
+                  android:text="@string/welcome_title"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+                  
+              <TextView
+                  android:id="@+id/loginSubtitle"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="8dp"
+                  android:text="@string/login_subtitle"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/welcomeTitle" />
+                  
+              <com.google.android.material.textfield.TextInputLayout
+                  android:id="@+id/emailInputLayout"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
+                  android:layout_marginTop="48dp"
+                  android:layout_marginEnd="32dp"
+                  android:hint="@string/email"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/loginSubtitle">
+                  
+                  <com.google.android.material.textfield.TextInputEditText
+                      android:id="@+id/emailEditText"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:inputType="textEmailAddress" />
+                      
+              </com.google.android.material.textfield.TextInputLayout>
+              
+              <com.google.android.material.textfield.TextInputLayout
+                  android:id="@+id/passwordInputLayout"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginEnd="32dp"
+                  android:hint="@string/password"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/emailInputLayout"
+                  app:passwordToggleEnabled="true">
+                  
+                  <com.google.android.material.textfield.TextInputEditText
+                      android:id="@+id/passwordEditText"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:inputType="textPassword" />
+                      
+              </com.google.android.material.textfield.TextInputLayout>
+              
+              <Button
+                  android:id="@+id/loginButton"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
+                  android:layout_marginTop="32dp"
+                  android:layout_marginEnd="32dp"
+                  android:text="@string/login"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/passwordInputLayout" />
+                  
+              <Button
+                  android:id="@+id/registerButton"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
+                  android:layout_marginTop="8dp"
+                  android:layout_marginEnd="32dp"
+                  android:text="@string/register"
+                  style="@style/Widget.Material3.Button.OutlinedButton"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/loginButton" />
+                  
+              <TextView
+                  android:id="@+id/forgotPasswordTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:text="@string/forgot_password"
+                  android:textColor="?attr/colorPrimary"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/registerButton" />
+                  
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/loginLoadingAnimation"
+                  android:layout_width="100dp"
+                  android:layout_height="100dp"
+                  android:visibility="gone"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+                  
+          </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
 
       - name: Grant execute permission for gradlew
@@ -449,11 +871,6 @@ jobs:
           ls -la gradle/
           cat settings.gradle.kts
           cat build.gradle.kts
-          
-          # Create gradle.properties for build scan
-          echo "gradle.enterprise.url=https://ge.gradle.org" >> gradle.properties
-          echo "gradle.enterprise.build.scan.terms-of-service-url=https://gradle.com/terms-of-service" >> gradle.properties
-          echo "gradle.enterprise.build.scan.terms-of-service-agree=yes" >> gradle.properties
           
           # Clean and build
           ./gradlew clean assembleRelease --no-daemon --info --stacktrace \
@@ -555,113 +972,6 @@ jobs:
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
           
-          # Create activity_login.xml
-          cat > app/src/main/res/layout/activity_login.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
-              <TextView
-                  android:id="@+id/titleTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="64dp"
-                  android:text="@string/welcome_title"
-                  android:textSize="24sp"
-                  android:textStyle="bold"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toTopOf="parent" />
-          
-              <TextView
-                  android:id="@+id/subtitleTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="8dp"
-                  android:text="@string/login_subtitle"
-                  android:textSize="16sp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
-          
-              <com.airbnb.lottie.LottieAnimationView
-                  android:id="@+id/animationView"
-                  android:layout_width="120dp"
-                  android:layout_height="120dp"
-                  android:layout_marginTop="16dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/subtitleTextView"
-                  app:lottie_autoPlay="true"
-                  app:lottie_loop="true"
-                  app:lottie_rawRes="@raw/loading_animation" />
-          
-              <EditText
-                  android:id="@+id/emailEditText"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="24dp"
-                  android:hint="@string/email"
-                  android:inputType="textEmailAddress"
-                  android:padding="12dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/animationView"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-              <EditText
-                  android:id="@+id/passwordEditText"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="16dp"
-                  android:hint="@string/password"
-                  android:inputType="textPassword"
-                  android:padding="12dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/emailEditText"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-              <Button
-                  android:id="@+id/loginButton"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="24dp"
-                  android:text="@string/login"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-              <Button
-                  android:id="@+id/registerButton"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="8dp"
-                  android:text="@string/register"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/loginButton"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-              <TextView
-                  android:id="@+id/forgotPasswordTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="16dp"
-                  android:text="@string/forgot_password"
-                  android:textColor="#0000FF"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/registerButton" />
-          
-          </androidx.constraintlayout.widget.ConstraintLayout>
-          EOF
-          
           # Create activity_about_me.xml
           cat > app/src/main/res/layout/activity_about_me.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
@@ -669,63 +979,31 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
+              android:layout_height="match_parent">
+              
               <TextView
-                  android:id="@+id/titleTextView"
+                  android:id="@+id/aboutMeTitle"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="32dp"
                   android:text="@string/app_name"
-                  android:textSize="24sp"
-                  android:textStyle="bold"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintTop_toTopOf="parent" />
-          
+                  
               <com.airbnb.lottie.LottieAnimationView
-                  android:id="@+id/profileAnimationView"
-                  android:layout_width="120dp"
-                  android:layout_height="120dp"
-                  android:layout_marginTop="24dp"
+                  android:id="@+id/aboutMeAnimation"
+                  android:layout_width="200dp"
+                  android:layout_height="200dp"
+                  android:layout_marginTop="32dp"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+                  app:layout_constraintTop_toBottomOf="@+id/aboutMeTitle"
                   app:lottie_autoPlay="true"
                   app:lottie_loop="true"
                   app:lottie_rawRes="@raw/success_animation" />
-          
-              <TextView
-                  android:id="@+id/webContentTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="32dp"
-                  android:text="@string/web_content"
-                  android:textSize="18sp"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/profileAnimationView" />
-          
-              <TextView
-                  android:id="@+id/twitterTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="16dp"
-                  android:text="@string/x_tweeter"
-                  android:textSize="18sp"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/webContentTextView" />
-          
-              <TextView
-                  android:id="@+id/emailTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="16dp"
-                  android:text="@string/e_mail"
-                  android:textSize="18sp"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/twitterTextView" />
-          
+                  
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
           
@@ -736,81 +1014,78 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
+              android:layout_height="match_parent">
+              
               <TextView
-                  android:id="@+id/titleTextView"
+                  android:id="@+id/aiRecommendationsTitle"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="32dp"
-                  android:text="@string/app_name"
-                  android:textSize="24sp"
-                  android:textStyle="bold"
+                  android:text="@string/ai_recommendations"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintTop_toTopOf="parent" />
-          
-              <com.airbnb.lottie.LottieAnimationView
-                  android:id="@+id/aiAnimationView"
-                  android:layout_width="100dp"
-                  android:layout_height="100dp"
-                  android:layout_marginTop="16dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/titleTextView"
-                  app:lottie_autoPlay="true"
-                  app:lottie_loop="true"
-                  app:lottie_rawRes="@raw/loading_animation" />
-          
+                  
               <TextView
-                  android:id="@+id/productivityAnalysisTextView"
-                  android:layout_width="0dp"
+                  android:id="@+id/productivityAnalysisLabel"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="32dp"
+                  android:layout_marginStart="24dp"
+                  android:layout_marginEnd="24dp"
                   android:text="@string/productivity_analysis"
-                  android:textSize="18sp"
-                  android:textStyle="bold"
-                  app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/aiAnimationView" />
-          
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/aiRecommendationsTitle" />
+                  
               <TextView
-                  android:id="@+id/focusRecommendationsTextView"
-                  android:layout_width="0dp"
+                  android:id="@+id/focusRecommendationsLabel"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:layout_marginTop="24dp"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="24dp"
+                  android:layout_marginEnd="24dp"
                   android:text="@string/focus_recommendations"
-                  android:textSize="18sp"
-                  android:textStyle="bold"
-                  app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/productivityAnalysisTextView" />
-          
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/productivityAnalysisLabel" />
+                  
               <TextView
-                  android:id="@+id/taskOptimizationTextView"
-                  android:layout_width="0dp"
+                  android:id="@+id/taskOptimizationLabel"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:layout_marginTop="24dp"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="24dp"
+                  android:layout_marginEnd="24dp"
                   android:text="@string/task_optimization"
-                  android:textSize="18sp"
-                  android:textStyle="bold"
-                  app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/focusRecommendationsTextView" />
-          
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/focusRecommendationsLabel" />
+                  
               <TextView
-                  android:id="@+id/noTasksTextView"
+                  android:id="@+id/noTasksYetLabel"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/no_tasks_yet"
-                  android:textSize="16sp"
                   android:visibility="gone"
                   app:layout_constraintBottom_toBottomOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintTop_toTopOf="parent" />
-          
+                  
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/aiRecommendationsAnimation"
+                  android:layout_width="200dp"
+                  android:layout_height="200dp"
+                  android:layout_marginTop="32dp"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/taskOptimizationLabel"
+                  app:lottie_autoPlay="true"
+                  app:lottie_loop="true"
+                  app:lottie_rawRes="@raw/loading_animation" />
+                  
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
           
@@ -821,519 +1096,196 @@ jobs:
               xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
+              android:layout_height="match_parent">
+              
+              <TextView
+                  android:id="@+id/chatTitle"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:text="@string/chat"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
+                  
+              <androidx.recyclerview.widget.RecyclerView
+                  android:id="@+id/chatRecyclerView"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginBottom="16dp"
+                  app:layout_constraintBottom_toTopOf="@+id/messageInputLayout"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/chatTitle" />
+                  
+              <com.google.android.material.textfield.TextInputLayout
+                  android:id="@+id/messageInputLayout"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="16dp"
+                  android:layout_marginEnd="8dp"
+                  android:layout_marginBottom="16dp"
+                  android:hint="@string/message_hint"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toStartOf="@+id/sendMessageButton"
+                  app:layout_constraintStart_toStartOf="parent">
+                  
+                  <com.google.android.material.textfield.TextInputEditText
+                      android:id="@+id/messageEditText"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:inputType="textMultiLine"
+                      android:maxLines="4" />
+                      
+              </com.google.android.material.textfield.TextInputLayout>
+              
+              <Button
+                  android:id="@+id/sendMessageButton"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginEnd="16dp"
+                  android:text="@string/send_message"
+                  app:layout_constraintBottom_toBottomOf="@+id/messageInputLayout"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintTop_toTopOf="@+id/messageInputLayout" />
+                  
               <com.airbnb.lottie.LottieAnimationView
-                  android:id="@+id/chatAnimationView"
-                  android:layout_width="80dp"
-                  android:layout_height="80dp"
-                  android:layout_marginTop="8dp"
+                  android:id="@+id/chatLoadingAnimation"
+                  android:layout_width="100dp"
+                  android:layout_height="100dp"
+                  android:visibility="gone"
+                  app:layout_constraintBottom_toBottomOf="parent"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintTop_toTopOf="parent"
                   app:lottie_autoPlay="true"
                   app:lottie_loop="true"
                   app:lottie_rawRes="@raw/loading_animation" />
-          
-              <androidx.recyclerview.widget.RecyclerView
-                  android:id="@+id/messagesRecyclerView"
-                  android:layout_width="0dp"
-                  android:layout_height="0dp"
-                  android:layout_marginTop="8dp"
-                  android:layout_marginBottom="16dp"
-                  app:layout_constraintBottom_toTopOf="@+id/messageEditText"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/chatAnimationView" />
-          
-              <EditText
-                  android:id="@+id/messageEditText"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:hint="@string/message_hint"
-                  android:inputType="textMultiLine"
-                  app:layout_constraintBottom_toBottomOf="parent"
-                  app:layout_constraintEnd_toStartOf="@+id/sendButton"
-                  app:layout_constraintStart_toStartOf="parent" />
-          
-              <Button
-                  android:id="@+id/sendButton"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginStart="8dp"
-                  android:text="@string/send_message"
-                  app:layout_constraintBottom_toBottomOf="parent"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toEndOf="@+id/messageEditText" />
-          
+                  
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF
           
-          # Create activity_mindmap.xml
-          cat > app/src/main/res/layout/activity_mindmap.xml << 'EOF'
+          # Create activity_login.xml
+          cat > app/src/main/res/layout/activity_login.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
+              android:layout_height="match_parent">
+              
               <TextView
-                  android:id="@+id/descriptionTextView"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:text="@string/mindmap_description"
-                  android:textSize="16sp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toTopOf="parent" />
-          
-              <FrameLayout
-                  android:id="@+id/mindmapContainer"
-                  android:layout_width="0dp"
-                  android:layout_height="0dp"
-                  android:layout_marginTop="16dp"
-                  app:layout_constraintBottom_toTopOf="@+id/controlsLayout"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/descriptionTextView" />
-          
-              <LinearLayout
-                  android:id="@+id/controlsLayout"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal"
-                  app:layout_constraintBottom_toBottomOf="parent"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent">
-          
-                  <Button
-                      android:id="@+id/zoomInButton"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/zoom_in" />
-          
-                  <Button
-                      android:id="@+id/zoomOutButton"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_marginStart="8dp"
-                      android:text="@string/zoom_out" />
-          
-                  <Button
-                      android:id="@+id/resetViewButton"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_marginStart="8dp"
-                      android:text="@string/reset_view" />
-              </LinearLayout>
-          
-          </androidx.constraintlayout.widget.ConstraintLayout>
-          EOF
-          
-          # Create activity_new_task.xml
-          cat > app/src/main/res/layout/activity_new_task.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
-              <TextView
-                  android:id="@+id/titleHeaderTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="@string/app_name"
-                  android:textSize="24sp"
-                  android:textStyle="bold"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toTopOf="parent" />
-          
-              <ScrollView
-                  android:layout_width="0dp"
-                  android:layout_height="0dp"
-                  android:layout_marginTop="16dp"
-                  app:layout_constraintBottom_toBottomOf="parent"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/titleHeaderTextView">
-          
-                  <LinearLayout
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical">
-          
-                      <TextView
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:text="@string/task_title"
-                          android:textSize="16sp"
-                          android:textStyle="bold" />
-          
-                      <EditText
-                          android:id="@+id/taskTitleEditText"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="8dp"
-                          android:hint="@string/task_title"
-                          android:inputType="text" />
-          
-                      <TextView
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="16dp"
-                          android:text="@string/task_description"
-                          android:textSize="16sp"
-                          android:textStyle="bold" />
-          
-                      <EditText
-                          android:id="@+id/taskDescriptionEditText"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="8dp"
-                          android:gravity="top|start"
-                          android:hint="@string/task_description"
-                          android:inputType="textMultiLine"
-                          android:lines="5" />
-          
-                      <LinearLayout
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="16dp"
-                          android:orientation="horizontal">
-          
-                          <LinearLayout
-                              android:layout_width="0dp"
-                              android:layout_height="wrap_content"
-                              android:layout_weight="1"
-                              android:orientation="vertical">
-          
-                              <TextView
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:text="@string/due_date"
-                                  android:textSize="16sp"
-                                  android:textStyle="bold" />
-          
-                              <Button
-                                  android:id="@+id/dueDateButton"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="wrap_content"
-                                  android:text="@string/due_date" />
-                          </LinearLayout>
-          
-                          <LinearLayout
-                              android:layout_width="0dp"
-                              android:layout_height="wrap_content"
-                              android:layout_marginStart="8dp"
-                              android:layout_weight="1"
-                              android:orientation="vertical">
-          
-                              <TextView
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:text="@string/due_time"
-                                  android:textSize="16sp"
-                                  android:textStyle="bold" />
-          
-                              <Button
-                                  android:id="@+id/dueTimeButton"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="wrap_content"
-                                  android:text="@string/due_time" />
-                          </LinearLayout>
-                      </LinearLayout>
-          
-                      <TextView
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="16dp"
-                          android:text="@string/priority"
-                          android:textSize="16sp"
-                          android:textStyle="bold" />
-          
-                      <Spinner
-                          android:id="@+id/prioritySpinner"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="8dp" />
-          
-                      <TextView
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="16dp"
-                          android:text="@string/tags"
-                          android:textSize="16sp"
-                          android:textStyle="bold" />
-          
-                      <EditText
-                          android:id="@+id/tagsEditText"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="8dp"
-                          android:hint="@string/tags"
-                          android:inputType="text" />
-          
-                      <Button
-                          android:id="@+id/saveButton"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="24dp"
-                          android:text="@string/save" />
-                  </LinearLayout>
-              </ScrollView>
-          
-          </androidx.constraintlayout.widget.ConstraintLayout>
-          EOF
-          
-          # Create activity_register.xml
-          cat > app/src/main/res/layout/activity_register.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
-              <TextView
-                  android:id="@+id/titleTextView"
+                  android:id="@+id/welcomeTitle"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="64dp"
-                  android:text="@string/app_name"
-                  android:textSize="24sp"
-                  android:textStyle="bold"
+                  android:text="@string/welcome_title"
+                  android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
                   app:layout_constraintTop_toTopOf="parent" />
-          
+                  
               <TextView
-                  android:id="@+id/subtitleTextView"
+                  android:id="@+id/loginSubtitle"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="8dp"
-                  android:text="@string/register_subtitle"
-                  android:textSize="16sp"
+                  android:text="@string/login_subtitle"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
-          
-              <com.airbnb.lottie.LottieAnimationView
-                  android:id="@+id/animationView"
-                  android:layout_width="120dp"
-                  android:layout_height="120dp"
+                  app:layout_constraintTop_toBottomOf="@+id/welcomeTitle" />
+                  
+              <com.google.android.material.textfield.TextInputLayout
+                  android:id="@+id/emailInputLayout"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
+                  android:layout_marginTop="48dp"
+                  android:layout_marginEnd="32dp"
+                  android:hint="@string/email"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/loginSubtitle">
+                  
+                  <com.google.android.material.textfield.TextInputEditText
+                      android:id="@+id/emailEditText"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:inputType="textEmailAddress" />
+                      
+              </com.google.android.material.textfield.TextInputLayout>
+              
+              <com.google.android.material.textfield.TextInputLayout
+                  android:id="@+id/passwordInputLayout"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
                   android:layout_marginTop="16dp"
+                  android:layout_marginEnd="32dp"
+                  android:hint="@string/password"
                   app:layout_constraintEnd_toEndOf="parent"
                   app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/subtitleTextView"
+                  app:layout_constraintTop_toBottomOf="@+id/emailInputLayout"
+                  app:passwordToggleEnabled="true">
+                  
+                  <com.google.android.material.textfield.TextInputEditText
+                      android:id="@+id/passwordEditText"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:inputType="textPassword" />
+                      
+              </com.google.android.material.textfield.TextInputLayout>
+              
+              <Button
+                  android:id="@+id/loginButton"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
+                  android:layout_marginTop="32dp"
+                  android:layout_marginEnd="32dp"
+                  android:text="@string/login"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/passwordInputLayout" />
+                  
+              <Button
+                  android:id="@+id/registerButton"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="32dp"
+                  android:layout_marginTop="8dp"
+                  android:layout_marginEnd="32dp"
+                  android:text="@string/register"
+                  style="@style/Widget.Material3.Button.OutlinedButton"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/loginButton" />
+                  
+              <TextView
+                  android:id="@+id/forgotPasswordTextView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="16dp"
+                  android:text="@string/forgot_password"
+                  android:textColor="?attr/colorPrimary"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toBottomOf="@+id/registerButton" />
+                  
+              <com.airbnb.lottie.LottieAnimationView
+                  android:id="@+id/loginLoadingAnimation"
+                  android:layout_width="100dp"
+                  android:layout_height="100dp"
+                  android:visibility="gone"
+                  app:layout_constraintBottom_toBottomOf="parent"
+                  app:layout_constraintEnd_toEndOf="parent"
+                  app:layout_constraintStart_toStartOf="parent"
+                  app:layout_constraintTop_toTopOf="parent"
                   app:lottie_autoPlay="true"
                   app:lottie_loop="true"
                   app:lottie_rawRes="@raw/loading_animation" />
-          
-              <EditText
-                  android:id="@+id/emailEditText"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="24dp"
-                  android:hint="@string/email"
-                  android:inputType="textEmailAddress"
-                  android:padding="12dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/animationView"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-              <EditText
-                  android:id="@+id/passwordEditText"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="16dp"
-                  android:hint="@string/password"
-                  android:inputType="textPassword"
-                  android:padding="12dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/emailEditText"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-              <EditText
-                  android:id="@+id/confirmPasswordEditText"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="16dp"
-                  android:hint="@string/confirm_password"
-                  android:inputType="textPassword"
-                  android:padding="12dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-              <Button
-                  android:id="@+id/registerButton"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="24dp"
-                  android:text="@string/register"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/confirmPasswordEditText"
-                  app:layout_constraintWidth_percent="0.8" />
-          
-          </androidx.constraintlayout.widget.ConstraintLayout>
-          EOF
-          
-          # Create activity_saved_summaries.xml
-          cat > app/src/main/res/layout/activity_saved_summaries.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
-              <TextView
-                  android:id="@+id/titleTextView"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="@string/app_name"
-                  android:textSize="24sp"
-                  android:textStyle="bold"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toTopOf="parent" />
-          
-              <com.google.android.material.tabs.TabLayout
-                  android:id="@+id/tabLayout"
-                  android:layout_width="0dp"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="16dp"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/titleTextView">
-          
-                  <com.google.android.material.tabs.TabItem
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/active_tasks" />
-          
-                  <com.google.android.material.tabs.TabItem
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="@string/completed_tasks" />
-              </com.google.android.material.tabs.TabLayout>
-          
-              <androidx.viewpager2.widget.ViewPager2
-                  android:id="@+id/viewPager"
-                  android:layout_width="0dp"
-                  android:layout_height="0dp"
-                  android:layout_marginTop="8dp"
-                  app:layout_constraintBottom_toBottomOf="parent"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
-          
-          </androidx.constraintlayout.widget.ConstraintLayout>
-          EOF
-          
-          # Create activity_task_edit.xml
-          cat > app/src/main/res/layout/activity_task_edit.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:padding="16dp">
-          
-              <ScrollView
-                  android:layout_width="0dp"
-                  android:layout_height="0dp"
-                  app:layout_constraintBottom_toBottomOf="parent"
-                  app:layout_constraintEnd_toEndOf="parent"
-                  app:layout_constraintStart_toStartOf="parent"
-                  app:layout_constraintTop_toTopOf="parent">
-          
-                  <LinearLayout
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical">
-          
-                      <TextView
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:text="@string/task_title"
-                          android:textSize="16sp"
-                          android:textStyle="bold" />
-          
-                      <EditText
-                          android:id="@+id/taskTitleEditText"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="8dp"
-                          android:hint="@string/task_title"
-                          android:inputType="text" />
-          
-                      <TextView
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="16dp"
-                          android:text="@string/task_description"
-                          android:textSize="16sp"
-                          android:textStyle="bold" />
-          
-                      <EditText
-                          android:id="@+id/taskDescriptionEditText"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="8dp"
-                          android:gravity="top|start"
-                          android:hint="@string/task_description"
-                          android:inputType="textMultiLine"
-                          android:lines="5" />
-          
-                      <LinearLayout
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="16dp"
-                          android:orientation="horizontal">
-          
-                          <LinearLayout
-                              android:layout_width="0dp"
-                              android:layout_height="wrap_content"
-                              android:layout_weight="1"
-                              android:orientation="vertical">
-          
-                              <TextView
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:text="@string/due_date"
-                                  android:textSize="16sp"
-                                  android:textStyle="bold" />
-          
-                              <Button
-                                  android:id="@+id/dueDateButton"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="wrap_content"
-                                  android:text="@string/due_date" />
-                          </LinearLayout>
-                      </LinearLayout>
-          
-                      <Button
-                          android:id="@+id/saveButton"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="24dp"
-                          android:text="@string/save" />
-                  </LinearLayout>
-              </ScrollView>
-          
+                  
           </androidx.constraintlayout.widget.ConstraintLayout>
           EOF 
