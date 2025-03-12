@@ -10,6 +10,15 @@ android {
     namespace = "com.deepcore.kiytoapp"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore/kiyto_release.keystore")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "kiytoapp"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "kiyto"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "kiytoapp"
+        }
+    }
+
     buildFeatures {
         buildConfig = true
         viewBinding = true
@@ -29,7 +38,7 @@ android {
         }
         
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = false
         }
     }
 
@@ -37,8 +46,8 @@ android {
         applicationId = "com.deepcore.kiytoapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 192
+        versionName = "1.9.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -64,11 +73,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

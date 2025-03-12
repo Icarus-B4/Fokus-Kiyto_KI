@@ -25,6 +25,7 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <queries>
         <intent>
@@ -57,7 +58,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KiytoApp"
         android:enableOnBackInvokedCallback="true"
-        tools:targetApi="31">
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
+        tools:targetApi="34">
         
         <provider
             android:name="androidx.core.content.FileProvider"
