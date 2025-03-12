@@ -37,7 +37,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.9.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -61,6 +61,15 @@ android {
         abortOnError = false
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore/kiyto_release.keystore")
+            storePassword = "kiytoapp"
+            keyAlias = "kiyto"
+            keyPassword = "kiytoapp"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -68,6 +77,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
