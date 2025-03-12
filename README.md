@@ -104,7 +104,7 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die [LICENSE](LICENSE
 
 Edgar Cuppari - [cupparikun@gmail.com](mailto:cupparikun@gmail.com)
 
-Projektlink: [https://github.com/Icarus-B4/Fokus-Kiyto_KI/releases](https://github.com/DEIN_USERNAME/Fokus-Kiyto_KI)
+Projektlink: [https://github.com/Icarus-B4/Fokus-Kiyto_KI/releases](https://github.com/Icarus-B4/Fokus-Kiyto_KI/releases)
 
 ---
 
