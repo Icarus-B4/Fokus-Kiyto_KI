@@ -6,57 +6,37 @@ param (
     [string]$token = $env:GITHUB_TOKEN,
     
     [Parameter(Mandatory=$false)]
-    [string]$repo = "Icarus-B4/Fokus-Kiyto_KI",
-    
-    [Parameter(Mandatory=$false)]
-    [string]$keystorePath = "app/keystore/kiyto_release.keystore",
-    
-    [Parameter(Mandatory=$false)]
-    [string]$keystorePassword = "kiytoapp",
-    
-    [Parameter(Mandatory=$false)]
-    [string]$keyAlias = "kiyto",
-    
-    [Parameter(Mandatory=$false)]
-    [string]$keyPassword = "kiytoapp"
+    [string]$repo = "Icarus-B4/Fokus-Kiyto_KI"
 )
 
-# Verzeichnisse erstellen
+# Create directories
 $releasesDir = "releases"
 if (-not (Test-Path $releasesDir)) {
     New-Item -ItemType Directory -Path $releasesDir | Out-Null
-    Write-Host "Verzeichnis '$releasesDir' erstellt."
+    Write-Host "Created directory '$releasesDir'."
 }
 
-# APK erstellen
-Write-Host "Erstelle Release-APK..."
+# Build APK
+Write-Host "Building release APK..."
 ./gradlew assembleRelease
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Fehler beim Erstellen der APK." -ForegroundColor Red
+    Write-Host "Error building APK." -ForegroundColor Red
     exit 1
 }
 
-# Pfade definieren
-$unsignedApkPath = "app/build/outputs/apk/release/app-release-unsigned.apk"
-$signedApkPath = "$releasesDir/KiytoApp-v$version-signed.apk"
+# Define paths
+$apkPath = "app/build/outputs/apk/release/app-release.apk"
+$releasedApkPath = "$releasesDir/KiytoApp-v$version.apk"
 
-# APK signieren
-Write-Host "Signiere APK..."
-jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $keystorePath -storepass $keystorePassword -keypass $keyPassword $unsignedApkPath $keyAlias
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Fehler beim Signieren der APK." -ForegroundColor Red
+# Copy APK
+Write-Host "Copying APK..."
+Copy-Item -Path $apkPath -Destination $releasedApkPath -Force
+if (-not (Test-Path $releasedApkPath)) {
+    Write-Host "Error copying APK." -ForegroundColor Red
     exit 1
 }
 
-# Signierte APK kopieren
-Write-Host "Kopiere signierte APK..."
-Copy-Item -Path $unsignedApkPath -Destination $signedApkPath -Force
-if (-not (Test-Path $signedApkPath)) {
-    Write-Host "Fehler beim Kopieren der signierten APK." -ForegroundColor Red
-    exit 1
-}
-
-# Prüfen, ob GitHub CLI installiert ist
+# Check if GitHub CLI is installed
 $ghInstalled = $null
 try {
     $ghInstalled = Get-Command gh -ErrorAction SilentlyContinue
@@ -65,24 +45,24 @@ try {
 }
 
 if ($ghInstalled) {
-    # GitHub CLI verwenden
-    Write-Host "Verwende GitHub CLI zum Hochladen..."
-    gh release create "v$version" --title "Kiyto App v$version" --notes "# Kiyto App Release v$version`n`n## Neue Funktionen`n- Verbesserte Benutzeroberfläche`n- Fehlerbehebungen und Leistungsverbesserungen`n`n## Installation`nLaden Sie die APK herunter und installieren Sie sie auf Ihrem Android-Gerät." $signedApkPath
+    # Use GitHub CLI
+    Write-Host "Using GitHub CLI for upload..."
+    gh release create "v$version" --title "Kiyto App v$version" --notes "# Kiyto App Release v$version`n`n## New Features`n- Improved user interface`n- Bug fixes and performance improvements`n`n## Installation`nDownload and install the APK on your Android device." $releasedApkPath
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Fehler beim Erstellen des Releases mit GitHub CLI." -ForegroundColor Red
+        Write-Host "Error creating release with GitHub CLI." -ForegroundColor Red
     } else {
-        Write-Host "Release erfolgreich erstellt und APK hochgeladen!" -ForegroundColor Green
+        Write-Host "Release created and APK uploaded successfully!" -ForegroundColor Green
     }
 } else {
-    # Curl verwenden, wenn GitHub CLI nicht installiert ist
+    # Use curl if GitHub CLI is not installed
     if (-not $token) {
-        Write-Host "GitHub Token nicht gefunden. Bitte setzen Sie die Umgebungsvariable GITHUB_TOKEN oder übergeben Sie das Token als Parameter." -ForegroundColor Red
+        Write-Host "GitHub token not found. Please set the GITHUB_TOKEN environment variable or pass the token as a parameter." -ForegroundColor Red
         exit 1
     }
     
-    Write-Host "Verwende Curl zum Hochladen..."
+    Write-Host "Using API for upload..."
     
-    # Prüfen, ob das Release bereits existiert
+    # Check if release exists
     $releaseUrl = "https://api.github.com/repos/$repo/releases/tags/v$version"
     $releaseExists = $false
     $releaseId = $null
@@ -96,19 +76,19 @@ if ($ghInstalled) {
         if ($releaseInfo -and $releaseInfo.id) {
             $releaseExists = $true
             $releaseId = $releaseInfo.id
-            Write-Host "Release v$version existiert bereits mit ID: $releaseId"
+            Write-Host "Release v$version already exists with ID: $releaseId"
         }
     } catch {
         $releaseExists = $false
     }
     
     if (-not $releaseExists) {
-        # Release erstellen
-        Write-Host "Erstelle neues Release v$version..."
+        # Create release
+        Write-Host "Creating new release v$version..."
         $releaseData = @{
             tag_name = "v$version"
             name = "Kiyto App v$version"
-            body = "# Kiyto App Release v$version`n`n## Neue Funktionen`n- Verbesserte Benutzeroberfläche`n- Fehlerbehebungen und Leistungsverbesserungen`n`n## Installation`nLaden Sie die APK herunter und installieren Sie sie auf Ihrem Android-Gerät."
+            body = "# Kiyto App Release v$version`n`n## New Features`n- Improved user interface`n- Bug fixes and performance improvements`n`n## Installation`nDownload and install the APK on your Android device."
             draft = $false
             prerelease = $false
         } | ConvertTo-Json
@@ -121,46 +101,42 @@ if ($ghInstalled) {
             } -Method Post -Body $releaseData
             
             $releaseId = $releaseResponse.id
-            Write-Host "Release erstellt mit ID: $releaseId"
+            Write-Host "Release created with ID: $releaseId"
         } catch {
-            Write-Host "Fehler beim Erstellen des Releases: $_" -ForegroundColor Red
+            Write-Host "Error creating release: $_" -ForegroundColor Red
             exit 1
         }
     }
     
-    # Asset hochladen
+    # Upload asset
     if ($releaseId) {
-        Write-Host "Lade APK als Asset hoch..."
-        $assetName = [System.IO.Path]::GetFileName($signedApkPath)
+        Write-Host "Uploading APK as asset..."
+        $assetName = [System.IO.Path]::GetFileName($releasedApkPath)
         $uploadUrl = "https://uploads.github.com/repos/$repo/releases/$releaseId/assets?name=$assetName"
         
         try {
-            $fileBytes = [System.IO.File]::ReadAllBytes($signedApkPath)
+            $fileBytes = [System.IO.File]::ReadAllBytes($releasedApkPath)
             $response = Invoke-RestMethod -Uri $uploadUrl -Headers @{
                 "Authorization" = "token $token"
                 "Accept" = "application/vnd.github.v3+json"
                 "Content-Type" = "application/vnd.android.package-archive"
             } -Method Post -Body $fileBytes
             
-            Write-Host "APK erfolgreich hochgeladen: $($response.browser_download_url)" -ForegroundColor Green
+            Write-Host "APK uploaded successfully: $($response.browser_download_url)" -ForegroundColor Green
         } catch {
-            Write-Host "Fehler beim Hochladen der APK: $_" -ForegroundColor Red
+            Write-Host "Error uploading APK: $_" -ForegroundColor Red
             exit 1
         }
     }
 }
 
-Write-Host "Prozess abgeschlossen. Die signierte APK befindet sich unter: $signedApkPath" -ForegroundColor Green
+Write-Host "Process completed. The APK is located at: $releasedApkPath" -ForegroundColor Green
 
-# Alternative Installation über ADB
-Write-Host "Installiere APK über ADB..."
-adb install app/build/outputs/apk/debug/app-debug.apk
+# Install via ADB
+Write-Host "Installing APK via ADB..."
+adb install $releasedApkPath
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Fehler beim Installieren der APK über ADB." -ForegroundColor Red
+    Write-Host "Error installing APK via ADB." -ForegroundColor Red
 } else {
-    Write-Host "APK erfolgreich installiert!" -ForegroundColor Green
-}
-
-$env:KEYSTORE_PASSWORD="kiytoapp"
-$env:KEY_PASSWORD="kiytoapp"
-$env:KEY_ALIAS="kiyto" 
+    Write-Host "APK installed successfully!" -ForegroundColor Green
+} 

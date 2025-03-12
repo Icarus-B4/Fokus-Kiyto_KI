@@ -1,23 +1,24 @@
 @echo off
+chcp 65001 > nul
 setlocal
 
 if "%1"=="" (
-    echo Fehler: Bitte geben Sie eine Versionsnummer an.
-    echo Verwendung: release.bat VERSION [GITHUB_TOKEN]
+    echo Error: Please provide a version number.
+    echo Usage: release.bat VERSION [GITHUB_TOKEN]
     exit /b 1
 )
 
 set VERSION=%1
 set GITHUB_TOKEN=%2
 
-echo Starte Release-Prozess für Version %VERSION%...
+echo Starting release process for version %VERSION%...
 
-powershell -ExecutionPolicy Bypass -File "%~dp0release-apk.ps1" -version "%VERSION%" -token "%GITHUB_TOKEN%"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& '%~dp0release-apk.ps1' -version '%VERSION%' -token '%GITHUB_TOKEN%'"
 
 if %ERRORLEVEL% neq 0 (
-    echo Fehler beim Ausführen des Release-Skripts.
+    echo Error executing release script.
     exit /b 1
 )
 
-echo Release-Prozess abgeschlossen.
+echo Release process completed.
 exit /b 0 
