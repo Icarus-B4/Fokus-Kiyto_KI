@@ -12,10 +12,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("keystore/release.keystore")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "android"
-            keyAlias = System.getenv("KEY_ALIAS") ?: "androiddebugkey"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "android"
+            storeFile = file("keystore/kiyto_release.keystore")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "kiytoapp"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "kiyto"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "kiytoapp"
         }
     }
 

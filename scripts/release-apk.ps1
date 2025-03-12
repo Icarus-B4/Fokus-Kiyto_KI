@@ -150,4 +150,17 @@ if ($ghInstalled) {
     }
 }
 
-Write-Host "Prozess abgeschlossen. Die signierte APK befindet sich unter: $signedApkPath" -ForegroundColor Green 
+Write-Host "Prozess abgeschlossen. Die signierte APK befindet sich unter: $signedApkPath" -ForegroundColor Green
+
+# Alternative Installation über ADB
+Write-Host "Installiere APK über ADB..."
+adb install app/build/outputs/apk/debug/app-debug.apk
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Fehler beim Installieren der APK über ADB." -ForegroundColor Red
+} else {
+    Write-Host "APK erfolgreich installiert!" -ForegroundColor Green
+}
+
+$env:KEYSTORE_PASSWORD="kiytoapp"
+$env:KEY_PASSWORD="kiytoapp"
+$env:KEY_ALIAS="kiyto" 
