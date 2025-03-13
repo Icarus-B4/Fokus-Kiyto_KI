@@ -12,6 +12,31 @@ param (
     [string]$commitMessage = "Release v$version"
 )
 
+# Funktion zum Aktualisieren der App-Version
+function Update-AppVersion {
+    param (
+        [string]$version
+    )
+    
+    Write-Host "Updating app version to $version..." -ForegroundColor Green
+    
+    # Extrahiere versionCode aus der Version (z.B. 2.0.0 -> 200)
+    $versionParts = $version.Split('.')
+    $versionCode = [int]($versionParts[0] + $versionParts[1].PadLeft(2, '0') + $versionParts[2].PadLeft(2, '0'))
+    
+    # Update build.gradle.kts
+    $gradlePath = "app/build.gradle.kts"
+    $gradleContent = Get-Content $gradlePath -Raw
+    $gradleContent = $gradleContent -replace 'versionCode\s*=\s*\d+', "versionCode = $versionCode"
+    $gradleContent = $gradleContent -replace 'versionName\s*=\s*"[^"]*"', "versionName = `"$version`""
+    Set-Content -Path $gradlePath -Value $gradleContent
+    
+    Write-Host "Updated $gradlePath" -ForegroundColor Green
+}
+
+# Version aktualisieren
+Update-AppVersion -version $version
+
 # Token-Handling verbessert
 function Get-GitHubToken {
     # 1. Prüfe, ob Token als Parameter übergeben wurde

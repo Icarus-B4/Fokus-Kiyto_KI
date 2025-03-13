@@ -144,8 +144,26 @@ class UpdateDialog : DialogFragment() {
                     ).show()
                 }
             }
-            .setNegativeButton("Später", null)
-            .setNeutralButton("Abbrechen", null)
+            .setNegativeButton("GitHub öffnen") { _, _ ->
+                try {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(releaseUrl))
+                    startActivity(browserIntent)
+                    Toast.makeText(
+                        requireContext(),
+                        "Denken Sie daran, die App zu deinstallieren, bevor Sie die neue Version installieren!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    dismiss()
+                } catch (e: Exception) {
+                    Log.e("UpdateDialog", "Fehler beim Öffnen des Browsers", e)
+                    Toast.makeText(
+                        requireContext(),
+                        "Fehler beim Öffnen des Browsers: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+            .setNeutralButton("Später", null)
             .setCancelable(true)
             .show()
     }
