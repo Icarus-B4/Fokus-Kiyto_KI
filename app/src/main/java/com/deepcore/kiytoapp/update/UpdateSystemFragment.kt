@@ -15,6 +15,7 @@ import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import android.widget.ImageView
 
 class UpdateSystemFragment : Fragment() {
     private lateinit var lastCheckedText: TextView
@@ -46,6 +47,9 @@ class UpdateSystemFragment : Fragment() {
         debugLogsCard = view.findViewById(R.id.debugLogsCard)
         updateAnimation = view.findViewById(R.id.updateAnimation)
 
+        // Initialisiere Animation
+        setupAnimation()
+
         // Setze Click-Listener
         downloadCard.setOnClickListener {
             checkForUpdates()
@@ -59,11 +63,108 @@ class UpdateSystemFragment : Fragment() {
             showDebugLogs()
         }
 
+        // Teste verschiedene Animationen beim Klick auf die Animation
+        updateAnimation.setOnClickListener {
+            testNextAnimation()
+        }
+
         // Lade initiale Daten
         loadUpdateInfo()
         
         // Prüfe automatisch auf Updates
         checkForUpdates()
+    }
+
+    private fun setupAnimation() {
+        updateAnimation.apply {
+            // Debug der Animation-Größe
+            post {
+                android.util.Log.d("LottieDebug", "Animation view size: ${measuredWidth}x${measuredHeight}")
+            }
+            
+            // Setze die Animation
+            setAnimation(R.raw.loading)
+            
+            // Setze die Geschwindigkeit
+            speed = 1.0f
+            
+            // Erhöhe die Sichtbarkeit
+            alpha = 1.0f
+            
+            // Setze die Skalierung
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+            
+            // Debug-Listener
+            addAnimatorListener(object : android.animation.Animator.AnimatorListener {
+                override fun onAnimationStart(animation: android.animation.Animator) {
+                    android.util.Log.d("LottieDebug", "Animation started")
+                }
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    android.util.Log.d("LottieDebug", "Animation ended")
+                }
+                override fun onAnimationCancel(animation: android.animation.Animator) {
+                    android.util.Log.d("LottieDebug", "Animation cancelled")
+                }
+                override fun onAnimationRepeat(animation: android.animation.Animator) {
+                    android.util.Log.d("LottieDebug", "Animation repeated")
+                }
+            })
+            
+            // Composition-Listener für detailliertere Informationen
+            addLottieOnCompositionLoadedListener { composition ->
+                android.util.Log.d("LottieDebug", "Composition loaded: ${composition.bounds}")
+                android.util.Log.d("LottieDebug", "Composition size: ${composition.bounds.width()}x${composition.bounds.height()}")
+                
+                // Setze die Skalierung basierend auf der Composition
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                
+                // Stelle sicher, dass die Animation sichtbar ist
+                visibility = View.VISIBLE
+            }
+            
+            // Progress-Listener
+            addAnimatorUpdateListener { 
+                android.util.Log.d("LottieDebug", "Animation progress: ${it.animatedFraction}")
+            }
+            
+            // Fehler-Listener
+            setFailureListener { e ->
+                android.util.Log.e("LottieDebug", "Animation failed to load", e)
+                // Versuche es mit einer anderen Animation
+                setAnimation(R.raw.no_update)
+                playAnimation()
+            }
+
+            // Starte die Animation
+            playAnimation()
+        }
+    }
+
+    private fun updateAnimationState(isLoading: Boolean = false, isError: Boolean = false) {
+        try {
+            updateAnimation.apply {
+                cancelAnimation() // Stoppe aktuelle Animation
+                
+                val animationRes = when {
+                    isLoading -> R.raw.loading
+                    isError -> R.raw.error
+                    updateManager.getUpdateStatus() -> R.raw.update_available
+                    else -> R.raw.no_update
+                }
+                
+                // Debug-Information
+                android.util.Log.d("LottieDebug", "Setting animation to: $animationRes")
+                
+                setAnimation(animationRes)
+                speed = 1.0f
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                alpha = 1.0f
+                visibility = View.VISIBLE
+                playAnimation()
+            }
+        } catch (e: Exception) {
+            LogUtils.error(this, "Fehler beim Aktualisieren der Animation", e)
+        }
     }
 
     private fun loadUpdateInfo() {
@@ -79,18 +180,12 @@ class UpdateSystemFragment : Fragment() {
                 lastCheckedText.text = getString(R.string.never_checked)
             }
             
-            // Zeige Update-Status Animation
-            updateAnimation.setAnimation(
-                if (updateManager.getUpdateStatus()) {
-                    R.raw.update_available
-                } else {
-                    R.raw.no_update
-                }
-            )
-            updateAnimation.playAnimation()
+            // Aktualisiere Animation-Status
+            updateAnimationState()
             
         } catch (e: Exception) {
             LogUtils.error(this, "Fehler beim Laden der Update-Informationen", e)
+            updateAnimationState(isError = true)
         }
     }
 
@@ -98,35 +193,21 @@ class UpdateSystemFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 // Zeige Lade-Animation
-                updateAnimation.setAnimation(R.raw.loading)
-                updateAnimation.playAnimation()
+                updateAnimationState(isLoading = true)
                 
-                // Prüfe auf Updates
                 val updateAvailable = updateManager.checkForUpdates()
-                
-                // Zeige entsprechende Animation
-                updateAnimation.setAnimation(
-                    if (updateAvailable) {
-                        R.raw.update_available
-                    } else {
-                        R.raw.no_update
-                    }
-                )
-                updateAnimation.playAnimation()
-                
-                // Aktualisiere Informationen
-                loadUpdateInfo()
                 
                 // Zeige Update-Dialog wenn verfügbar
                 if (updateAvailable) {
                     showUpdateDialog()
                 }
                 
+                // Aktualisiere Informationen und Animation
+                loadUpdateInfo()
+                
             } catch (e: Exception) {
                 LogUtils.error(this, "Fehler beim Update-Check", e)
-                // Zeige Fehler-Animation
-                updateAnimation.setAnimation(R.raw.error)
-                updateAnimation.playAnimation()
+                updateAnimationState(isError = true)
             }
         }
     }
@@ -163,5 +244,33 @@ class UpdateSystemFragment : Fragment() {
             
         DebugLogDialog.newInstance(logs)
             .show(parentFragmentManager, "debug_logs")
+    }
+
+    // Index für Test-Animationen
+    private var testAnimationIndex = 0
+    
+    // Animationen zum Testen
+    private val testAnimations = arrayOf(
+        R.raw.loading,
+        R.raw.update_available,
+        R.raw.no_update,
+        R.raw.error
+    )
+    
+    // Testet die nächste Animation
+    private fun testNextAnimation() {
+        testAnimationIndex = (testAnimationIndex + 1) % testAnimations.size
+        val animRes = testAnimations[testAnimationIndex]
+        
+        android.util.Log.d("LottieDebug", "Testing animation: $animRes")
+        
+        updateAnimation.apply {
+            cancelAnimation()
+            setAnimation(animRes)
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+            alpha = 1.0f
+            visibility = View.VISIBLE
+            playAnimation()
+        }
     }
 } 

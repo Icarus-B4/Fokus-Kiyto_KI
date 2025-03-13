@@ -6,8 +6,32 @@ param (
     [string]$token = $env:GITHUB_TOKEN,
     
     [Parameter(Mandatory=$false)]
-    [string]$repo = "Icarus-B4/Fokus-Kiyto_KI"
+    [string]$repo = "Icarus-B4/Fokus-Kiyto_KI",
+
+    [Parameter(Mandatory=$false)]
+    [string]$commitMessage = "Release v$version"
 )
+
+# Git Commit and Push
+Write-Host "Committing changes..."
+git add .
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error adding files to git." -ForegroundColor Red
+    exit 1
+}
+
+git commit -m $commitMessage
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error committing changes." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Pushing changes..."
+git push
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error pushing changes." -ForegroundColor Red
+    exit 1
+}
 
 # Create directories
 $releasesDir = "releases"
