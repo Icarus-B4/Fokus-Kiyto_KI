@@ -160,6 +160,30 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Standard Theme -->
+        <LinearLayout
+            android:id="@+id/wallpaper_standard_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/wallpaper_preview_standard"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/standard_them_bg_dark" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="Standard Theme"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/wallpaper_cancel"
             android:layout_width="match_parent"

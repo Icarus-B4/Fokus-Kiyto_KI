@@ -108,11 +108,11 @@
         android:layout_height="36dp"
         android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_edit"
+        android:src="@drawable/ic_check"
         app:layout_constraintBottom_toBottomOf="@id/timelineDot"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/timelineDot"
-        app:tint="@color/coral" />
+        app:tint="@color/gray" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

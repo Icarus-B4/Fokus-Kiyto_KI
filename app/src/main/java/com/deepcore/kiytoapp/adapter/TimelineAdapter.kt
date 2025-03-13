@@ -20,7 +20,7 @@ import java.util.*
 class TimelineAdapter(
     private val context: Context,
     private val onItemClick: (TimelineItem) -> Unit,
-    private val onEditClick: (TimelineItem) -> Unit
+    private val onToggleComplete: (TimelineItem) -> Unit
 ) : ListAdapter<TimelineItem, TimelineAdapter.TimelineViewHolder>(TimelineDiffCallback()) {
 
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -59,14 +59,20 @@ class TimelineAdapter(
         val alpha = if (item.completed) 0.5f else 1.0f
         holder.itemView.alpha = alpha
         
+        // Aktualisiere das Checkbox-Icon basierend auf dem Status
+        holder.btnEdit.apply {
+            setImageResource(R.drawable.ic_check)
+            setColorFilter(ContextCompat.getColor(context, if (item.completed) R.color.completed_task else R.color.gray))
+        }
+        
         // Setze den Klick-Listener für das gesamte Item
         holder.itemView.setOnClickListener {
             onItemClick(item)
         }
         
-        // Setze den Klick-Listener für den Bearbeiten-Button
+        // Setze den Klick-Listener für den Status-Button
         holder.btnEdit.setOnClickListener {
-            onEditClick(item)
+            onToggleComplete(item)
         }
         
         // Zeige den Indikator nur, wenn es nicht das letzte Element ist

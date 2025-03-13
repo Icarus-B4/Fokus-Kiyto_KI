@@ -143,9 +143,9 @@ class DayVisualizerFragment : Fragment() {
             onItemClick = { item ->
                 viewModel.selectTask(item)
             },
-            onEditClick = { item ->
-                viewModel.selectTask(item)
-                navigateToEditTask()
+            onToggleComplete = { item ->
+                // Aktualisiere den Task-Status im ViewModel
+                viewModel.updateTimelineItem(item.copy(completed = !item.completed))
             }
         )
         binding.timelineRecyclerView.adapter = timelineAdapter

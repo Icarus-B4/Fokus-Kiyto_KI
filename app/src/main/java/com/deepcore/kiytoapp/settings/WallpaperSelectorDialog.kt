@@ -52,6 +52,7 @@ class WallpaperSelectorDialog : DialogFragment() {
         setupWallpaperOption(view, R.id.wallpaper_black_dark, R.drawable.bg_black_dark, R.id.wallpaper_preview_black)
         setupWallpaperOption(view, R.id.wallpaper_dark_blue, R.drawable.bg_dark_blue, R.id.wallpaper_preview_blue)
         setupWallpaperOption(view, R.id.wallpaper_dark_purple, R.drawable.bg_dark_purple, R.id.wallpaper_preview_purple)
+        setupWallpaperOption(view, R.id.wallpaper_standard_theme, R.drawable.standard_them_bg_dark, R.id.wallpaper_preview_standard)
         
         // Abbrechen-Button
         view.findViewById<TextView>(R.id.wallpaper_cancel).setOnClickListener {
