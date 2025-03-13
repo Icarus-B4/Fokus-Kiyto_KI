@@ -52,10 +52,22 @@ class UpdateSystemFragment : Fragment() {
 
         // Setze Click-Listener
         downloadCard.setOnClickListener {
+            // Zeige update_available animation
+            updateAnimation.apply {
+                cancelAnimation()
+                setAnimation(R.raw.update_available)
+                playAnimation()
+            }
             checkForUpdates()
         }
 
         statusCard.setOnClickListener {
+            // Zeige loading animation
+            updateAnimation.apply {
+                cancelAnimation() 
+                setAnimation(R.raw.loading)
+                playAnimation()
+            }
             showUpdateStatus()
         }
 
