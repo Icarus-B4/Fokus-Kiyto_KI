@@ -3,15 +3,44 @@ param (
     [string]$version,
     
     [Parameter(Mandatory=$false)]
-    [string]$token = $env:GITHUB_TOKEN,
+    [string]$token = $null,
     
     [Parameter(Mandatory=$false)]
     [string]$repo = "Icarus-B4/Fokus-Kiyto_KI",
 
     [Parameter(Mandatory=$false)]
     [string]$commitMessage = "Release v$version"
-
 )
+
+# Token-Handling verbessert
+function Get-GitHubToken {
+    # 1. Prüfe, ob Token als Parameter übergeben wurde
+    if ($token) {
+        return $token
+    }
+    
+    # 2. Prüfe, ob Token in Umgebungsvariable existiert
+    $envToken = $env:GITHUB_TOKEN
+    if ($envToken) {
+        return $envToken
+    }
+    
+    # 3. Prüfe, ob Token in User-Umgebungsvariable existiert
+    $userToken = [System.Environment]::GetEnvironmentVariable('GITHUB_TOKEN', [System.EnvironmentVariableTarget]::User)
+    if ($userToken) {
+        return $userToken
+    }
+    
+    # 4. Fehler, wenn kein Token gefunden
+    Write-Host "GitHub token not found. Please set the GITHUB_TOKEN environment variable or pass the token as a parameter." -ForegroundColor Red
+    Write-Host "Gehe zu GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic)" -ForegroundColor Yellow
+    Write-Host "Wähle 'repo', 'write:packages', und 'delete:packages' Berechtigungen." -ForegroundColor Yellow
+    exit 1
+}
+
+# Token abrufen und setzen
+$token = Get-GitHubToken
+$env:GITHUB_TOKEN = $token
 
 # Git Commit and Push
 Write-Host "Committing changes..."
@@ -23,14 +52,14 @@ if ($LASTEXITCODE -ne 0) {
 
 git commit -m $commitMessage
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Error committing changes." -ForegroundColor Red
-    exit 1
+    Write-Host "Warning: No changes to commit or commit failed." -ForegroundColor Yellow
 }
 
 Write-Host "Pushing changes..."
 git push
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error pushing changes." -ForegroundColor Red
+    Write-Host "Tipp: Wenn der Push aufgrund eines erkannten Tokens blockiert wird, prüfe den Git-Verlauf und bereinige ihn." -ForegroundColor Yellow
     exit 1
 }
 
