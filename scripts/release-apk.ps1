@@ -70,8 +70,12 @@ if (-not (Test-Path $releasesDir)) {
     Write-Host "Created directory '$releasesDir'."
 }
 
-# Build APK
-Write-Host "Building release APK..."
+# Build APK mit Keystore-Parameter
+Write-Host "Building release APK with proper signing..."
+$env:KEYSTORE_PASSWORD = "kiytoapp"  # Setze deinen Keystore-Passwort hier
+$env:KEY_ALIAS = "kiyto"          # Setze deinen Key-Alias hier
+$env:KEY_PASSWORD = "kiytoapp"    # Setze dein Key-Passwort hier
+
 ./gradlew assembleRelease
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error building APK." -ForegroundColor Red
@@ -188,9 +192,57 @@ Write-Host "Process completed. The APK is located at: $releasedApkPath" -Foregro
 
 # Install via ADB
 Write-Host "Installing APK via ADB..."
-adb install -r $releasedApkPath
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Error installing APK via ADB." -ForegroundColor Red
+
+# Prüfe, ob ADB verfügbar ist oder finde den Pfad
+function Find-AdbPath {
+    # Prüfe direkt
+    $adbCommand = Get-Command adb -ErrorAction SilentlyContinue
+    if ($adbCommand) {
+        return "adb"
+    }
+    
+    # Suche in üblichen Verzeichnissen
+    $commonPaths = @(
+        "$env:LOCALAPPDATA\Android\sdk\platform-tools\adb.exe",
+        "C:\Program Files\Android\android-sdk\platform-tools\adb.exe",
+        "C:\Program Files (x86)\Android\android-sdk\platform-tools\adb.exe",
+        "$env:USERPROFILE\AppData\Local\Android\Sdk\platform-tools\adb.exe"
+    )
+    
+    foreach ($path in $commonPaths) {
+        if (Test-Path $path) {
+            return $path
+        }
+    }
+    
+    # Suche in Android Studio-Verzeichnissen
+    $androidStudioPath = "$env:LOCALAPPDATA\Android\Sdk"
+    if (Test-Path $androidStudioPath) {
+        $platformToolsPath = Join-Path $androidStudioPath "platform-tools\adb.exe"
+        if (Test-Path $platformToolsPath) {
+            return $platformToolsPath
+        }
+    }
+    
+    return $null
+}
+
+$adbPath = Find-AdbPath
+if ($adbPath) {
+    # Verwende -r Option für Updates ohne Datenverlust
+    Write-Host "Installing APK with update mode..." -ForegroundColor Green
+    & $adbPath install -r $releasedApkPath
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Error installing APK via ADB. This could be due to signature mismatch." -ForegroundColor Red
+        Write-Host "If the installation fails, please uninstall the app manually first." -ForegroundColor Yellow
+    } else {
+        Write-Host "APK installed successfully!" -ForegroundColor Green
+    }
 } else {
-    Write-Host "APK installed successfully!" -ForegroundColor Green
+    Write-Host "ADB not found. Cannot install APK automatically." -ForegroundColor Yellow
+    Write-Host "To install manually:" -ForegroundColor Yellow
+    Write-Host "1. Make sure Android SDK is installed" -ForegroundColor Yellow
+    Write-Host "2. Add platform-tools to your PATH environment variable" -ForegroundColor Yellow
+    Write-Host "3. Use: adb install -r $releasedApkPath" -ForegroundColor Yellow
+    Write-Host "Or install the APK directly on your device: $releasedApkPath" -ForegroundColor Yellow
 } 
