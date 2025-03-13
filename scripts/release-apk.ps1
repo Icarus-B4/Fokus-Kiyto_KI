@@ -188,7 +188,7 @@ Write-Host "Process completed. The APK is located at: $releasedApkPath" -Foregro
 
 # Install via ADB
 Write-Host "Installing APK via ADB..."
-adb install $releasedApkPath
+adb install -r $releasedApkPath
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error installing APK via ADB." -ForegroundColor Red
 } else {
