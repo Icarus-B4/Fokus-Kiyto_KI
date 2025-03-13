@@ -105,7 +105,7 @@ try {
 if ($ghInstalled) {
     # Use GitHub CLI
     Write-Host "Using GitHub CLI for upload..."
-    gh release create "v$version" --title "Kiyto App v$version" --notes "# Kiyto App Release v$version`n`n## New Features`n- Improved user interface`n- Bug fixes and performance improvements`n`n## Installation`nDownload and install the APK on your Android device." $releasedApkPath
+    gh release create "v$version" --title "Kiyto App v$version" --notes "# Kiyto App Release v$version`n`n## New Features`n- Improved user interface`n- Bug fixes and performance improvements`n`n## Installation`nDownload and install the APK on your Android device. If you get an error, please uninstall the app and try again." $releasedApkPath
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Error creating release with GitHub CLI." -ForegroundColor Red
     } else {

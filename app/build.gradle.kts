@@ -46,8 +46,8 @@ android {
         applicationId = "com.deepcore.kiytoapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 196
-        versionName = "1.9.6"
+        versionCode = 198
+        versionName = "1.9.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
