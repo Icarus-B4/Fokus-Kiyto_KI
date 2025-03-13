@@ -70,19 +70,35 @@ class UpdateManager(private val context: Context) {
     }
 
     private fun compareVersions(version1: String, version2: String): Int {
-        val v1Parts = version1.split(".")
-        val v2Parts = version2.split(".")
-        
-        for (i in 0 until maxOf(v1Parts.size, v2Parts.size)) {
-            val v1 = v1Parts.getOrNull(i)?.toIntOrNull() ?: 0
-            val v2 = v2Parts.getOrNull(i)?.toIntOrNull() ?: 0
+        try {
+            val v1Parts = version1.split(".")
+            val v2Parts = version2.split(".")
             
-            when {
-                v1 < v2 -> return -1
-                v1 > v2 -> return 1
+            // Konvertiere Versionsteile in Integer und vergleiche
+            val v1Numbers = v1Parts.map { it.toIntOrNull() ?: 0 }
+            val v2Numbers = v2Parts.map { it.toIntOrNull() ?: 0 }
+            
+            // Fülle die kürzere Version mit Nullen auf
+            val maxLength = maxOf(v1Numbers.size, v2Numbers.size)
+            val paddedV1 = v1Numbers.padEnd(maxLength)
+            val paddedV2 = v2Numbers.padEnd(maxLength)
+            
+            // Vergleiche jede Komponente
+            for (i in 0 until maxLength) {
+                when {
+                    paddedV1[i] < paddedV2[i] -> return -1
+                    paddedV1[i] > paddedV2[i] -> return 1
+                }
             }
+            return 0
+        } catch (e: Exception) {
+            LogUtils.error(this, "Fehler beim Vergleichen der Versionen", e)
+            return 0
         }
-        return 0
+    }
+
+    private fun List<Int>.padEnd(length: Int): List<Int> {
+        return if (size >= length) this else this + List(length - size) { 0 }
     }
 
     private fun saveUpdateStatus(checkDate: Date) {
@@ -100,5 +116,17 @@ class UpdateManager(private val context: Context) {
 
     fun getUpdateStatus(): Boolean {
         return prefs.getBoolean(UPDATE_STATUS_KEY, false)
+    }
+
+    fun resetUpdateStatus() {
+        prefs.edit().apply {
+            remove(LAST_CHECK_KEY)
+            remove(UPDATE_STATUS_KEY)
+            apply()
+        }
+        updateAvailable = false
+        latestVersion = null
+        updateDescription = null
+        updateUrl = null
     }
 } 

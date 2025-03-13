@@ -4,8 +4,9 @@ import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.airbnb.lottie.LottieAnimationView
 import com.deepcore.kiytoapp.R
@@ -49,10 +50,37 @@ class UpdateDialog : DialogFragment() {
 
         // Setze Click-Listener
         downloadButton.setOnClickListener {
-            // Öffne den Download-Link
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
-            dismiss()
+            try {
+                // Starte den Download direkt
+                val downloadIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                startActivity(downloadIntent)
+
+                // Zeige Hinweis zur Installation
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Update herunterladen")
+                    .setMessage("Das Update wird heruntergeladen. Bitte installieren Sie die neue Version manuell, nachdem der Download abgeschlossen ist. Die aktuelle Version muss vorher deinstalliert werden.")
+                    .setPositiveButton("Jetzt deinstallieren") { _, _ ->
+                        // Starte Deinstallation
+                        val packageUri = Uri.parse("package:${requireContext().packageName}")
+                        val uninstallIntent = Intent(Intent.ACTION_DELETE, packageUri)
+                        startActivity(uninstallIntent)
+                    }
+                    .setNegativeButton("Später") { _, _ ->
+                        // Schließe den Dialog
+                        dismiss()
+                    }
+                    .show()
+
+                // Setze den Update-Status zurück
+                UpdateManager(requireContext()).resetUpdateStatus()
+            } catch (e: Exception) {
+                Log.e("UpdateDialog", "Fehler beim Starten des Downloads", e)
+                Toast.makeText(
+                    requireContext(),
+                    "Fehler beim Starten des Downloads",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         remindButton.setOnClickListener {
