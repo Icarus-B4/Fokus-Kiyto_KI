@@ -86,7 +86,7 @@ class UpdateStatusFragment : Fragment() {
             } else {
                 statusAnimation.apply {
                     cancelAnimation()
-                    setAnimation(R.raw.no_update)
+                    setAnimation(R.raw.ok)
                     playAnimation()
                 }
                 getString(R.string.no_update_available_message)

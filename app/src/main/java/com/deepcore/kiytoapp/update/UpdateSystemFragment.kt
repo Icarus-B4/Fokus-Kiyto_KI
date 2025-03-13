@@ -161,7 +161,7 @@ class UpdateSystemFragment : Fragment() {
                     isLoading -> R.raw.loading
                     isError -> R.raw.error
                     updateManager.getUpdateStatus() -> R.raw.update_available
-                    else -> R.raw.no_update
+                    else -> R.raw.ok // OK-Animation anzeigen, wenn alles auf dem neuesten Stand ist
                 }
                 
                 // Debug-Information
@@ -265,7 +265,7 @@ class UpdateSystemFragment : Fragment() {
     private val testAnimations = arrayOf(
         R.raw.loading,
         R.raw.update_available,
-        R.raw.no_update,
+        R.raw.ok,
         R.raw.error
     )
     
