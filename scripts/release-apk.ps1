@@ -10,7 +10,7 @@ param (
 
     [Parameter(Mandatory=$false)]
     [string]$commitMessage = "Release v$version"
-    
+
 )
 
 # Git Commit and Push
