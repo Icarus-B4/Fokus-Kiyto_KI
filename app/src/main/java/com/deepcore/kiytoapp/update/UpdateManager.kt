@@ -36,6 +36,13 @@ class UpdateManager(private val context: Context) {
             val url = URL("$GITHUB_API_BASE/releases")
             val connection = url.openConnection()
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+            // Cache-Control Header hinzufügen
+            connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
+            connection.setRequestProperty("Pragma", "no-cache")
+            connection.setRequestProperty("Expires", "0")
+            
+            // Verbindung öffnen mit Cache-Invalidierung
+            connection.useCaches = false
             
             val response = connection.getInputStream().bufferedReader().use { it.readText() }
             val jsonArray = JSONObject("{\"releases\":$response}").getJSONArray("releases")
@@ -52,10 +59,11 @@ class UpdateManager(private val context: Context) {
                 val currentVersion = BuildConfig.VERSION_NAME
                 updateAvailable = compareVersions(currentVersion, latestVersion ?: "0.0.0") < 0
                 
-                // Update-Status speichern
+                // Update-Status speichern und Cache löschen
+                resetUpdateStatus()
                 saveUpdateStatus(Date())
                 
-                LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Verfügbar: $updateAvailable")
+                LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Aktuelle Version: $currentVersion, Neueste Version: $latestVersion, Verfügbar: $updateAvailable")
                 updateAvailable
             } else {
                 LogUtils.debug(this@UpdateManager, "Keine Releases gefunden")
