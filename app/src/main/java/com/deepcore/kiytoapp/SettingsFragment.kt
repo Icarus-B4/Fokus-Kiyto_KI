@@ -183,11 +183,6 @@ class SettingsFragment : BaseFragment() {
         // Benachrichtigungseinstellungen
         setupNotificationSettings(view)
 
-        // Themeneinstellungen
-        view.findViewById<MaterialCardView>(R.id.themeSettingsCard).setOnClickListener {
-            LogUtils.debug(this, "Themeneinstellungen Card geklickt")
-            // TODO: Implementierung der Themeneinstellungen
-        }
         
         // Debug-Menüpunkt hinzufügen (nur im Debug-Modus)
         if (BuildConfig.DEBUG) {
