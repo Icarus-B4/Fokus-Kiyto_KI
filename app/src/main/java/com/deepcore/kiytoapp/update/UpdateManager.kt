@@ -33,43 +33,52 @@ class UpdateManager(private val context: Context) {
     suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
         try {
             LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
+            LogUtils.debug(this@UpdateManager, "Aktuelle Version: ${BuildConfig.VERSION_NAME}")
+            LogUtils.debug(this@UpdateManager, "Aktueller VersionCode: ${BuildConfig.VERSION_CODE}")
             
             // GitHub API aufrufen für Releases
             val url = URL("$GITHUB_API_BASE/releases")
             val connection = url.openConnection()
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
-            // Authentifizierung hinzufügen
             connection.setRequestProperty("Authorization", "token ${BuildConfig.GITHUB_TOKEN}")
-            // Cache-Control Header hinzufügen
             connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
             connection.setRequestProperty("Pragma", "no-cache")
             connection.setRequestProperty("Expires", "0")
             
-            // Verbindung öffnen mit Cache-Invalidierung
+            LogUtils.debug(this@UpdateManager, "API Request URL: $url")
+            LogUtils.debug(this@UpdateManager, "Token (erste 4 Zeichen): ${BuildConfig.GITHUB_TOKEN.take(4)}...")
+            
             connection.useCaches = false
             
             val response = connection.getInputStream().bufferedReader().use { it.readText() }
             LogUtils.debug(this@UpdateManager, "GitHub API Antwort erhalten: $response")
             
             val jsonArray = JSONObject("{\"releases\":$response}").getJSONArray("releases")
+            LogUtils.debug(this@UpdateManager, "Anzahl gefundener Releases: ${jsonArray.length()}")
             
             if (jsonArray.length() > 0) {
                 val latestRelease = jsonArray.getJSONObject(0)
                 
-                // Versionsinformationen extrahieren
                 latestVersion = latestRelease.getString("tag_name").removePrefix("v")
                 updateDescription = latestRelease.getString("body")
                 updateUrl = latestRelease.getString("html_url")
                 
-                // Versions-Vergleich
                 val currentVersion = BuildConfig.VERSION_NAME
+                
+                LogUtils.debug(this@UpdateManager, "Vergleiche Versionen:")
+                LogUtils.debug(this@UpdateManager, "Aktuelle Version: $currentVersion")
+                LogUtils.debug(this@UpdateManager, "Neueste Version: $latestVersion")
+                
+                // Versions-Vergleich
                 updateAvailable = compareVersions(currentVersion, latestVersion ?: "0.0.0") < 0
                 
-                // Update-Status speichern und Cache löschen
+                LogUtils.debug(this@UpdateManager, "Update verfügbar: $updateAvailable")
+                LogUtils.debug(this@UpdateManager, "Update URL: $updateUrl")
+                
+                // Cache löschen und Status speichern
                 resetUpdateStatus()
                 saveUpdateStatus(Date())
                 
-                LogUtils.debug(this@UpdateManager, "Update-Check abgeschlossen. Aktuelle Version: $currentVersion, Neueste Version: $latestVersion, Verfügbar: $updateAvailable")
                 updateAvailable
             } else {
                 LogUtils.debug(this@UpdateManager, "Keine Releases gefunden")
@@ -78,32 +87,43 @@ class UpdateManager(private val context: Context) {
             
         } catch (e: Exception) {
             LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates: ${e.message}", e)
-            // Zeige Fehler-Animation
+            LogUtils.error(this@UpdateManager, "Stack trace: ${e.stackTraceToString()}")
             false
         }
     }
 
     private fun compareVersions(version1: String, version2: String): Int {
         try {
+            LogUtils.debug(this, "Vergleiche Version1: $version1 mit Version2: $version2")
+            
             val v1Parts = version1.split(".")
             val v2Parts = version2.split(".")
             
-            // Konvertiere Versionsteile in Integer und vergleiche
+            LogUtils.debug(this, "Version1 Teile: $v1Parts")
+            LogUtils.debug(this, "Version2 Teile: $v2Parts")
+            
             val v1Numbers = v1Parts.map { it.toIntOrNull() ?: 0 }
             val v2Numbers = v2Parts.map { it.toIntOrNull() ?: 0 }
             
-            // Fülle die kürzere Version mit Nullen auf
+            LogUtils.debug(this, "Version1 Zahlen: $v1Numbers")
+            LogUtils.debug(this, "Version2 Zahlen: $v2Numbers")
+            
             val maxLength = maxOf(v1Numbers.size, v2Numbers.size)
             val paddedV1 = v1Numbers.padEnd(maxLength)
             val paddedV2 = v2Numbers.padEnd(maxLength)
             
-            // Vergleiche jede Komponente
+            LogUtils.debug(this, "Aufgefüllte Version1: $paddedV1")
+            LogUtils.debug(this, "Aufgefüllte Version2: $paddedV2")
+            
             for (i in 0 until maxLength) {
-                when {
-                    paddedV1[i] < paddedV2[i] -> return -1
-                    paddedV1[i] > paddedV2[i] -> return 1
+                val comparison = paddedV1[i].compareTo(paddedV2[i])
+                if (comparison != 0) {
+                    LogUtils.debug(this, "Vergleichsergebnis an Position $i: $comparison")
+                    return comparison
                 }
             }
+            
+            LogUtils.debug(this, "Versionen sind identisch")
             return 0
         } catch (e: Exception) {
             LogUtils.error(this, "Fehler beim Vergleichen der Versionen", e)
@@ -121,6 +141,7 @@ class UpdateManager(private val context: Context) {
             putBoolean(UPDATE_STATUS_KEY, updateAvailable)
             apply()
         }
+        LogUtils.debug(this, "Update-Status gespeichert: $updateAvailable, Datum: $checkDate")
     }
 
     fun getLastCheckDate(): Date? {
@@ -129,7 +150,9 @@ class UpdateManager(private val context: Context) {
     }
 
     fun getUpdateStatus(): Boolean {
-        return prefs.getBoolean(UPDATE_STATUS_KEY, false)
+        val status = prefs.getBoolean(UPDATE_STATUS_KEY, false)
+        LogUtils.debug(this, "Gespeicherter Update-Status abgerufen: $status")
+        return status
     }
 
     fun resetUpdateStatus() {
@@ -142,5 +165,6 @@ class UpdateManager(private val context: Context) {
         latestVersion = null
         updateDescription = null
         updateUrl = null
+        LogUtils.debug(this, "Update-Status zurückgesetzt")
     }
 } 
