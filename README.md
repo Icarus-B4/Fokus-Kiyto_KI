@@ -89,6 +89,11 @@ Projektlink: [https://github.com/DEIN_USERNAME/Fokus-Kiyto_KI](https://github.co
 @Icarus-B4's goal is to have 10 monthly sponsors
 goal is to earn $4200 per month I'll be able to quit my job and work on open source full time! 😁🎉🤷‍♂️
 
+Dieses Repository ist nur für Sponsoren verfügbar. Um Zugang zu erhalten:
+
+1. Besuche [github.com/sponsors/Icarus-B4](https://github.com/sponsors/Icarus-B4)
+2. Wähle einen Sponsoring-Plan
+3. Nach erfolgreicher Anmeldung erhältst du automatisch Zugang zum Repository
 <div align="center">
   <sub>Mit ❤️ entwickelt in Berlin</sub>
 </div> 
