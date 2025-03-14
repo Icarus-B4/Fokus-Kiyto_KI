@@ -46,7 +46,7 @@ android {
         applicationId = "com.deepcore.kiytoapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 20021
+        versionCode = 20012
         versionName = "2.0.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -168,6 +168,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 }
+
 
 
 
