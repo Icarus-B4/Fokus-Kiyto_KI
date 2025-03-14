@@ -228,7 +228,7 @@ if (-not (Test-Path $releasedApkPath)) {
 # Check if GitHub CLI is installed
 $ghInstalled = $null
 try {
-    $ghInstalled = Get-Command gh -ErrorAction SilentlyContinue
+    $ghInstalled = $null  # Force API usage
 } catch {
     $ghInstalled = $null
 }
