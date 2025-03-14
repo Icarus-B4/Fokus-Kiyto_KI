@@ -24,6 +24,15 @@ android {
         viewBinding = true
     }
 
+    // Assets-Konfiguration
+    sourceSets {
+        getByName("main") {
+            assets {
+                srcDirs("src/main/assets", "../")
+            }
+        }
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/DEPENDENCIES"
@@ -46,8 +55,8 @@ android {
         applicationId = "com.deepcore.kiytoapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 20010
-        versionName = "2.0.9"
+        versionCode = 20011
+        versionName = "2.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -167,6 +176,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 }
+
 
 
 
