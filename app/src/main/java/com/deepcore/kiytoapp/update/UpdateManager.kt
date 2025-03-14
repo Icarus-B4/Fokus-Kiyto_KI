@@ -30,21 +30,6 @@ class UpdateManager(private val context: Context) {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    private fun getGitHubToken(): String? {
-        return try {
-            context.assets.open(".env").use { inputStream ->
-                BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
-                    lines.firstOrNull { it.startsWith("GITHUB_TOKEN=") }
-                        ?.substringAfter("GITHUB_TOKEN=")
-                        ?.trim()
-                }
-            }
-        } catch (e: Exception) {
-            LogUtils.error(this, "Fehler beim Lesen des GitHub Tokens: ${e.message}", e)
-            null
-        }
-    }
-
     suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
         try {
             LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
