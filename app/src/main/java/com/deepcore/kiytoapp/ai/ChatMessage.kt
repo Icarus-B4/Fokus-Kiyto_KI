@@ -7,11 +7,21 @@ data class ChatMessage(
     val timestamp: Long = System.currentTimeMillis(),
     var isPinned: Boolean = false,
     val imageUri: String? = null,
-    val fileUri: String? = null
+    val fileUri: String? = null,
+    val isTyping: Boolean = false,
+    val chatActions: List<ActionItem> = emptyList()
 ) {
     val text: String
         get() = content
 }
+
+/**
+ * Einfache Klasse zur Darstellung einer Aktion im Chat
+ */
+data class ActionItem(
+    val label: String,
+    val id: String
+)
 
 sealed class ChatAction {
     data class CreateTask(

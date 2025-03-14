@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
+
     <TextView
         android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"

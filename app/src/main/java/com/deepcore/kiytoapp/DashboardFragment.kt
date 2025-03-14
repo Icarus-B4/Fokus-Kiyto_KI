@@ -115,10 +115,15 @@ class DashboardFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _taskManager = TaskManager(requireContext())
-        _aiService = TaskAIService(requireContext())
-        sessionManager = SessionManager(requireContext())
-        inspirationManager = DailyInspirationManager(requireContext())
+        try {
+            _taskManager = TaskManager(requireContext())
+            _aiService = TaskAIService(requireContext())
+            sessionManager = SessionManager(requireContext())
+            inspirationManager = DailyInspirationManager(requireContext())
+            Log.d("DashboardFragment", "Services im onCreate erfolgreich initialisiert")
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler bei der Initialisierung der Services im onCreate", e)
+        }
     }
 
     override fun onCreateView(
@@ -131,10 +136,24 @@ class DashboardFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        authManager = AuthManager(requireContext())
-        
         try {
+            authManager = AuthManager(requireContext())
+            
+            // Initialisiere zuerst die Views, bevor andere Methoden aufgerufen werden
             initializeViews(view)
+            
+            // Stelle sicher, dass die TaskManager-Instanz existiert, falls onCreate fehlgeschlagen ist
+            if (_taskManager == null) {
+                _taskManager = TaskManager(requireContext())
+                Log.d("DashboardFragment", "TaskManager in onViewCreated initialisiert")
+            }
+            
+            // Stelle sicher, dass die AIService-Instanz existiert, falls onCreate fehlgeschlagen ist
+            if (_aiService == null) {
+                _aiService = TaskAIService(requireContext())
+                Log.d("DashboardFragment", "AIService in onViewCreated initialisiert")
+            }
+            
             setupCharts()
             setupCalendar()
             setupQuickAccess(view)
@@ -156,91 +175,129 @@ class DashboardFragment : BaseFragment() {
     }
     
     private fun initializeViews(view: View) {
-        _recyclerView = view.findViewById<RecyclerView>(R.id.prioritizedTasksRecyclerView)
-        _aiChatButton = view.findViewById<ExtendedFloatingActionButton>(R.id.aiChatButton)
-        _userName = view.findViewById<TextView>(R.id.userName)
-        _userStats = view.findViewById<TextView>(R.id.userStats)
-        _dailyActivityChart = view.findViewById<LineChart>(R.id.dailyActivityChart)
-        _focusTimeValue = view.findViewById<TextView>(R.id.focusTimeValue)
-        _tasksValue = view.findViewById<TextView>(R.id.tasksValue)
-        _productivityValue = view.findViewById<TextView>(R.id.productivityValue)
-        _calendarView = view.findViewById<CalendarView>(R.id.calendarView)
-        _userStatusAnimation = view.findViewById<LottieAnimationView>(R.id.userStatusAnimation)
-        
-        // Diese Views sind nicht im Layout vorhanden, daher setzen wir sie auf null
-        _monthYearText = null
-        _categoryPieChart = null
-        _prevMonthButton = null
-        _nextMonthButton = null
-        
-        Log.d("DashboardFragment", "Optionale Views wurden auf null gesetzt, da sie nicht im Layout vorhanden sind")
+        try {
+            // Versuche, die Views aus dem Layout zu finden und setze sie entsprechend
+            _recyclerView = view.findViewById<RecyclerView>(R.id.prioritizedTasksRecyclerView)
+            if (_recyclerView == null) Log.w("DashboardFragment", "RecyclerView konnte nicht gefunden werden")
+            
+            _aiChatButton = view.findViewById<ExtendedFloatingActionButton>(R.id.aiChatButton)
+            if (_aiChatButton == null) Log.w("DashboardFragment", "AI Chat Button konnte nicht gefunden werden")
+            
+            _userName = view.findViewById<TextView>(R.id.userName)
+            if (_userName == null) Log.w("DashboardFragment", "Username TextView konnte nicht gefunden werden")
+            
+            _userStats = view.findViewById<TextView>(R.id.userStats)
+            if (_userStats == null) Log.w("DashboardFragment", "UserStats TextView konnte nicht gefunden werden")
+            
+            _dailyActivityChart = view.findViewById<LineChart>(R.id.dailyActivityChart)
+            if (_dailyActivityChart == null) Log.w("DashboardFragment", "Daily Activity Chart konnte nicht gefunden werden")
+            
+            _focusTimeValue = view.findViewById<TextView>(R.id.focusTimeValue)
+            if (_focusTimeValue == null) Log.w("DashboardFragment", "Focus Time Value konnte nicht gefunden werden")
+            
+            _tasksValue = view.findViewById<TextView>(R.id.tasksValue)
+            if (_tasksValue == null) Log.w("DashboardFragment", "Tasks Value konnte nicht gefunden werden")
+            
+            _productivityValue = view.findViewById<TextView>(R.id.productivityValue)
+            if (_productivityValue == null) Log.w("DashboardFragment", "Productivity Value konnte nicht gefunden werden")
+            
+            _calendarView = view.findViewById<CalendarView>(R.id.calendarView)
+            if (_calendarView == null) Log.w("DashboardFragment", "Calendar View konnte nicht gefunden werden")
+            
+            _userStatusAnimation = view.findViewById<LottieAnimationView>(R.id.userStatusAnimation)
+            if (_userStatusAnimation == null) Log.w("DashboardFragment", "User Status Animation konnte nicht gefunden werden")
+            
+            // Diese Views sind nicht im Layout vorhanden, daher setzen wir sie auf null
+            _monthYearText = null
+            _categoryPieChart = null
+            _prevMonthButton = null
+            _nextMonthButton = null
+            
+            Log.d("DashboardFragment", "Views initialisierung abgeschlossen")
 
-        val welcomeText = view.findViewById<TextView>(R.id.welcomeText)
-        val loginButton = view.findViewById<Button>(R.id.loginButton)
-        val userProfileCard = view.findViewById<View>(R.id.userProfileCard)
-        val quickAccessView = view.findViewById<View>(R.id.quickAccessView)
-        val dailyInspirationCard = view.findViewById<View>(R.id.dailyInspiration)
-        
-        // AI Chat Button Sichtbarkeit
-        aiChatButton.visibility = if (authManager.isLoggedIn()) View.VISIBLE else View.GONE
+            // UI-Elemente abhängig vom Login-Status konfigurieren
+            val welcomeText = view.findViewById<TextView>(R.id.welcomeText)
+            val loginButton = view.findViewById<Button>(R.id.loginButton)
+            val userProfileCard = view.findViewById<View>(R.id.userProfileCard)
+            val quickAccessView = view.findViewById<View>(R.id.quickAccessView) 
+            val dailyInspirationCard = view.findViewById<View>(R.id.dailyInspiration)
+            
+            // AI Chat Button Sichtbarkeit
+            if (_aiChatButton != null) {
+                aiChatButton.visibility = if (authManager.isLoggedIn()) View.VISIBLE else View.GONE
+            }
 
-        if (authManager.isLoggedIn()) {
-            // Eingeloggter Zustand
-            val user = authManager.getCurrentUser()
-            welcomeText.text = getString(R.string.welcome_user, user?.email?.substringBefore("@") ?: "")
-            userName.text = getString(R.string.welcome_user, user?.email?.substringBefore("@") ?: "")
-            loginButton.visibility = View.GONE
-            
-            // Konfiguriere die Status-Animation
-            userStatusAnimation.apply {
-                setAnimation(R.raw.status)
-                repeatCount = LottieDrawable.INFINITE
-                playAnimation()
+            if (authManager.isLoggedIn()) {
+                // Eingeloggter Zustand
+                val user = authManager.getCurrentUser()
+                if (welcomeText != null) {
+                    welcomeText.text = getString(R.string.welcome_user, user?.email?.substringBefore("@") ?: "")
+                }
+                
+                if (_userName != null) {
+                    userName.text = getString(R.string.welcome_user, user?.email?.substringBefore("@") ?: "")
+                }
+                
+                if (loginButton != null) {
+                    loginButton.visibility = View.GONE
+                }
+                
+                // Konfiguriere die Status-Animation
+                if (_userStatusAnimation != null) {
+                    userStatusAnimation.apply {
+                        setAnimation(R.raw.status)
+                        repeatCount = LottieDrawable.INFINITE
+                        playAnimation()
+                    }
+                }
+                
+                // Zeige personalisierte Elemente
+                if (userProfileCard != null) userProfileCard.visibility = View.VISIBLE
+                if (quickAccessView != null) quickAccessView.visibility = View.VISIBLE
+                if (_recyclerView != null) recyclerView.visibility = View.VISIBLE
+                if (dailyInspirationCard != null) dailyInspirationCard.visibility = View.VISIBLE
+                
+            } else {
+                // Nicht eingeloggter Zustand
+                if (welcomeText != null) {
+                    welcomeText.text = getString(R.string.welcome_guest)
+                }
+                
+                if (_userName != null) {
+                    userName.text = getString(R.string.welcome_guest)
+                }
+                
+                if (loginButton != null) {
+                    loginButton.visibility = View.VISIBLE
+                    
+                    loginButton.setOnClickListener {
+                        startActivity(Intent(requireContext(), LoginActivity::class.java))
+                    }
+                }
+                
+                // Konfiguriere die Status-Animation auch für nicht eingeloggte Benutzer
+                if (_userStatusAnimation != null) {
+                    userStatusAnimation.apply {
+                        setAnimation(R.raw.status)
+                        repeatCount = LottieDrawable.INFINITE
+                        playAnimation()
+                    }
+                }
+                
+                // Verstecke personalisierte Elemente
+                if (userProfileCard != null) userProfileCard.visibility = View.GONE
+                if (quickAccessView != null) quickAccessView.visibility = View.GONE
+                if (_recyclerView != null) recyclerView.visibility = View.GONE
+                if (dailyInspirationCard != null) dailyInspirationCard.visibility = View.GONE
+                
+                // Zeige Basis-Dashboard
+                setupBasicDashboard()
             }
-            
-            // Zeige personalisierte Elemente
-            userProfileCard.visibility = View.VISIBLE
-            quickAccessView.visibility = View.VISIBLE
-            recyclerView.visibility = View.VISIBLE
-            dailyInspirationCard.visibility = View.VISIBLE
-            
-            // Initialisiere die personalisierten Daten
-            setupCalendar()
-            setupQuickAccess(view)
-            setupPrioritizedTasks(view)
-            setupDailyInspiration(view)
-            loadDailyStats()
-            loadPrioritizedTasks()
-            updateChartData()
-        } else {
-            // Nicht eingeloggter Zustand
-            welcomeText.text = getString(R.string.welcome_guest)
-            userName.text = getString(R.string.welcome_guest)
-            loginButton.visibility = View.VISIBLE
-            
-            // Konfiguriere die Status-Animation auch für nicht eingeloggte Benutzer
-            userStatusAnimation.apply {
-                setAnimation(R.raw.status)
-                repeatCount = LottieDrawable.INFINITE
-                playAnimation()
-            }
-            
-            // Verstecke personalisierte Elemente
-            userProfileCard.visibility = View.GONE
-            quickAccessView.visibility = View.GONE
-            recyclerView.visibility = View.GONE
-            dailyInspirationCard.visibility = View.GONE
 
-            loginButton.setOnClickListener {
-                startActivity(Intent(requireContext(), LoginActivity::class.java))
-            }
-            
-            // Zeige Basis-Dashboard
-            setupBasicDashboard()
+            Log.d("DashboardFragment", "UI-Konfiguration basierend auf Login-Status abgeschlossen")
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler bei der Initialisierung der Views", e)
         }
-
-        setupMonthNavigation()
-        setupPieChart()
     }
 
     private fun setupBasicDashboard() {
@@ -339,6 +396,12 @@ class DashboardFragment : BaseFragment() {
     private fun loadDailyStats(timestamp: Long = System.currentTimeMillis()) {
         lifecycleScope.launch {
             try {
+                // Prüfe, ob _taskManager initialisiert ist
+                if (_taskManager == null || _userStats == null) {
+                    Log.e("DashboardFragment", "TaskManager oder UserStats ist nicht initialisiert")
+                    return@launch
+                }
+                
                 val allTasks = taskManager.getAllTasks().first()
                 
                 val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
@@ -370,17 +433,30 @@ class DashboardFragment : BaseFragment() {
                 // Update Stats für den ausgewählten Tag
                 val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
                 val dateStr = dateFormat.format(Date(timestamp))
-                userStats.text = getString(R.string.day_stats, dateStr, completedTasks, openTasks, formatFocusTime(focusTime))
+                
+                // Prüfe nochmals, ob _userStats noch initialisiert ist
+                if (_userStats != null) {
+                    userStats.text = getString(R.string.day_stats, dateStr, completedTasks, openTasks, formatFocusTime(focusTime))
+                }
 
-                // Aktualisiere die Statistik-Werte
-                focusTimeValue.text = formatFocusTime(focusTime)
-                tasksValue.text = "$completedTasks/$totalTasks"
+                // Aktualisiere die Statistik-Werte, mit Null-Check
+                if (_focusTimeValue != null) {
+                    focusTimeValue.text = formatFocusTime(focusTime)
+                }
+                
+                if (_tasksValue != null) {
+                    tasksValue.text = "$completedTasks/$totalTasks"
+                }
+                
                 val productivity = if (totalTasks > 0) {
                     (completedTasks.toFloat() / totalTasks.toFloat() * 100).toInt()
                 } else {
                     0
                 }
-                productivityValue.text = "$productivity%"
+                
+                if (_productivityValue != null) {
+                    productivityValue.text = "$productivity%"
+                }
 
                 // Aktualisiere Chart-Daten für den ausgewählten Tag
                 updateDailyActivityData(dayTasks, timestamp)
@@ -605,36 +681,64 @@ class DashboardFragment : BaseFragment() {
     }
 
     private fun setupPrioritizedTasks(view: View) {
-        _prioritizedTasksAdapter = TaskAdapter(
-            onTaskChecked = { task ->
-                lifecycleScope.launch {
-                    taskManager.toggleTaskCompletion(task.id)
-                    loadPrioritizedTasks()
+        try {
+            // Prüfe, ob die RecyclerView initialisiert ist
+            if (_recyclerView == null) {
+                Log.e("DashboardFragment", "RecyclerView ist nicht initialisiert in setupPrioritizedTasks")
+                _recyclerView = view.findViewById<RecyclerView>(R.id.prioritizedTasksRecyclerView)
+                if (_recyclerView == null) {
+                    Log.e("DashboardFragment", "Konnte RecyclerView nicht im Layout finden")
+                    return
                 }
-            },
-            onTaskClicked = { task ->
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainer, TaskDetailsFragment.newInstance(task.id))
-                    .addToBackStack(null)
-                    .commit()
             }
-        )
+            
+            _prioritizedTasksAdapter = TaskAdapter(
+                onTaskChecked = { task ->
+                    lifecycleScope.launch {
+                        if (_taskManager != null) {
+                            taskManager.toggleTaskCompletion(task.id)
+                            loadPrioritizedTasks()
+                        }
+                    }
+                },
+                onTaskClicked = { task ->
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, TaskDetailsFragment.newInstance(task.id))
+                        .addToBackStack(null)
+                        .commit()
+                }
+            )
 
-        recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = prioritizedTasksAdapter
-            itemAnimator = null
-            overScrollMode = View.OVER_SCROLL_NEVER
-            isNestedScrollingEnabled = false
+            recyclerView.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = prioritizedTasksAdapter
+                itemAnimator = null
+                overScrollMode = View.OVER_SCROLL_NEVER
+                isNestedScrollingEnabled = false
+            }
+            
+            Log.d("DashboardFragment", "PrioritizedTasksAdapter erfolgreich initialisiert und der RecyclerView zugewiesen")
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler beim Setup der priorisierten Aufgaben", e)
         }
     }
 
     private fun setupAIChatButton() {
-        aiChatButton.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, AIChatFragment())
-                .addToBackStack(null)
-                .commit()
+        try {
+            if (_aiChatButton == null) {
+                Log.e("DashboardFragment", "AI Chat Button ist nicht initialisiert")
+                return
+            }
+            
+            aiChatButton.setOnClickListener {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, AIChatFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
+            Log.d("DashboardFragment", "AI Chat Button erfolgreich eingerichtet")
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler beim Setup des AI Chat Buttons", e)
         }
     }
 
@@ -642,6 +746,12 @@ class DashboardFragment : BaseFragment() {
         lifecycleScope.launch {
             try {
                 Log.d("DashboardFragment", "Starte Laden der priorisierten Aufgaben")
+                
+                // Prüfe, ob _taskManager initialisiert ist
+                if (_taskManager == null) {
+                    Log.e("DashboardFragment", "TaskManager ist nicht initialisiert")
+                    return@launch
+                }
                 
                 val allTasks = try {
                     taskManager.getAllTasks().first()
@@ -659,7 +769,13 @@ class DashboardFragment : BaseFragment() {
                 Log.d("DashboardFragment", "Nach Datum sortierte Aufgaben: ${sortedTasks.size}")
                 
                 val prioritizedTasks = try {
-                    aiService.prioritizeTasks(sortedTasks)
+                    // Prüfe, ob _aiService initialisiert ist
+                    if (_aiService == null) {
+                        Log.e("DashboardFragment", "AiService ist nicht initialisiert")
+                        sortedTasks
+                    } else {
+                        aiService.prioritizeTasks(sortedTasks)
+                    }
                 } catch (e: Exception) {
                     Log.e("DashboardFragment", "Fehler bei der KI-Priorisierung", e)
                     sortedTasks
@@ -669,9 +785,20 @@ class DashboardFragment : BaseFragment() {
                 Log.d("DashboardFragment", "Finale Anzahl priorisierter Aufgaben: ${limitedTasks.size}")
                 
                 try {
+                    // Prüfe, ob _prioritizedTasksAdapter initialisiert ist
+                    if (_prioritizedTasksAdapter == null) {
+                        Log.e("DashboardFragment", "PrioritizedTasksAdapter ist nicht initialisiert")
+                        return@launch
+                    }
+                    
                     prioritizedTasksAdapter.submitList(limitedTasks)
-                    recyclerView.post {
-                        prioritizedTasksAdapter.notifyDataSetChanged()
+                    if (_recyclerView != null) {
+                        recyclerView.post {
+                            // Prüfe erneut, da sich der Zustand in der Zwischenzeit geändert haben könnte
+                            if (_prioritizedTasksAdapter != null) {
+                                prioritizedTasksAdapter.notifyDataSetChanged()
+                            }
+                        }
                     }
                     Log.d("DashboardFragment", "Adapter erfolgreich aktualisiert")
                 } catch (e: Exception) {

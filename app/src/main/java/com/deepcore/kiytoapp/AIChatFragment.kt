@@ -9,22 +9,27 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.media.session.MediaController
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
+import android.text.InputType
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.KeyEvent
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
@@ -73,6 +78,8 @@ import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import com.deepcore.kiytoapp.ai.ActionItem
+import android.widget.Toast
 
 class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private lateinit var messageInput: EditText
@@ -114,6 +121,8 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
     private lateinit var pickFileLauncher: ActivityResultLauncher<Intent>
+
+    private val RECORDING_DURATION_MS = 2000 // auf 2000 ms reduzieren
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -389,10 +398,17 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                         val command = spokenText.lowercase()
                         var commandExecuted = false
                         
-                        // Timer-Befehle - Direkte Ausführung
-                        if (command.contains("timer") || command.contains("fokus")) {
+                        Log.d("AIChatFragment", "Sprachbefehl erkannt: \"$command\"")
+                        
+                        // Timer-Befehle - Direkte Ausführung - VERBESSERT
+                        if (command.contains("timer") || command.contains("fokus") || 
+                            (command.contains("setze") && command.contains("minute")) ||
+                            (command.contains("starte") && command.contains("minute")) ||
+                            (command.contains("stelle") && command.contains("minute"))) {
+                            
                             val minutes = extractTimerMinutes(spokenText)
                             if (minutes != null) {
+                                Log.d("AIChatFragment", "Timer-Befehl erkannt: $minutes Minuten")
                                 handleChatAction(ChatAction.SetTimer(minutes))
                                 commandExecuted = true
                             }
@@ -412,13 +428,22 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                             handleChatAction(ChatAction.ClearHistory)
                             commandExecuted = true
                         }
-                        // Kalender öffnen - Direkte Ausführung
-                        else if (command.contains("öffne") && command.contains("kalender")) {
+                        // Kalender öffnen - Direkte Ausführung - VERBESSERT
+                        else if ((command.contains("öffne") && command.contains("kalender")) ||
+                                (command.contains("kalender") && command.contains("öffnen")) ||
+                                (command.contains("zeige") && command.contains("kalender")) ||
+                                (command.contains("kalender") && command.contains("anzeigen"))) {
+                            Log.d("AIChatFragment", "Kalender-Befehl erkannt")
                             handleChatAction(ChatAction.OpenCalendar())
                             commandExecuted = true
                         }
-                        // Spotify/Musik - Direkte Ausführung
-                        else if (command.contains("spotify") || command.contains("musik")) {
+                        // Spotify/Musik - Direkte Ausführung - VERBESSERT
+                        else if (command.contains("spotify") || 
+                                command.contains("musik") || 
+                                (command.contains("spiele") && command.contains("musik")) ||
+                                (command.contains("öffne") && command.contains("spotify")) ||
+                                command.contains("abspielen")) {
+                            Log.d("AIChatFragment", "Musik/Spotify-Befehl erkannt")
                             handleChatAction(ChatAction.PlaySpotify())
                             commandExecuted = true
                         }
@@ -532,6 +557,9 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         adapter = ChatAdapter(
             onActionClicked = { action ->
                 handleChatAction(action)
+            },
+            onActionItemClicked = { actionItem ->
+                handleActionItemClick(actionItem)
             },
             onMessageLongClicked = { message, position ->
                 showMessageOptions(message, position)
@@ -870,12 +898,28 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         val patterns = listOf(
             "(\\d+)\\s*(?:minute[n]?|min)",  // z.B. "25 minuten" oder "25 min"
             "timer\\s*(?:für)?\\s*(\\d+)",   // z.B. "timer 25" oder "timer für 25"
-            "fokus\\s*(?:für)?\\s*(\\d+)"    // z.B. "fokus 25" oder "fokus für 25"
+            "fokus\\s*(?:für)?\\s*(\\d+)",   // z.B. "fokus 25" oder "fokus für 25"
+            "(?:setze|stelle|starte)\\s*(?:einen|den)?\\s*timer\\s*(?:auf|für)?\\s*(\\d+)", // z.B. "setze timer auf 25"
+            "(?:setze|stelle|starte)\\s*(?:einen|den)?\\s*(?:auf|für)?\\s*(\\d+)\\s*(?:minute[n]?|min)", // z.B. "setze auf 25 minuten"
+            "(?:timer|fokus)\\s*(?:von|mit)?\\s*(\\d+)\\s*(?:minute[n]?|min)" // z.B. "timer von 25 minuten"
         )
 
         for (pattern in patterns) {
             val match = Regex(pattern, RegexOption.IGNORE_CASE).find(text)
-            match?.groupValues?.get(1)?.toIntOrNull()?.let { return it }
+            match?.groupValues?.get(1)?.toIntOrNull()?.let { 
+                Log.d("AIChatFragment", "Timer-Minuten erkannt mit Pattern '$pattern': $it Minuten")
+                return it 
+            }
+        }
+
+        // Fallback: Suche einfach nach Zahlen, wenn keine der Patterns passt
+        val numberPattern = "\\b(\\d+)\\b"
+        val match = Regex(numberPattern).find(text)
+        match?.groupValues?.get(1)?.toIntOrNull()?.let {
+            if (it > 0 && it < 120) { // Plausibilitätsprüfung: Zwischen 1 und 120 Minuten
+                Log.d("AIChatFragment", "Timer-Minuten mit Fallback erkannt: $it Minuten")
+                return it
+            }
         }
 
         return null
@@ -907,183 +951,290 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     }
 
     private fun handleChatAction(action: ChatAction) {
-        Log.d("AIChatFragment", "Verarbeite ChatAction: $action")
-
+        Log.d(TAG, "ChatAction geklickt: ${action}")
+        
+        // Behandle Sealed-Class ChatAction Typen wie bisher
         when (action) {
             is ChatAction.CreateTask -> {
-                CoroutineScope(Dispatchers.Main).launch {
-                    try {
-                        if (action.title.isNotEmpty() && !action.title.contains("\"") && !action.title.contains("wurde erstellt")) {
-                            Log.d("AIChatFragment", "Erstelle neue Aufgabe: ${action.title}")
-                            val task = com.deepcore.kiytoapp.data.Task(
-                                title = action.title,
-                                description = action.description ?: "",
-                                priority = com.deepcore.kiytoapp.data.Priority.MEDIUM,
-                                created = Date(),
-                                completedDate = null
-                            )
-                            taskManager.createTask(task)
-
-                            val confirmationMessage = ChatMessage(
-                                "✓ Neue Aufgabe erstellt: \"$action.title\"",
-                                false
-                            )
-                            adapter.addMessage(confirmationMessage)
-                            chatManager.addMessage(confirmationMessage)
-                            scrollToBottom()
-
-                            // Dashboard aktualisieren
-                            (parentFragmentManager.findFragmentByTag("dashboard") as? DashboardFragment)?.refreshTasks()
-                        }
-                    } catch (e: Exception) {
-                        Log.e("AIChatFragment", "Fehler beim Erstellen der Aufgabe", e)
-                        val errorMsg = ChatMessage(
-                            "Die Aufgabe konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
-                            false
-                        )
-                        adapter.addMessage(errorMsg)
-                        chatManager.addMessage(errorMsg)
-                    }
+                val title = action.title
+                if (title.isNotEmpty()) {
+                    handleTaskCreation(title)
                 }
             }
-
             is ChatAction.SetTimer -> {
+                val minutes = action.minutes
+                Log.d(TAG, "Timer starten mit $minutes Minuten")
+                
+                // Begrenze den Wert auf maximal 60 Minuten
+                val limitedMinutes = if (minutes > 60) 60 else minutes
+                
+                if (limitedMinutes != minutes) {
+                    Log.d(TAG, "Timer-Dauer auf 60 Minuten begrenzt (ursprünglich $minutes)")
+                    // Zeige eine Benachrichtigung an, dass der Wert begrenzt wurde
+                    Toast.makeText(
+                        requireContext(),
+                        "Timer auf maximal 60 Minuten begrenzt",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                
+                // Navigiere zum FocusModeFragment und starte den Timer automatisch
                 try {
-                    Log.d("AIChatFragment", "Starte Timer für ${action.minutes} Minuten")
                     val mainActivity = activity as? MainActivity
-                    if (mainActivity == null) {
-                        Log.e("AIChatFragment", "MainActivity nicht gefunden")
-                        throw Exception("MainActivity nicht gefunden")
+                    if (mainActivity != null) {
+                        // Wechsle zum Fokus-Tab
+                        val bottomNavigation = mainActivity.findViewById<BottomNavigationView>(R.id.bottomNavigation)
+                        bottomNavigation.selectedItemId = R.id.nav_focus
+                        
+                        Log.d(TAG, "Zum Fokus-Tab gewechselt, warte auf Fragment-Initialisierung...")
+                        
+                        // Längere Verzögerung, um sicherzustellen, dass das Fragment vollständig geladen ist
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            try {
+                                // Finde das FocusModeFragment
+                                val fragmentManager = mainActivity.supportFragmentManager
+                                val currentFragment = fragmentManager.findFragmentById(R.id.fragmentContainer)
+                                
+                                Log.d(TAG, "Aktuelles Fragment: ${currentFragment?.javaClass?.simpleName}")
+                                
+                                val focusFragment = currentFragment as? FocusModeFragment
+                                
+                                // Starte den Timer automatisch
+                                focusFragment?.let {
+                                    Log.d(TAG, "FocusModeFragment gefunden, setze Timer-Dauer auf $limitedMinutes Minuten")
+                                    
+                                    // Setze die Timer-Dauer
+                                    it.setTimerDuration(limitedMinutes)
+                                    
+                                    // Kurze Verzögerung vor dem Starten des Timers
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        // Starte den Timer automatisch
+                                        it.startTimer()
+                                        Log.d(TAG, "Timer erfolgreich gestartet: $limitedMinutes Minuten")
+                                    }, 500) // 500ms Verzögerung vor dem Starten
+                                    
+                                } ?: run {
+                                    Log.e(TAG, "FocusModeFragment nicht gefunden, versuche direkten Zugriff")
+                                    
+                                    // Alternativer Ansatz: Versuche, das Fragment direkt zu finden
+                                    val fragments = fragmentManager.fragments
+                                    for (fragment in fragments) {
+                                        Log.d(TAG, "Fragment in Liste: ${fragment.javaClass.simpleName}")
+                                        if (fragment is FocusModeFragment) {
+                                            Log.d(TAG, "FocusModeFragment in Liste gefunden")
+                                            fragment.setTimerDuration(limitedMinutes)
+                                            Handler(Looper.getMainLooper()).postDelayed({
+                                                fragment.startTimer()
+                                                Log.d(TAG, "Timer erfolgreich gestartet (alternativer Weg): $limitedMinutes Minuten")
+                                            }, 500)
+                                            break
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Fehler beim Starten des Timers", e)
+                            }
+                        }, 1000) // 1000ms Verzögerung (erhöht von 500ms)
                     }
-
-                    // Navigiere zum FocusModeFragment
-                    mainActivity.findViewById<BottomNavigationView>(R.id.bottomNavigation)?.selectedItemId = R.id.nav_focus
-
-                    // Warte kurz, bis das Fragment gewechselt hat
-                    view?.postDelayed({
-                        val focusFragment = mainActivity.supportFragmentManager.findFragmentById(R.id.fragmentContainer) as? FocusModeFragment
-                        if (focusFragment != null) {
-                            // Timer direkt starten
-                            val viewModel = focusFragment.getViewModelInstance()
-                            viewModel.updatePomodoroLength(action.minutes.toLong())
-                            viewModel.setMode(PomodoroViewModel.PomodoroMode.POMODORO)
-                            viewModel.startTimer() // Timer wird sofort gestartet
-                            Log.d("AIChatFragment", "Timer erfolgreich gestartet")
-                        } else {
-                            Log.e("AIChatFragment", "FocusModeFragment nicht gefunden")
-                            // Statt Exception werfen, eine Fehlermeldung anzeigen
-                            val errorMsg = ChatMessage(
-                                "Der Timer konnte nicht gestartet werden. Bitte versuchen Sie es über den Fokus-Modus.",
-                                false
-                            )
-                            adapter.addMessage(errorMsg)
-                            chatManager.addMessage(errorMsg)
-                        }
-                    }, 500)
                 } catch (e: Exception) {
-                    Log.e("AIChatFragment", "Fehler beim Starten des Timers", e)
-                    val errorMsg = ChatMessage(
-                        "Der Timer konnte nicht gestartet werden. Bitte versuchen Sie es über den Fokus-Modus.",
-                        false
-                    )
-                    adapter.addMessage(errorMsg)
-                    chatManager.addMessage(errorMsg)
+                    Log.e(TAG, "Fehler beim Navigieren zum Timer", e)
                 }
             }
-
             is ChatAction.OpenCalendar -> {
-                try {
-                    val intent = Intent(Intent.ACTION_INSERT)
-                        .setData(android.provider.CalendarContract.Events.CONTENT_URI)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
-                    action.eventTitle?.let { title ->
-                        intent.putExtra(android.provider.CalendarContract.Events.TITLE, title)
-                    }
-
-                    // Sicherheitscheck ob Intent ausgeführt werden kann
-                    if (intent.resolveActivity(requireContext().packageManager) != null) {
-                        startActivity(intent)
-                        // Keine Erfolgsmeldung mehr senden
-                    } else {
-                        val errorMsg = ChatMessage("Entschuldigung, es wurde keine Kalender-App gefunden.", false)
-                        adapter.addMessage(errorMsg)
-                        chatManager.addMessage(errorMsg)
-                    }
-                } catch (e: Exception) {
-                    Log.e("AIChatFragment", "Fehler beim Vorbereiten des Kalender-Intents", e)
-                    val errorMsg = ChatMessage("Der Kalender konnte leider nicht geöffnet werden.", false)
-                    adapter.addMessage(errorMsg)
-                    chatManager.addMessage(errorMsg)
-                }
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("content://com.android.calendar/time")
+                startActivity(intent)
             }
-
             is ChatAction.PlaySpotify -> {
                 try {
-                    val spotifyPackage = "com.spotify.music"
-                    val spotifyIntent = requireContext().packageManager
-                        .getLaunchIntentForPackage(spotifyPackage)
-                        ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        ?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
-                    if (spotifyIntent != null) {
-                        startActivity(spotifyIntent)
-                        // Keine Erfolgsmeldung mehr senden
-                    } else {
-                        // Play Store Intent mit Sicherheitscheck
-                        val playStoreIntent = Intent(Intent.ACTION_VIEW)
-                            .setData(Uri.parse("market://details?id=$spotifyPackage"))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                        if (playStoreIntent.resolveActivity(requireContext().packageManager) != null) {
-                            startActivity(playStoreIntent)
-                            val msg = ChatMessage("Spotify ist nicht installiert. Der Play Store wurde geöffnet.", false)
-                            adapter.addMessage(msg)
-                            chatManager.addMessage(msg)
-                        } else {
-                            val errorMsg = ChatMessage("Entschuldigung, weder Spotify noch der Play Store konnten geöffnet werden.", false)
-                            adapter.addMessage(errorMsg)
-                            chatManager.addMessage(errorMsg)
+                    val spotifyPackageName = "com.spotify.music"
+                    
+                    // Versuche zuerst, Spotify mit einem speziellen Intent zu starten, der die Wiedergabe beginnt
+                    try {
+                        Log.d(TAG, "Versuche Spotify mit Wiedergabe-Intent zu starten")
+                        
+                        // Methode 1: Verwende einen speziellen URI, der die Wiedergabe startet
+                        val playIntent = Intent(Intent.ACTION_VIEW).apply {
+                            setData(Uri.parse("spotify:"))
+                            setPackage(spotifyPackageName)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                            putExtra("play", true)
+                            putExtra("playback", true)
+                            putExtra("autoplay", true)
                         }
+                        startActivity(playIntent)
+                        
+                        // Kurze Verzögerung, dann sende Wiedergabebefehl
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            try {
+                                // Sende mehrere Wiedergabebefehle für höhere Erfolgsrate
+                                sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY)
+                                sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+                                
+                                // Sende auch einen Broadcast an Spotify direkt
+                                val playbackIntent = Intent("com.spotify.mobile.android.ui.widget.PLAY")
+                                playbackIntent.setPackage(spotifyPackageName)
+                                requireContext().sendBroadcast(playbackIntent)
+                                
+                                // Zeige eine Benachrichtigung an
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Starte Spotify-Wiedergabe",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Fehler beim Senden der Wiedergabebefehle: ${e.message}")
+                            }
+                        }, 1500) // 1.5 Sekunden Verzögerung
+                        
+                        return@handleChatAction
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Fehler beim Starten der Spotify-Wiedergabe mit URI: ${e.message}")
+                        // Wenn der erste Ansatz fehlschlägt, versuchen wir den zweiten
+                    }
+                    
+                    // Methode 2: Versuche, die Spotify-App zu öffnen und dann einen Medien-Intent zu senden
+                    try {
+                        Log.d(TAG, "Versuche Spotify normal zu öffnen")
+                        
+                        // Starte zuerst die Spotify-App
+                        val spotifyIntent = requireContext().packageManager.getLaunchIntentForPackage(spotifyPackageName)
+                        if (spotifyIntent != null) {
+                            spotifyIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            spotifyIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                            startActivity(spotifyIntent)
+                            
+                            // Längere Verzögerung für den Fallback
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                try {
+                                    // Sende mehrere Wiedergabebefehle für höhere Erfolgsrate
+                                    sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY)
+                                    sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+                                    
+                                    // Sende auch einen Broadcast an Spotify direkt
+                                    val playbackIntent = Intent("com.spotify.mobile.android.ui.widget.PLAY")
+                                    playbackIntent.setPackage(spotifyPackageName)
+                                    requireContext().sendBroadcast(playbackIntent)
+                                    
+                                    Log.d(TAG, "Spotify-Wiedergabebefehl gesendet")
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "Fehler beim Senden des Wiedergabebefehls: ${e.message}")
+                                }
+                            }, 2000) // 2 Sekunden Verzögerung
+                        } else {
+                            // Spotify ist nicht installiert, öffne den Play Store
+                            val marketIntent = Intent(Intent.ACTION_VIEW)
+                            marketIntent.data = Uri.parse("market://details?id=$spotifyPackageName")
+                            startActivity(marketIntent)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Fehler beim Öffnen von Spotify", e)
                     }
                 } catch (e: Exception) {
-                    Log.e("AIChatFragment", "Fehler beim Vorbereiten des Spotify-Intents", e)
-                    val errorMsg = ChatMessage("Spotify konnte leider nicht geöffnet werden.", false)
-                    adapter.addMessage(errorMsg)
-                    chatManager.addMessage(errorMsg)
+                    Log.e(TAG, "Allgemeiner Fehler bei der Spotify-Aktion", e)
                 }
             }
-
             is ChatAction.StartVoiceInput -> {
-                try {
-                    startVoiceRecognition()
-                } catch (e: Exception) {
-                    Log.e("AIChatFragment", "Fehler beim Starten der Spracherkennung", e)
-                }
+                startVoiceRecognition()
             }
-
             is ChatAction.ClearHistory -> {
-                try {
-                    MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Chat-Verlauf löschen")
-                        .setMessage("Möchten Sie wirklich den gesamten Chat-Verlauf löschen?")
-                        .setPositiveButton("Ja") { _, _ ->
-                            adapter.clearMessages()
-                            chatManager.clearHistory()
-                            showWelcomeMessage()
-                        }
-                        .setNegativeButton("Nein", null)
-                        .show()
-                } catch (e: Exception) {
-                    Log.e("AIChatFragment", "Fehler beim Löschen des Chat-Verlaufs", e)
-                }
+                showClearHistoryDialog()
             }
-
             else -> {
-                Log.e("AIChatFragment", "Unbekannte ChatAction: $action")
+                Log.e(TAG, "Unbekannte ChatAction: $action")
             }
         }
+    }
+    
+    /**
+     * Behandelt Klicks auf ActionItem-Elemente in Chat-Nachrichten
+     */
+    private fun handleActionItemClick(action: ActionItem) {
+        Log.d(TAG, "ActionItem geklickt: ${action.label} (${action.id})")
+        
+        when (action.id) {
+            "save_ideas" -> saveGeneratedIdeas()
+            "to_mindmap" -> transferIdeasToMindMap()
+            "more_ideas" -> showIdeaCollectionDialog()
+            // Weitere Aktionen können hier hinzugefügt werden
+            else -> {
+                // Wenn nichts passt, einfach den Text in die Eingabe einfügen
+                messageInput.setText(action.label)
+                messageInput.setSelection(messageInput.text.length)
+            }
+        }
+    }
+
+    private fun saveGeneratedIdeas() {
+        // Finde die letzte KI-Nachricht mit den Ideen
+        val lastAssistantMessage = findLastAssistantMessageWithIdeas()
+        
+        if (lastAssistantMessage != null) {
+            // Zeige Bestätigungsdialog
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Ideen speichern")
+            builder.setMessage("Möchtest du diese Ideen in deinen gespeicherten Notizen archivieren?")
+            
+            builder.setPositiveButton("Speichern") { _, _ ->
+                try {
+                    // Speichere in SharedPreferences
+                    val sharedPreferences = requireContext().getSharedPreferences("saved_ideas", Context.MODE_PRIVATE)
+                    val savedIdeas = sharedPreferences.getStringSet("ideas_list", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+                    
+                    // Generiere einen Zeitstempel für den Eintrag
+                    val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+                    val ideaEntry = "$timestamp: ${lastAssistantMessage.content}"
+                    
+                    savedIdeas.add(ideaEntry)
+                    sharedPreferences.edit().putStringSet("ideas_list", savedIdeas).apply()
+                    
+                    showSnackbar("Ideen wurden gespeichert")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Fehler beim Speichern der Ideen", e)
+                    showSnackbar("Fehler beim Speichern der Ideen")
+                }
+            }
+            
+            builder.setNegativeButton("Abbrechen", null)
+            builder.show()
+        } else {
+            showSnackbar("Keine Ideen zum Speichern gefunden")
+        }
+    }
+    
+    private fun transferIdeasToMindMap() {
+        // Finde die letzte KI-Nachricht mit den Ideen
+        val lastAssistantMessage = findLastAssistantMessageWithIdeas()
+        
+        if (lastAssistantMessage != null) {
+            try {
+                // Starte die MindMap-Aktivität mit den Ideen als Extra
+                val intent = Intent(requireContext(), MindMapActivity::class.java)
+                intent.putExtra("generated_ideas", lastAssistantMessage.content)
+                startActivity(intent)
+                
+                showSnackbar("Ideen an MindMap übertragen")
+            } catch (e: Exception) {
+                Log.e(TAG, "Fehler beim Übertragen der Ideen zur MindMap", e)
+                showSnackbar("Fehler beim Übertragen zur MindMap")
+            }
+        } else {
+            showSnackbar("Keine Ideen zum Übertragen gefunden")
+        }
+    }
+    
+    private fun findLastAssistantMessageWithIdeas(): ChatMessage? {
+        // Durchlaufe die Chatnachrichten rückwärts und finde die letzte KI-Nachricht
+        val messages = chatManager.getMessages()
+        for (i in messages.size - 1 downTo 0) {
+            val message = messages[i]
+            if (!message.isUser && !message.isTyping && message.content.isNotEmpty() && 
+                (message.content.contains("1.") || message.content.contains("Idee"))) {
+                return message
+            }
+        }
+        return null
     }
 
     private fun showClearHistoryDialog() {
@@ -1158,7 +1309,20 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        speechManager.shutdown()
+        
+        // Stoppe alle laufenden Spracherkennungs- und Sprachausgabeprozesse
+        try {
+            stopSpeaking()
+        } catch (e: Exception) {
+            Log.e("AIChatFragment", "Fehler beim Stoppen der Sprachprozesse", e)
+        }
+        
+        // SpeechManager herunterfahren
+        try {
+            speechManager.shutdown()
+        } catch (e: Exception) {
+            Log.e("AIChatFragment", "Fehler beim Herunterfahren des SpeechManagers", e)
+        }
         
         // ToneGenerator-Ressourcen freigeben
         try {
@@ -1166,6 +1330,22 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             toneGenerator = null
         } catch (e: Exception) {
             Log.e("AIChatFragment", "Fehler beim Freigeben der ToneGenerator-Ressourcen", e)
+        }
+        
+        Log.d("AIChatFragment", "Fragment-Ressourcen erfolgreich freigegeben")
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        
+        // Stoppe die Spracherkennung, wenn das Fragment pausiert wird
+        try {
+            if (isSpeaking) {
+                stopSpeaking()
+                Log.d("AIChatFragment", "Spracherkennung bei Pause gestoppt")
+            }
+        } catch (e: Exception) {
+            Log.e("AIChatFragment", "Fehler beim Stoppen der Spracherkennung in onPause", e)
         }
     }
 
@@ -1369,7 +1549,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         }
 
         collectIdeasOption.setOnClickListener {
-            startActivity(Intent(requireContext(), MindMapActivity::class.java))
+            showIdeaCollectionDialog()
             plusMenuContainer.visibility = View.GONE
         }
 
@@ -1379,8 +1559,8 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         }
 
         moreOption.setOnClickListener {
-            // TODO: Implementiere weitere Optionen
-            showSnackbar("Weitere Optionen werden bald verfügbar sein")
+            // Wake Word und Sprachbefehlsoptionen anzeigen
+            showMoreOptionsDialog()
             plusMenuContainer.visibility = View.GONE
         }
     }
@@ -1932,10 +2112,271 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         }
     }
 
+    /**
+     * Zeigt einen Dialog mit erweiterten Optionen an, einschließlich Wake Word-Steuerung
+     */
+    private fun showMoreOptionsDialog() {
+        // Dialog erstellen
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Sprachsteuerung & KI-Funktionen")
+        
+        // Optionen für den Dialog definieren
+        val options = arrayOf(
+            "Wake Word aktivieren/deaktivieren",
+            "Wake Word Empfindlichkeit einstellen",
+            "Individuelle Sprachbefehle einrichten",
+            "Sprachbefehl-Übersicht anzeigen",
+            "KI-Training starten"
+        )
+        
+        builder.setItems(options) { dialog, which ->
+            when (which) {
+                0 -> toggleWakeWordService()
+                1 -> showWakeWordSensitivityDialog()
+                2 -> showCustomCommandsDialog()
+                3 -> showVoiceCommandsOverview()
+                4 -> startAITraining()
+            }
+        }
+        
+        // Abbrechen-Button hinzufügen
+        builder.setNegativeButton("Abbrechen") { dialog, _ ->
+            dialog.dismiss()
+        }
+        
+        // Dialog anzeigen
+        builder.show()
+    }
+    
+    /**
+     * Aktiviert oder deaktiviert den Wake Word Service
+     */
+    private fun toggleWakeWordService() {
+        val mainActivity = activity as? MainActivity
+        mainActivity?.let {
+            // Prüfen, ob der Service bereits läuft
+            val isRunning = it.isWakeWordServiceRunning()
+            
+            if (isRunning) {
+                // Service deaktivieren
+                it.stopWakeWordService()
+                showSnackbar("Wake Word-Erkennung deaktiviert")
+            } else {
+                // Service aktivieren
+                it.startWakeWordService()
+                showSnackbar("Wake Word-Erkennung aktiviert")
+            }
+        }
+    }
+    
+    /**
+     * Zeigt einen Dialog zur Einstellung der Wake Word-Empfindlichkeit
+     */
+    private fun showWakeWordSensitivityDialog() {
+        // Platzhalter für zukünftige Funktionalität
+        showSnackbar("Diese Funktion wird in Kürze verfügbar sein")
+    }
+    
+    /**
+     * Zeigt einen Dialog zum Einrichten individueller Sprachbefehle
+     */
+    private fun showCustomCommandsDialog() {
+        // Platzhalter für zukünftige Funktionalität
+        showSnackbar("Diese Funktion wird in Kürze verfügbar sein")
+    }
+    
+    /**
+     * Zeigt eine Übersicht aller verfügbaren Sprachbefehle
+     */
+    private fun showVoiceCommandsOverview() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Verfügbare Sprachbefehle")
+        
+        val commands = """
+            • "Hei Kiyto" - Aktiviert die Spracherkennung
+            • "Erstelle eine Notiz" - Öffnet die Notizfunktion
+            • "Erstelle eine Aufgabe" - Erstellt eine neue Aufgabe
+            • "Öffne den Kalender" - Öffnet den Kalender
+            • "Zeige meine Aufgaben" - Zeigt alle Aufgaben an
+            • "Erzeuge ein Bild" - Startet die Bildgenerierung
+        """.trimIndent()
+        
+        builder.setMessage(commands)
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+    
+    /**
+     * Startet das KI-Training für bessere Spracherkennung
+     */
+    private fun startAITraining() {
+        // Platzhalter für zukünftige Funktionalität
+        showSnackbar("Diese Funktion wird in Kürze verfügbar sein")
+    }
+
+    private fun showIdeaCollectionDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Ideen sammeln")
+        
+        // Layout für die Themeneingabe erstellen
+        val inputLayout = LinearLayout(requireContext())
+        inputLayout.orientation = LinearLayout.VERTICAL
+        inputLayout.setPadding(32, 16, 32, 16)
+        
+        val themeLabel = TextView(requireContext())
+        themeLabel.text = "Zu welchem Thema möchtest du Ideen sammeln?"
+        themeLabel.setPadding(0, 0, 0, 16)
+        
+        val themeInput = EditText(requireContext())
+        themeInput.hint = "z.B. Produktentwicklung, Marketingstrategien, Projektplanung..."
+        themeInput.inputType = InputType.TYPE_CLASS_TEXT
+        
+        val quantityLabel = TextView(requireContext())
+        quantityLabel.text = "Wie viele Ideen werden benötigt?"
+        quantityLabel.setPadding(0, 24, 0, 16)
+        
+        val quantitySlider = SeekBar(requireContext())
+        quantitySlider.max = 9 // 1-10 Ideen
+        quantitySlider.progress = 4 // Standard: 5 Ideen
+        
+        val quantityText = TextView(requireContext())
+        quantityText.text = "5 Ideen"
+        quantityText.gravity = Gravity.CENTER
+        
+        // SeekBar Listener
+        quantitySlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                quantityText.text = "${progress + 1} Ideen"
+            }
+            
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+        
+        // Layout zusammenbauen
+        inputLayout.addView(themeLabel)
+        inputLayout.addView(themeInput)
+        inputLayout.addView(quantityLabel)
+        inputLayout.addView(quantitySlider)
+        inputLayout.addView(quantityText)
+        
+        builder.setView(inputLayout)
+        
+        // Buttons hinzufügen
+        builder.setPositiveButton("Ideen generieren") { dialog, _ ->
+            val theme = themeInput.text.toString().trim()
+            if (theme.isNotEmpty()) {
+                generateIdeasForTheme(theme, quantitySlider.progress + 1)
+            } else {
+                showSnackbar("Bitte gib ein Thema ein")
+            }
+            dialog.dismiss()
+        }
+        
+        builder.setNegativeButton("Abbrechen") { dialog, _ ->
+            dialog.dismiss()
+        }
+        
+        // Dialog anzeigen
+        builder.show()
+    }
+    
+    private fun generateIdeasForTheme(theme: String, quantity: Int) {
+        // Füge eine Benutzernachricht zum Chat hinzu
+        val userMessage = ChatMessage("Generiere $quantity Ideen zum Thema: $theme", true)
+        adapter.addMessage(userMessage)
+        chatManager.addMessage(userMessage)
+        
+        // Zeige "Assistent schreibt..." an
+        val typingMessage = ChatMessage("", false, isTyping = true)
+        adapter.addMessage(typingMessage)
+        scrollToBottom()
+        
+        // Starte Coroutine für die API-Anfrage
+        lifecycleScope.launch {
+            try {
+                // Erstelle den Prompt für die API
+                val prompt = """
+                    Bitte generiere $quantity kreative und umsetzbare Ideen zum Thema "$theme".
+                    Formatiere die Antwort als nummerierte Liste mit kurzen Erklärungen zu jeder Idee.
+                    Die Ideen sollten innovativ, praktisch und gut durchdacht sein.
+                """.trimIndent()
+                
+                // Rufe die OpenAI API auf, um Ideen zu generieren
+                val response = withContext(Dispatchers.IO) {
+                    com.deepcore.kiytoapp.ai.OpenAIService.generateChatResponse(prompt)
+                }
+                
+                // Entferne die "Assistent schreibt..." Nachricht
+                adapter.removeLastMessage()
+                
+                // Füge die Antwort des Assistenten hinzu
+                val assistantMessage = ChatMessage(response ?: "Entschuldigung, ich konnte keine Ideen generieren. Bitte versuche es später erneut.", false)
+                adapter.addMessage(assistantMessage)
+                chatManager.addMessage(assistantMessage)
+                
+                // Scrollen, um die neuen Nachrichten anzuzeigen
+                scrollToBottom()
+                
+                // Füge Aktionen für die generierten Ideen hinzu
+                addIdeaActions()
+            } catch (e: Exception) {
+                // Fehlerbehandlung
+                adapter.removeLastMessage()
+                val errorMessage = ChatMessage("Entschuldigung, bei der Ideengenerierung ist ein Fehler aufgetreten: ${e.message}", false)
+                adapter.addMessage(errorMessage)
+                chatManager.addMessage(errorMessage)
+                scrollToBottom()
+                Log.e(TAG, "Fehler bei der Ideengenerierung", e)
+            }
+        }
+    }
+    
+    private fun addIdeaActions() {
+        // Füge Aktionschips hinzu, um mit den generierten Ideen zu arbeiten
+        val actionMessage = ChatMessage(
+            content = "", 
+            isUser = false, 
+            chatActions = listOf(
+                ActionItem("Ideen speichern", "save_ideas"),
+                ActionItem("In MindMap übertragen", "to_mindmap"),
+                ActionItem("Weitere Ideen", "more_ideas")
+            )
+        )
+        adapter.addMessage(actionMessage)
+        scrollToBottom()
+    }
+
     companion object {
         private const val TAG = "AIChatFragment"
         private const val PERMISSION_REQUEST_CODE = 100
         private const val PERMISSIONS_REQUEST_CODE = 100
         private var currentPhotoUri: Uri? = null
+    }
+
+    // Hilfsmethode zum Senden von Media Button Events
+    private fun sendMediaButtonEvent(keyCode: Int) {
+        try {
+            val audioManager = requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            
+            // Erstelle einen KeyEvent für den Media Button
+            val downEvent = KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
+            val upEvent = KeyEvent(KeyEvent.ACTION_UP, keyCode)
+            
+            // Sende den KeyEvent als Media Button Intent
+            val downIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
+            downIntent.putExtra(Intent.EXTRA_KEY_EVENT, downEvent)
+            requireContext().sendBroadcast(downIntent)
+            
+            val upIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
+            upIntent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent)
+            requireContext().sendBroadcast(upIntent)
+            
+            Log.d(TAG, "Media Button Event für Keycode $keyCode gesendet")
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim Senden des Media Button Events", e)
+        }
     }
 } 

@@ -347,10 +347,46 @@ class MainActivity : BaseActivity() {
         }
         
         // Wake Word Test
-        popupView.findViewById<TextView>(R.id.menu_wake_word_test)?.setOnClickListener {
-            Toast.makeText(this, "Wake Word Erkennung wird gestartet...", Toast.LENGTH_SHORT).show()
-            checkAndRequestPermissions()
-            popupWindow.dismiss()
+        val wakeWordMenuItem = popupView.findViewById<TextView>(R.id.menu_wake_word_test)
+        wakeWordMenuItem?.let {
+            // Text basierend auf dem aktuellen Status setzen
+            if (isWakeWordServiceRunning) {
+                it.text = getString(R.string.wake_word_disable)
+                
+                // Versuche, das mic_off-Icon zu verwenden, falls vorhanden
+                try {
+                    it.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_mic_off, 0, 0, 0)
+                } catch (e: Exception) {
+                    // Fallback: Verwende das normale mic-Icon
+                    it.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_mic, 0, 0, 0)
+                    // Farbe oder Alpha des Icons ändern, um deaktiviert anzuzeigen
+                    it.compoundDrawables[0]?.alpha = 128 // 50% Alpha für "deaktiviert" Look
+                }
+            } else {
+                it.text = getString(R.string.wake_word_enable)
+                it.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_mic, 0, 0, 0)
+                // Sicherstellen, dass das Icon volle Opazität hat
+                it.compoundDrawables[0]?.alpha = 255
+            }
+
+            // OnClickListener setzen
+            it.setOnClickListener {
+                if (isWakeWordServiceRunning) {
+                    // Wake Word Service stoppen
+                    Toast.makeText(this, "Wake Word Erkennung wird deaktiviert...", Toast.LENGTH_SHORT).show()
+                    stopWakeWordService()
+                    // Bestätigung nach erfolgreichem Stoppen
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        Toast.makeText(this, "Wake Word Erkennung deaktiviert", Toast.LENGTH_SHORT).show()
+                    }, 500)
+                } else {
+                    // Wake Word Service starten
+                    Toast.makeText(this, "Wake Word Erkennung wird aktiviert...", Toast.LENGTH_SHORT).show()
+                    checkAndRequestPermissions()
+                    // Bestätigung wird bereits im onRequestPermissionsResult oder startWakeWordService gegeben
+                }
+                popupWindow.dismiss()
+            }
         }
         
         // Logout/Login Button anpassen
@@ -540,18 +576,25 @@ class MainActivity : BaseActivity() {
         }
     }
     
-    private fun startWakeWordService() {
+    /**
+     * Startet den Wake Word Service nach Berechtigungsprüfung
+     */
+    fun startWakeWordService() {
         if (!isWakeWordServiceRunning) {
             WakeWordService.startService(this)
             isWakeWordServiceRunning = true
+            updateUIForWakeWordStatus()
+            Toast.makeText(this, "Wake Word Erkennung aktiviert", Toast.LENGTH_SHORT).show()
         }
     }
     
-    private fun stopWakeWordService() {
-        if (isWakeWordServiceRunning) {
-            WakeWordService.stopService(this)
-            isWakeWordServiceRunning = false
-        }
+    /**
+     * Stoppt den Wake Word Service
+     */
+    fun stopWakeWordService() {
+        WakeWordService.stopService(this)
+        isWakeWordServiceRunning = false
+        updateUIForWakeWordStatus()
     }
     
     private fun handleWakeWordDetected() {
@@ -561,34 +604,121 @@ class MainActivity : BaseActivity() {
             
             // Sicherstellen, dass wir auf dem Hauptthread arbeiten
             runOnUiThread {
-                // Einfach zum Chat-Tab wechseln
-                if (::bottomNavigation.isInitialized) {
-                    Log.d("MainActivity", "Wechsle zum Assistenten-Tab")
+                try {
+                    // Prüfe, ob die Aktivität sich in einem gültigen Zustand befindet
+                    if (isFinishing || isDestroyed) {
+                        Log.d("MainActivity", "Aktivität wird beendet oder ist bereits zerstört, ignoriere Wake Word")
+                        return@runOnUiThread
+                    }
                     
-                    // Bundle mit Extra-Parameter erstellen, das an das Fragment übergeben wird
-                    val bundle = Bundle()
-                    bundle.putBoolean("activate_voice", true)
+                    // Prüfe, ob die Aktivität ihren Zustand bereits gespeichert hat
+                    if (!isActivityStateSafe()) {
+                        Log.d("MainActivity", "Aktivität hat ihren Zustand bereits gespeichert, verzögere Wake Word-Verarbeitung")
+                        // Verzögere die Verarbeitung, bis die Aktivität wieder in einem sicheren Zustand ist
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            if (!isFinishing && !isDestroyed) {
+                                handleWakeWordDetectedSafely()
+                            }
+                        }, 500) // Kurze Verzögerung
+                        return@runOnUiThread
+                    }
                     
-                    // Starte hier nicht direkt das Fragment, sondern setze eine Variable, 
-                    // die später vom NavItemSelectedListener ausgewertet wird
-                    pendingVoiceActivation = true
-                    
-                    // Zum Assistenten-Tab wechseln
-                    bottomNavigation.selectedItemId = R.id.nav_assistant
-                    
-                    // Toast-Meldung anzeigen
+                    // Wenn alles in Ordnung ist, führe die Aktion sicher aus
+                    handleWakeWordDetectedSafely()
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Fehler bei der Behandlung des Wake Words", e)
                     Toast.makeText(
-                        this,
-                        "Wake Word erkannt: 'Hei Kiyto'",
+                        this@MainActivity,
+                        "Fehler bei der Spracherkennung",
                         Toast.LENGTH_SHORT
                     ).show()
-                } else {
-                    Log.e("MainActivity", "bottomNavigation ist nicht initialisiert")
                 }
             }
         } catch (e: Exception) {
-            Log.e("MainActivity", "Fehler bei der Behandlung des Wake Words", e)
+            Log.e("MainActivity", "Fehler bei der Behandlung des Wake Words (Ask Gemini)", e)
         }
+    }
+    
+    private fun handleWakeWordDetectedSafely() {
+        // Einfach zum Chat-Tab wechseln
+        if (::bottomNavigation.isInitialized) {
+            Log.d("MainActivity", "Wechsle zum Assistenten-Tab")
+            
+            // Bundle mit Extra-Parameter erstellen, das an das Fragment übergeben wird
+            val bundle = Bundle()
+            bundle.putBoolean("activate_voice", true)
+            
+            // Starte hier nicht direkt das Fragment, sondern setze eine Variable, 
+            // die später vom NavItemSelectedListener ausgewertet wird
+            pendingVoiceActivation = true
+            
+            try {
+                // Versuche die Navigation auf sichere Weise
+                if (isActivityStateSafe()) {
+                    // Zum Assistenten-Tab wechseln
+                    bottomNavigation.selectedItemId = R.id.nav_assistant
+                } else {
+                    Log.d("MainActivity", "Aktivität ist nicht in einem sicheren Zustand für Fragment-Transaktionen. Verwende verzögerte Navigation.")
+                    
+                    // Erstelle einen Intent zum Neustarten der MainActivity
+                    val intent = Intent(this, MainActivity::class.java).apply {
+                        // Flaggen setzen, um die aktuelle Instance zu ersetzen
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        // Aktion für Wake Word setzen
+                        action = WakeWordService.ACTION_WAKE_WORD_DETECTED
+                        // Extra für das direkte Öffnen des Assistenten-Tabs
+                        putExtra("direct_assistant", true)
+                    }
+                    
+                    // Starte die Aktivität neu
+                    startActivity(intent)
+                    return
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Fehler beim Navigieren zum Assistenten-Tab", e)
+                
+                // Fallback-Methode: Verzögerte Ausführung nach Neuerstellung der Aktivität
+                Handler(Looper.getMainLooper()).postDelayed({
+                    try {
+                        // Nur ausführen, wenn die Aktivität noch aktiv ist
+                        if (!isFinishing && !isDestroyed) {
+                            Log.d("MainActivity", "Verzögerter Versuch, zum Assistenten-Tab zu navigieren")
+                            bottomNavigation.selectedItemId = R.id.nav_assistant
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Fehler beim verzögerten Navigieren zum Assistenten-Tab", e)
+                    }
+                }, 1000) // Längere Verzögerung
+            }
+            
+            // Toast-Meldung anzeigen
+            Toast.makeText(
+                this,
+                "Wake Word erkannt: 'Hei Kiyto'",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            Log.e("MainActivity", "bottomNavigation ist nicht initialisiert")
+        }
+    }
+    
+    /**
+     * Prüft, ob die Aktivität sich in einem Zustand befindet, in dem Fragment-Transaktionen sicher sind
+     */
+    private fun isActivityStateSafe(): Boolean {
+        val isInResumedState = lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
+        val isStateSaved = supportFragmentManager.isStateSaved
+        
+        val isSafe = !isFinishing && !isDestroyed && !isStateSaved && isInResumedState
+        
+        Log.d("MainActivity", "Activity-Zustand: " +
+                "isFinishing=$isFinishing, " +
+                "isDestroyed=$isDestroyed, " +
+                "isStateSaved=$isStateSaved, " +
+                "isInResumedState=$isInResumedState, " +
+                "ERGEBNIS=$isSafe")
+        
+        return isSafe
     }
     
     override fun onDestroy() {
@@ -607,25 +737,68 @@ class MainActivity : BaseActivity() {
         super.onNewIntent(intent)
         Log.d("MainActivity", "onNewIntent aufgerufen mit Action: ${intent?.action}")
         
+        // Intent speichern, damit es für Fragment-Erstellung verfügbar ist
+        setIntent(intent)
+
         // Prüfen, ob es sich um einen Wake-Word-Intent handelt
         if (intent?.action == WakeWordService.ACTION_WAKE_WORD_DETECTED) {
             Log.d("MainActivity", "Wake Word erkannt via direkten Intent")
-            // Intent speichern, damit es für Fragment-Erstellung verfügbar ist
-            setIntent(intent)
             handleWakeWordDetected()
+        } 
+        // Prüfen, ob direkt zum Assistenten-Tab navigiert werden soll
+        else if (intent?.getBooleanExtra("direct_assistant", false) == true) {
+            Log.d("MainActivity", "Direkter Wechsel zum Assistenten-Tab über Intent")
+            
+            // Verzögere die Navigation leicht, um sicherzustellen, dass die Activity vollständig wiederhergestellt ist
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    if (!isFinishing && !isDestroyed) {
+                        pendingVoiceActivation = true
+                        bottomNavigation.selectedItemId = R.id.nav_assistant
+                        
+                        Toast.makeText(
+                            this,
+                            "Wake Word erkannt: 'Hei Kiyto'",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Fehler beim Navigieren zum Assistenten-Tab in onNewIntent", e)
+                }
+            }, 300)
         }
     }
 
     override fun onResume() {
         super.onResume()
         
-        // Wake-Word-Service neu starten, falls er nicht mehr läuft
-        if (!isWakeWordServiceRunning) {
-            // Kurze Verzögerung, um sicherzustellen, dass die App vollständig geladen ist
-            Handler(Looper.getMainLooper()).postDelayed({
-                checkAndRequestPermissions()
-            }, 1000)
+        // Aktualisiere die UI-Elemente basierend auf dem aktuellen Status
+        updateUIForWakeWordStatus()
+        
+        // HINWEIS: Wir starten den Wake Word Service nicht mehr automatisch,
+        // da der Benutzer ihn jetzt manuell über das Menü ein-/ausschalten kann.
+        
+        // Nur noch bei Bedarf prüfen, ob der Service tatsächlich läuft
+        if (isWakeWordServiceRunning) {
+            // Prüfe, ob der Service tatsächlich noch läuft (könnte durch System beendet worden sein)
+            // Falls er nicht mehr läuft, setzen wir den Status zurück
+            // Dies könnte über ServiceConnection oder einen Ping-Mechanismus implementiert werden
         }
+    }
+
+    /**
+     * Aktualisiert UI-Elemente basierend auf dem aktuellen Status des Wake Word Service
+     */
+    private fun updateUIForWakeWordStatus() {
+        // Hier könnten weitere UI-Elemente aktualisiert werden, falls nötig
+        Log.d("MainActivity", "Wake Word Service Status: ${if (isWakeWordServiceRunning) "Aktiv" else "Inaktiv"}")
+    }
+
+    /**
+     * Gibt zurück, ob der Wake Word Service derzeit aktiv ist
+     */
+    fun isWakeWordServiceRunning(): Boolean {
+        return isWakeWordServiceRunning
     }
 
     companion object {

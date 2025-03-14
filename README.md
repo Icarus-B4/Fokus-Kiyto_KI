@@ -12,6 +12,8 @@
 
 Fokus-Kiyto KI ist eine moderne Produktivitäts-App, die fortschrittliche KI-Technologien nutzt, um deine Arbeitsweise zu optimieren. Die App kombiniert Aufgabenverwaltung, Zeitmanagement und KI-gestützte Empfehlungen, um dir zu helfen, fokussierter und produktiver zu arbeiten.
 
+
+
 ### ✨ Hauptfunktionen
 
 - **📋 Intelligente Aufgabenverwaltung**: Organisiere deine Aufgaben mit Prioritäten, Kategorien und Deadlines
@@ -111,3 +113,9 @@ Projektlink: [https://github.com/Icarus-B4/Fokus-Kiyto_KI/releases](https://gith
 <div align="center">
   <sub>Mit ❤️ entwickelt in Bern</sub>
 </div>
+
+Dieses Repository ist nur für Sponsoren verfügbar. Um Zugang zu erhalten:
+
+1. Besuche [github.com/sponsors/Icarus-B4](https://github.com/sponsors/Icarus-B4)
+2. Wähle einen Sponsoring-Plan
+3. Nach erfolgreicher Anmeldung erhältst du automatisch Zugang zum Repository

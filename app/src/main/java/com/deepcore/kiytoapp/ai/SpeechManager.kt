@@ -182,6 +182,13 @@ class SpeechManager(
     suspend fun startListening(): String? {
         return withContext(Dispatchers.IO) {
             try {
+                // Stelle sicher, dass keine vorherige Aufnahme läuft
+                if (isRecording) {
+                    Log.d(TAG, "Stoppe vorherige Aufnahme vor dem Neustart")
+                    stopRecording()
+                    delay(300) // Kurze Pause, um sicherzustellen, dass alles gestoppt wurde
+                }
+                
                 // Warte bis die Sprachausgabe beendet ist
                 while (isSpeaking) {
                     delay(100)
@@ -190,6 +197,7 @@ class SpeechManager(
                 // Kurze Pause nach der Sprachausgabe
                 delay(500)
                 
+                // Stelle sicher, dass der AudioRecord ordnungsgemäß initialisiert ist
                 isRecording = true
                 statusCallback?.invoke(isRecording, isSpeaking)
                 
@@ -375,45 +383,51 @@ class SpeechManager(
             isSpeaking = true
             statusCallback?.invoke(isRecording, isSpeaking)
             
-            val audioData = openAIService.textToSpeech(text) ?: return
+            // Versuche zuerst OpenAI TTS
+            val audioData = openAIService.textToSpeech(text)
             
-            val tempFile = File(context.cacheDir, "tts_output.mp3")
-            tempFile.writeBytes(audioData)
-            
-            withContext(Dispatchers.Main) {
-                mediaPlayer?.release()
-                mediaPlayer = null
+            if (audioData != null) {
+                // OpenAI TTS erfolgreich, nutze die erhaltenen Audiodaten
+                val tempFile = File(context.cacheDir, "tts_output.mp3")
+                tempFile.writeBytes(audioData)
                 
-                mediaPlayer = android.media.MediaPlayer().apply {
-                    setDataSource(tempFile.path)
-                    setAudioAttributes(
-                        android.media.AudioAttributes.Builder()
-                            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
-                            .setUsage(android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
-                            .build()
-                    )
-                    prepare()
-                    
-                    setOnPreparedListener {
-                        start()
-                    }
-                    
-                    setOnCompletionListener {
-                        release()
-                        mediaPlayer = null
-                        tempFile.delete()
+                withContext(Dispatchers.Main) {
+                    playAudioFile(tempFile)
+                }
+            } else {
+                // OpenAI TTS fehlgeschlagen, nutze lokale Android TTS als Fallback
+                Log.d(TAG, "OpenAI TTS fehlgeschlagen, verwende lokale TTS als Fallback")
+                
+                withContext(Dispatchers.Main) {
+                    if (textToSpeech != null && ttsInitialized) {
+                        // Sicherstellen, dass die lokale TTS initialisiert ist
+                        if (textToSpeech?.isSpeaking == true) {
+                            textToSpeech?.stop()
+                        }
+                        
+                        // Aufteilung des Textes in kleine Chunks, falls er zu lang ist
+                        val chunks = splitTextIntoChunks(text, 200) // Max. 200 Zeichen pro Chunk
+                        
+                        // HashMap für TTS-Parameter
+                        val params = HashMap<String, String>()
+                        params[android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME] = "1.0"
+                        params[android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = "utteranceId"
+                        
+                        // EventListener für Abschluss der Sprachausgabe
+                        textToSpeech?.setOnUtteranceCompletedListener {
+                            isSpeaking = false
+                            statusCallback?.invoke(isRecording, isSpeaking)
+                        }
+                        
+                        // Sprich Text-Chunks nacheinander aus
+                        for (chunk in chunks) {
+                            textToSpeech?.speak(chunk, android.speech.tts.TextToSpeech.QUEUE_ADD, params)
+                        }
+                    } else {
+                        // TTS nicht verfügbar
+                        Log.e(TAG, "Lokale TTS nicht verfügbar")
                         isSpeaking = false
                         statusCallback?.invoke(isRecording, isSpeaking)
-                    }
-                    
-                    setOnErrorListener { mp, what, extra ->
-                        Log.e(TAG, "MediaPlayer error: what=$what extra=$extra")
-                        release()
-                        mediaPlayer = null
-                        tempFile.delete()
-                        isSpeaking = false
-                        statusCallback?.invoke(isRecording, isSpeaking)
-                        true
                     }
                 }
             }
@@ -423,6 +437,68 @@ class SpeechManager(
             mediaPlayer = null
             isSpeaking = false
             statusCallback?.invoke(isRecording, isSpeaking)
+        }
+    }
+    
+    private fun splitTextIntoChunks(text: String, maxChunkSize: Int): List<String> {
+        val chunks = mutableListOf<String>()
+        val sentences = text.split(Regex("[.!?]+\\s+"))
+        
+        var currentChunk = StringBuilder()
+        for (sentence in sentences) {
+            if (currentChunk.length + sentence.length > maxChunkSize) {
+                chunks.add(currentChunk.toString())
+                currentChunk = StringBuilder(sentence)
+            } else {
+                if (currentChunk.isNotEmpty()) {
+                    currentChunk.append(". ")
+                }
+                currentChunk.append(sentence)
+            }
+        }
+        
+        if (currentChunk.isNotEmpty()) {
+            chunks.add(currentChunk.toString())
+        }
+        
+        return chunks
+    }
+    
+    private fun playAudioFile(audioFile: File) {
+        mediaPlayer?.release()
+        mediaPlayer = null
+        
+        mediaPlayer = android.media.MediaPlayer().apply {
+            setDataSource(audioFile.path)
+            setAudioAttributes(
+                android.media.AudioAttributes.Builder()
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                    .build()
+            )
+            prepare()
+            
+            setOnPreparedListener {
+                start()
+            }
+            
+            setOnCompletionListener {
+                release()
+                mediaPlayer = null
+                audioFile.delete()
+                isSpeaking = false
+                statusCallback?.invoke(isRecording, isSpeaking)
+            }
+            
+            setOnErrorListener { mp, what, extra ->
+                Log.e(TAG, "MediaPlayer error: what=$what extra=$extra")
+                release()
+                mediaPlayer = null
+                audioFile.delete()
+                isSpeaking = false
+                statusCallback?.invoke(isRecording, isSpeaking)
+                true
+            }
         }
     }
     
@@ -444,6 +520,50 @@ class SpeechManager(
     
     fun shutdown() {
         stopSpeaking()
+        stopRecording()
+        
+        // Bereinige alle Ressourcen
+        try {
+            // Bereinige SpeechRecognizer
+            cleanupRecognizer()
+            
+            // Bereinige TextToSpeech
+            textToSpeech?.let { tts ->
+                try {
+                    if (tts.isSpeaking) {
+                        tts.stop()
+                    }
+                    tts.shutdown()
+                    textToSpeech = null
+                    ttsInitialized = false
+                } catch (e: Exception) {
+                    Log.e(TAG, "Fehler beim Herunterfahren von TextToSpeech", e)
+                }
+            }
+            
+            // MediaPlayer freigeben
+            mediaPlayer?.let { player ->
+                try {
+                    if (player.isPlaying) {
+                        player.stop()
+                    }
+                    player.release()
+                    mediaPlayer = null
+                } catch (e: Exception) {
+                    Log.e(TAG, "Fehler beim Freigeben des MediaPlayers", e)
+                }
+            }
+            
+            // Status zurücksetzen
+            isRecording = false
+            isSpeaking = false
+            statusCallback?.invoke(isRecording, isSpeaking)
+            statusCallback = null
+            
+            Log.d(TAG, "SpeechManager erfolgreich heruntergefahren")
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim Herunterfahren des SpeechManagers", e)
+        }
     }
     
     private fun cleanupRecognizer() {

@@ -188,41 +188,53 @@ class WakeWordService : Service() {
         }
     }
     
-    private fun matchesWakeWord(text: String): Boolean {
-        // Exakte Übereinstimmung
-        if (text.contains(WAKE_WORD)) {
+    private fun matchesWakeWord(recognizedText: String): Boolean {
+        val text = recognizedText.lowercase().trim()
+        
+        // Debug-Ausgabe für alle erkannten Texte
+        Log.d(TAG, "Prüfe Wake Word in: \"$text\"")
+        
+        // Bekannte Fehlerkennungen filtern - nur die häufigsten
+        if (text.contains("untertitel")) {
+            Log.d(TAG, "Ignoriere erkannten Text als Untertitel: \"$text\"")
+            return false
+        }
+        
+        // Exakte Übereinstimmung - weniger streng mit contains statt equals
+        if (text.contains("hei kiyto") || text.contains("hey kiyto") || text.contains("hallo kiyto")) {
+            Log.d(TAG, "Wake Word-Übereinstimmung gefunden: \"$text\"")
             return true
         }
         
-        // Prüfen der Alternativen
-        for (alternative in WAKE_WORD_ALTERNATIVES) {
+        // Prüfen der Alternativen - weniger streng
+        val alternatives = listOf(
+            "hei kito", "hey kito", "hallo kito",
+            "hi kiyto", "hi kito",
+            "hey kieto", "hei kieto"
+        )
+        
+        for (alternative in alternatives) {
             if (text.contains(alternative)) {
+                Log.d(TAG, "Alternative Wake Word-Übereinstimmung gefunden: \"$alternative\" in \"$text\"")
                 return true
             }
         }
         
         // Prüfen einer ungefähren Übereinstimmung
-        val words = text.split(" ")
-        for (i in 0 until words.size - 1) {
-            val current = words[i]
-            val next = words[i + 1]
+        if ((text.contains("hei") || text.contains("hey") || text.contains("hi") || text.contains("hallo")) &&
+            (text.contains("ki") || text.contains("ky") || text.contains("kiy"))) {
             
-            // Erster Teil des Wake Words ist "hei" oder ähnliche Variante
-            if (current == "hei" || current == "hey" || current == "hai" || current == "hallo") {
-                // Zweiter Teil ist ähnlich zu "kiyto"
-                if (next.startsWith("k") && (
-                    next.contains("yt") || 
-                    next.contains("it") || 
-                    next.contains("eit") ||
-                    next.contains("ito") ||
-                    next.contains("yto") ||
-                    next.contains("ito")
-                )) {
-                    return true
-                }
+            // Ignoriere bekannte Fehlerkennungen
+            if (text.contains("musik") || text.contains("kinder") || text.contains("kino")) {
+                Log.d(TAG, "Ignoriere falsche Übereinstimmung: \"$text\"")
+                return false
             }
+            
+            Log.d(TAG, "Ungefähre Wake Word-Übereinstimmung gefunden: \"$text\"")
+            return true
         }
         
+        Log.d(TAG, "Kein Wake Word in der Aufnahme gefunden.")
         return false
     }
     
@@ -292,6 +304,8 @@ class WakeWordService : Service() {
                 return@withContext null
             }
             
+            // Audio-Quelle auf VOICE_RECOGNITION setzen für bessere Stimmerkennung
+            // und Filtern von Hintergrundgeräuschen
             audioRecord = AudioRecord(
                 MediaRecorder.AudioSource.VOICE_RECOGNITION,
                 SAMPLE_RATE,

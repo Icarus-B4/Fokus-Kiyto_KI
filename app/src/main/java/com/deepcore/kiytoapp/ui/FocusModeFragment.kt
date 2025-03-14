@@ -26,6 +26,10 @@ class FocusModeFragment : BaseFragment() {
         PomodoroViewModelFactory(requireContext())
     }
     
+    companion object {
+        private const val TAG = "FocusModeFragment"
+    }
+    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,6 +51,64 @@ class FocusModeFragment : BaseFragment() {
     
     override fun onResume() {
         super.onResume()
+    }
+    
+    /**
+     * Setzt die Timer-Dauer in Minuten
+     * Diese Methode kann von außen aufgerufen werden, um die Timer-Dauer zu ändern
+     */
+    fun setTimerDuration(minutes: Int) {
+        try {
+            Log.d(TAG, "Timer-Dauer wird auf $minutes Minuten gesetzt")
+            
+            // Begrenze den Wert auf maximal 60 Minuten (Slider-Maximum)
+            val limitedMinutes = if (minutes > 60) 60 else minutes
+            
+            if (limitedMinutes != minutes) {
+                Log.d(TAG, "Timer-Dauer auf 60 Minuten begrenzt (ursprünglich $minutes)")
+            }
+            
+            // Stelle sicher, dass der Pomodoro-Modus ausgewählt ist
+            binding.modeTabLayout.getTabAt(0)?.select()
+            viewModel.setMode(PomodoroViewModel.PomodoroMode.POMODORO)
+            
+            // Setze die Timer-Dauer im ViewModel
+            viewModel.setPomodoroMinutes(limitedMinutes.toFloat())
+            
+            // Aktualisiere den Slider, falls nötig
+            binding.focusTimeSlider.value = limitedMinutes.toFloat()
+            
+            // Setze den Timer zurück, falls er bereits läuft
+            viewModel.resetTimer()
+            binding.startButton.setImageResource(R.drawable.ic_play)
+            binding.startButton.contentDescription = getString(R.string.start_timer)
+            
+            Log.d(TAG, "Timer-Dauer erfolgreich auf $limitedMinutes Minuten gesetzt")
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim Setzen der Timer-Dauer", e)
+        }
+    }
+    
+    /**
+     * Startet den Timer automatisch
+     * Diese Methode kann von außen aufgerufen werden, um den Timer zu starten
+     */
+    fun startTimer() {
+        try {
+            Log.d(TAG, "Timer wird automatisch gestartet")
+            
+            // Starte den Timer nur, wenn er nicht bereits läuft
+            if (viewModel.timerState.value != PomodoroViewModel.TimerState.RUNNING) {
+                viewModel.startTimer()
+                binding.startButton.setImageResource(R.drawable.ic_pause)
+                binding.startButton.contentDescription = getString(R.string.pause_timer)
+                Log.d(TAG, "Timer erfolgreich gestartet")
+            } else {
+                Log.d(TAG, "Timer läuft bereits, kein erneuter Start notwendig")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim automatischen Starten des Timers", e)
+        }
     }
     
     private fun initializeSliders() {

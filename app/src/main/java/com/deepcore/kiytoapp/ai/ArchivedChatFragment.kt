@@ -69,10 +69,13 @@ class ArchivedChatFragment : Fragment() {
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         adapter = ChatAdapter(
-            onActionClicked = { action -> 
-                // Archivierte Chats sind schreibgeschützt, daher keine Aktionen
+            onActionClicked = { action ->
+                // Aktionen in archivierten Chats werden ignoriert
             },
-            onMessageLongClicked = { _, _ -> 
+            onActionItemClicked = { actionItem ->
+                // ActionItems in archivierten Chats werden ignoriert
+            },
+            onMessageLongClicked = { message, position ->
                 // Archivierte Chats sind schreibgeschützt, daher keine Long-Click-Aktionen
             }
         )

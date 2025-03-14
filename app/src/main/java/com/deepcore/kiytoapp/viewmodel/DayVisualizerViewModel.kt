@@ -1,18 +1,18 @@
 package com.deepcore.kiytoapp.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.deepcore.kiytoapp.data.Task
 import com.deepcore.kiytoapp.data.Priority
+import com.deepcore.kiytoapp.data.Task
 import com.deepcore.kiytoapp.data.TaskDatabase
-import com.deepcore.kiytoapp.data.dao.TaskDao
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.*
-import android.util.Log
+import java.util.Calendar
+import java.util.Date
 
 class DayVisualizerViewModel(application: Application) : AndroidViewModel(application) {
     private val taskDao = TaskDatabase.getDatabase(application).taskDao()

@@ -94,6 +94,30 @@ class PomodoroViewModel(private val context: Context) : ViewModel() {
         updateTimerText()
     }
     
+    /**
+     * Setzt die Pomodoro-Dauer in Minuten
+     * Diese Methode kann von außen aufgerufen werden, um die Timer-Dauer zu ändern
+     */
+    fun setPomodoroMinutes(minutes: Float) {
+        try {
+            val minutesLong = minutes.toLong()
+            Log.d("PomodoroViewModel", "Setze Pomodoro-Dauer auf $minutesLong Minuten")
+            
+            // Speichere die neue Dauer
+            pomodoroLength = minutesLong
+            
+            // Aktualisiere den Timer, wenn wir im Pomodoro-Modus sind
+            if (_currentMode.value == PomodoroMode.POMODORO) {
+                remainingTimeInSeconds = minutesLong * 60
+                updateTimerText()
+            }
+            
+            Log.d("PomodoroViewModel", "Pomodoro-Dauer erfolgreich auf $minutesLong Minuten gesetzt")
+        } catch (e: Exception) {
+            Log.e("PomodoroViewModel", "Fehler beim Setzen der Pomodoro-Dauer", e)
+        }
+    }
+    
     fun startTimer() {
         if (_timerState.value == TimerState.RUNNING) return
         

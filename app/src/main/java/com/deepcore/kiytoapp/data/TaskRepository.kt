@@ -35,7 +35,7 @@ class TaskRepository(private val context: Context) {
      * @param taskId ID der Aufgabe
      * @return Die Aufgabe oder null, wenn sie nicht gefunden wurde
      */
-    suspend fun getTaskById(taskId: Long): Task? = withContext(Dispatchers.IO) {
+    private suspend fun getTaskById(taskId: Long): Task? = withContext(Dispatchers.IO) {
         try {
             LogUtils.debug(this, "Lade Aufgabe mit ID: $taskId")
             val database = AppDatabase.getInstance(context)

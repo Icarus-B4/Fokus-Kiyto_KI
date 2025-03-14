@@ -35,6 +35,13 @@ object OpenAIService {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
+    // Spezieller Client für TTS mit längeren Timeouts
+    private val ttsClient = OkHttpClient.Builder()
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .build()
+
     private var customApiKey: String? = null
 
     init {
@@ -438,15 +445,50 @@ object OpenAIService {
                 .post(requestBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
                 .build()
 
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    val errorBody = response.body?.string()
-                    Log.e(TAG, "OpenAI TTS request failed: $errorBody")
+            try {
+                ttsClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        Log.e(TAG, "OpenAI TTS request failed: $errorBody")
+                        return@withContext null
+                    }
+
+                    Log.d(TAG, "TTS-Anfrage erfolgreich")
+                    return@withContext response.body?.bytes()
+                }
+            } catch (e: java.net.SocketTimeoutException) {
+                // Bei Timeout versuchen wir es mit einem simpleren Modell
+                Log.w(TAG, "TTS-Timeout aufgetreten, versuche alternatives Modell", e)
+                
+                val fallbackRequestBody = JSONObject().apply {
+                    put("model", "tts-1") // Einfacheres Modell
+                    put("input", text)
+                    put("voice", "alloy") // Alternative Stimme
+                    put("response_format", "mp3")
+                }
+                
+                val fallbackRequest = Request.Builder()
+                    .url("https://api.openai.com/v1/audio/speech")
+                    .addHeader("Authorization", "Bearer ${apiKey?.trim()}")
+                    .addHeader("Content-Type", "application/json")
+                    .post(fallbackRequestBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
+                    .build()
+                
+                try {
+                    ttsClient.newCall(fallbackRequest).execute().use { response ->
+                        if (!response.isSuccessful) {
+                            val errorBody = response.body?.string()
+                            Log.e(TAG, "Fallback TTS request failed: $errorBody")
+                            return@withContext null
+                        }
+                        
+                        Log.d(TAG, "Fallback TTS-Anfrage erfolgreich")
+                        return@withContext response.body?.bytes()
+                    }
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Fehler bei Fallback-TTS-Anfrage", e2)
                     return@withContext null
                 }
-
-                Log.d(TAG, "TTS-Anfrage erfolgreich")
-                return@withContext response.body?.bytes()
             }
         } catch (e: Exception) {
             Log.e(TAG, "Fehler bei OpenAI TTS", e)
@@ -586,5 +628,71 @@ object OpenAIService {
 
     fun hasCustomApiKey(): Boolean {
         return customApiKey != null
+    }
+
+    // Methode für die Ideensammlung
+    suspend fun generateChatResponse(prompt: String): String? = withContext(Dispatchers.IO) {
+        if (apiKey.isNullOrEmpty()) {
+            Log.e(TAG, "API key is not set")
+            return@withContext "Entschuldigung, der API-Schlüssel ist nicht konfiguriert."
+        }
+
+        try {
+            // Bereite den Request-Body vor
+            val requestBody = JSONObject().apply {
+                put("model", "gpt-4o-mini")
+                put("messages", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("role", "system") 
+                        put("content", "Du bist ein kreativer Assistent, der innovative und praktische Ideen generiert.")
+                    })
+                    put(JSONObject().apply {
+                        put("role", "user")
+                        put("content", prompt)
+                    })
+                })
+                put("temperature", 0.8)
+                put("max_tokens", 800)
+            }
+            
+            // Erstelle den Request mit dem korrekten API-Schlüssel
+            val request = Request.Builder()
+                .url("https://api.openai.com/v1/chat/completions")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer ${apiKey?.trim()}")
+                .post(requestBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
+                .build()
+
+            Log.d(TAG, "Sende Anfrage zur Ideengenerierung an OpenAI API...")
+            
+            // Führe den Request aus
+            client.newCall(request).execute().use { response ->
+                Log.d(TAG, "Antwort von OpenAI API erhalten mit Code: ${response.code}")
+                
+                if (!response.isSuccessful) {
+                    val errorBody = response.body?.string()
+                    Log.e(TAG, "API request failed with code ${response.code}: $errorBody")
+                    return@withContext "Entschuldigung, bei der Ideengenerierung ist ein Fehler aufgetreten."
+                }
+
+                val responseBody = response.body?.string() ?: throw IOException("Empty response")
+                
+                val jsonResponse = JSONObject(responseBody)
+                val choices = jsonResponse.getJSONArray("choices")
+                
+                if (choices.length() > 0) {
+                    val generatedIdeas = choices.getJSONObject(0)
+                        .getJSONObject("message")
+                        .getString("content")
+                    
+                    return@withContext generatedIdeas
+                } else {
+                    throw IOException("No choices in response")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler bei der Ideengenerierung", e)
+            return@withContext "Entschuldigung, bei der Ideengenerierung ist ein Fehler aufgetreten: ${e.message}"
+        }
     }
 } 

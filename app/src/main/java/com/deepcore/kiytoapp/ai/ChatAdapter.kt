@@ -1,5 +1,8 @@
 package com.deepcore.kiytoapp.ai
 
+import android.animation.ValueAnimator
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -8,21 +11,28 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.deepcore.kiytoapp.R
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.bumptech.glide.Glide
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ChatAdapter(
     private val onActionClicked: (ChatAction) -> Unit,
+    private val onActionItemClicked: (ActionItem) -> Unit,
     private val onMessageLongClicked: (ChatMessage, Int) -> Unit
-) : RecyclerView.Adapter<ChatAdapter.MessageViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val messages = mutableListOf<ChatMessage>()
     private var pinnedMessage: ChatMessage? = null
     private var pinnedView: View? = null
     private var pinnedMessageChangedListener: ((ChatMessage?) -> Unit)? = null
     private var recyclerView: RecyclerView? = null
+    private val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     
     // Getter für die aktuelle Liste
     val currentList: List<ChatMessage>
@@ -96,23 +106,52 @@ class ChatAdapter(
 
     fun getPinnedMessage(): ChatMessage? = pinnedMessage
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-        val layout = if (viewType == VIEW_TYPE_USER) {
-            R.layout.item_user_message
-        } else {
-            R.layout.item_assistant_message
+    fun removeLastMessage() {
+        if (messages.isNotEmpty()) {
+            val lastIndex = messages.size - 1
+            messages.removeAt(lastIndex)
+            notifyItemRemoved(lastIndex)
         }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        val message = messages[position]
+        return when {
+            message.isUser -> VIEW_TYPE_USER
+            message.isTyping -> VIEW_TYPE_ASSISTANT_TYPING
+            else -> VIEW_TYPE_ASSISTANT
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            VIEW_TYPE_USER -> {
+                val view = inflater.inflate(R.layout.item_user_message, parent, false)
+                UserMessageViewHolder(view, onMessageLongClicked)
+            }
+            VIEW_TYPE_ASSISTANT_TYPING -> {
+                val view = inflater.inflate(R.layout.item_assistant_message, parent, false)
+                TypingViewHolder(view)
+            }
+            else -> {
+                val view = inflater.inflate(R.layout.item_assistant_message, parent, false)
+                MessageViewHolder(view, onActionClicked, onActionItemClicked, onMessageLongClicked)
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val message = messages[position]
         
-        val view = LayoutInflater.from(parent.context)
-            .inflate(layout, parent, false)
-        return MessageViewHolder(view, onActionClicked, onMessageLongClicked)
+        when (holder) {
+            is UserMessageViewHolder -> holder.bind(message, position)
+            is MessageViewHolder -> holder.bind(message, position)
+            is TypingViewHolder -> holder.startTypingAnimation()
+        }
     }
 
-    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        holder.bind(messages[position])
-    }
-
-    override fun getItemCount() = messages.size
+    override fun getItemCount(): Int = messages.size
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -124,128 +163,97 @@ class ChatAdapter(
         this.recyclerView = null
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (messages[position].isUser) VIEW_TYPE_USER else VIEW_TYPE_ASSISTANT
-    }
-
-    class MessageViewHolder(
-        itemView: View,
-        private val onActionClicked: (ChatAction) -> Unit,
+    inner class UserMessageViewHolder(
+        view: View,
         private val onMessageLongClicked: (ChatMessage, Int) -> Unit
-    ) : RecyclerView.ViewHolder(itemView) {
-        private val messageCard: LinearLayout = itemView.findViewById(R.id.messageCard)
-        private val messageText: TextView = itemView.findViewById(R.id.messageText)
-        private val messageImage: ImageView = itemView.findViewById(R.id.messageImage)
-        private val actionButton: MaterialButton = itemView.findViewById(R.id.actionButton)
-        private val pinIndicator: View = itemView.findViewById(R.id.pinIndicator)
-        private val pinIcon: ImageView = itemView.findViewById(R.id.pinIcon)
-
-        init {
+    ) : RecyclerView.ViewHolder(view) {
+        private val messageText: TextView = view.findViewById(R.id.messageText)
+        
+        fun bind(message: ChatMessage, position: Int) {
+            messageText.text = message.content
+            
             itemView.setOnLongClickListener {
-                val position = absoluteAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    val adapter = itemView.parent as? RecyclerView
-                    val chatAdapter = adapter?.adapter as? ChatAdapter
-                    chatAdapter?.let { adapter ->
-                        onMessageLongClicked(adapter.getMessage(position), position)
-                    }
-                }
+                onMessageLongClicked(message, position)
                 true
             }
         }
+    }
 
-        fun bind(message: ChatMessage) {
+    inner class MessageViewHolder(
+        view: View,
+        private val onActionClicked: (ChatAction) -> Unit,
+        private val onActionItemClicked: (ActionItem) -> Unit,
+        private val onMessageLongClicked: (ChatMessage, Int) -> Unit
+    ) : RecyclerView.ViewHolder(view) {
+        private val messageText: TextView = view.findViewById(R.id.messageText)
+        private val actionButton: Button? = view.findViewById(R.id.actionButton)
+        
+        fun bind(message: ChatMessage, position: Int) {
             messageText.text = message.content
             
-            // Bild anzeigen wenn vorhanden
-            message.imageUri?.let { uriString ->
-                try {
-                    val uri = android.net.Uri.parse(uriString)
-                    messageImage.visibility = View.VISIBLE
-                    try {
-                        Glide.with(itemView.context)
-                            .load(uri)
-                            .placeholder(R.drawable.ic_image)
-                            .error(R.drawable.ic_image)
-                            .into(messageImage)
-                    } catch (e: Exception) {
-                        android.util.Log.e("ChatAdapter", "Fehler beim Laden des Bildes mit Glide: $uriString", e)
-                        messageImage.visibility = View.GONE
+            // Alte ChatAction-Typen anzeigen
+            if (message.action != null && actionButton != null) {
+                actionButton.visibility = View.VISIBLE
+                
+                when (val action = message.action) {
+                    is ChatAction.OpenCalendar -> {
+                        setActionButton("Kalender öffnen", action)
                     }
-                } catch (e: Exception) {
-                    android.util.Log.e("ChatAdapter", "Fehler beim Verarbeiten der Bild-URI: $uriString", e)
-                    messageImage.visibility = View.GONE
-                }
-            } ?: run {
-                messageImage.visibility = View.GONE
-            }
-            
-            // Setze die Ausrichtung und den Stil basierend auf dem Nachrichtentyp
-            if (message.isUser) {
-                messageCard.setBackgroundResource(R.drawable.bg_message_user)
-                messageText.setTextColor(itemView.context.getColor(R.color.user_message_text))
-                (messageCard.layoutParams as FrameLayout.LayoutParams).apply {
-                    gravity = Gravity.END
-                    marginStart = itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_large)
-                    marginEnd = itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_small)
-                }
-            } else {
-                messageCard.setBackgroundResource(R.drawable.bg_message)
-                messageText.setTextColor(itemView.context.getColor(R.color.assistant_message_text))
-                (messageCard.layoutParams as FrameLayout.LayoutParams).apply {
-                    gravity = Gravity.START
-                    marginStart = itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_small)
-                    marginEnd = itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_large)
-                }
-            }
-
-            // Zeige den Pin-Indikator und das Icon nur für angepinnte Nachrichten
-            pinIndicator.visibility = if (message.isPinned) View.VISIBLE else View.GONE
-            pinIcon.visibility = if (message.isPinned) View.VISIBLE else View.GONE
-
-            // Setze den Action-Button wenn vorhanden
-            message.action?.let { action ->
-                actionButton.apply {
-                    visibility = View.VISIBLE
-                    when (action) {
-                        is ChatAction.OpenCalendar -> {
-                            text = itemView.context.getString(R.string.open_calendar)
-                            setIconResource(R.drawable.ic_calendar)
-                            setIconTintResource(R.color.primary)
-                            setTextColor(itemView.context.getColor(R.color.primary))
-                        }
-                        is ChatAction.SetTimer -> {
-                            text = itemView.context.getString(R.string.start_timer)
-                            setIconResource(R.drawable.ic_timer)
-                            setIconTintResource(R.color.primary)
-                            setTextColor(itemView.context.getColor(R.color.primary))
-                        }
-                        is ChatAction.CreateTask -> {
-                            text = itemView.context.getString(R.string.create_task)
-                            setIconResource(R.drawable.ic_category)
-                            setIconTintResource(R.color.primary)
-                            setTextColor(itemView.context.getColor(R.color.primary))
-                        }
-                        is ChatAction.PlaySpotify -> {
-                            text = itemView.context.getString(R.string.play_music)
-                            setIconResource(R.drawable.ic_music)
-                            setIconTintResource(R.color.primary)
-                            setTextColor(itemView.context.getColor(R.color.primary))
-                        }
-                        else -> {
-                            visibility = View.GONE
-                        }
+                    is ChatAction.SetTimer -> {
+                        setActionButton("${action.minutes} Min. Timer starten", action)
                     }
-                    setOnClickListener { onActionClicked(action) }
+                    is ChatAction.CreateTask -> {
+                        setActionButton("Aufgabe erstellen: ${action.title}", action)
+                    }
+                    else -> {
+                        actionButton.visibility = View.GONE
+                    }
                 }
-            } ?: run {
+            } else if (actionButton != null) {
                 actionButton.visibility = View.GONE
             }
+            
+            // Neue ActionItems anzeigen - wir verwenden vorhandene Views
+            if (message.chatActions?.isNotEmpty() == true && actionButton != null) {
+                actionButton.visibility = View.VISIBLE
+                actionButton.text = message.chatActions.firstOrNull()?.label ?: ""
+                actionButton.setOnClickListener {
+                    message.chatActions?.firstOrNull()?.let { item ->
+                        onActionItemClicked(item)
+                    }
+                }
+            }
+            
+            itemView.setOnLongClickListener {
+                onMessageLongClicked(message, position)
+                true
+            }
+        }
+        
+        private fun setActionButton(text: String, action: ChatAction) {
+            actionButton?.apply {
+                this.text = text
+                visibility = View.VISIBLE
+                setOnClickListener { onActionClicked(action) }
+            }
+        }
+    }
+
+    inner class TypingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val messageText: TextView = view.findViewById(R.id.messageText)
+        
+        init {
+            messageText.text = "Assistent schreibt..."
+        }
+        
+        fun startTypingAnimation() {
+            // Einfache Anzeige, keine Animation
         }
     }
 
     companion object {
         private const val VIEW_TYPE_USER = 1
         private const val VIEW_TYPE_ASSISTANT = 2
+        private const val VIEW_TYPE_ASSISTANT_TYPING = 3
     }
 } 

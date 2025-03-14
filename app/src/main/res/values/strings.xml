@@ -274,4 +274,6 @@
     <string name="checking_for_updates">Suche nach Updates...</string>
     <string name="ai_features">KI-Funktionen</string>
     <string name="wake_word_test">Wake Word Test</string>
+    <string name="wake_word_enable">Wake Word aktivieren</string>
+    <string name="wake_word_disable">Wake Word deaktivieren</string>
 </resources>
