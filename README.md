@@ -86,6 +86,9 @@ Projektlink: [https://github.com/DEIN_USERNAME/Fokus-Kiyto_KI](https://github.co
 
 ---
 
+@Icarus-B4's goal is to have 10 monthly sponsors
+goal is to earn $4200 per month I'll be able to quit my job and work on open source full time! 😁🎉🤷‍♂️
+
 <div align="center">
   <sub>Mit ❤️ entwickelt in Berlin</sub>
 </div> 
