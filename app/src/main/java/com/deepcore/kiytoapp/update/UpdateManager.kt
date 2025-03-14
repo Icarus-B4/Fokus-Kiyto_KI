@@ -15,6 +15,8 @@ class UpdateManager(private val context: Context) {
         private const val PREFS_NAME = "update_prefs"
         private const val LAST_CHECK_KEY = "last_update_check"
         private const val UPDATE_STATUS_KEY = "update_status"
+        // GitHub Token für private Repository
+        private const val GITHUB_TOKEN = "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"
     }
 
     var latestVersion: String? = null
@@ -36,6 +38,8 @@ class UpdateManager(private val context: Context) {
             val url = URL("$GITHUB_API_BASE/releases")
             val connection = url.openConnection()
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+            // Authentifizierung hinzufügen
+            connection.setRequestProperty("Authorization", "token $GITHUB_TOKEN")
             // Cache-Control Header hinzufügen
             connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
             connection.setRequestProperty("Pragma", "no-cache")
@@ -45,6 +49,8 @@ class UpdateManager(private val context: Context) {
             connection.useCaches = false
             
             val response = connection.getInputStream().bufferedReader().use { it.readText() }
+            LogUtils.debug(this@UpdateManager, "GitHub API Antwort erhalten")
+            
             val jsonArray = JSONObject("{\"releases\":$response}").getJSONArray("releases")
             
             if (jsonArray.length() > 0) {
@@ -71,7 +77,7 @@ class UpdateManager(private val context: Context) {
             }
             
         } catch (e: Exception) {
-            LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates", e)
+            LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates: ${e.message}", e)
             // Zeige Fehler-Animation
             false
         }
