@@ -250,17 +250,24 @@ if ($ghInstalled) {
     }
     
     Write-Host "Using API for upload..."
+    Write-Host "Using token: $($token.Substring(0, 4))..." -ForegroundColor Yellow
     
     # Check if release exists
     $releaseUrl = "https://api.github.com/repos/$repo/releases/tags/v$version"
+    Write-Host "Checking release URL: $releaseUrl" -ForegroundColor Yellow
+    
     $releaseExists = $false
     $releaseId = $null
     
     try {
-        $releaseInfo = Invoke-RestMethod -Uri $releaseUrl -Headers @{
+        Write-Host "Sending API request..." -ForegroundColor Yellow
+        $headers = @{
             "Authorization" = "token $token"
             "Accept" = "application/vnd.github.v3+json"
-        } -Method Get -ErrorAction SilentlyContinue
+        }
+        Write-Host "Headers: $($headers | ConvertTo-Json)" -ForegroundColor Yellow
+        
+        $releaseInfo = Invoke-RestMethod -Uri $releaseUrl -Headers $headers -Method Get -ErrorAction SilentlyContinue
         
         if ($releaseInfo -and $releaseInfo.id) {
             $releaseExists = $true
@@ -268,6 +275,7 @@ if ($ghInstalled) {
             Write-Host "Release v$version already exists with ID: $releaseId"
         }
     } catch {
+        Write-Host "Error checking release: $_" -ForegroundColor Red
         $releaseExists = $false
     }
     
