@@ -6,7 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.deepcore.kiytoapp.data.TaskDatabase
-import com.deepcore.kiytoapp.data.entity.Task
+import com.deepcore.kiytoapp.data.Task
 import com.deepcore.kiytoapp.databinding.ActivityNewTaskBinding
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
@@ -18,6 +18,7 @@ import java.util.Calendar
 import java.util.Locale
 import com.deepcore.kiytoapp.data.TaskManager
 import com.deepcore.kiytoapp.base.BaseActivity
+import java.util.Date
 
 class NewTaskActivity : BaseActivity() {
     private lateinit var binding: ActivityNewTaskBinding

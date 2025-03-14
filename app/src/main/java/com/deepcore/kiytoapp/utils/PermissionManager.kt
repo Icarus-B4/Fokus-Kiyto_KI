@@ -45,6 +45,22 @@ class PermissionManager {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs.edit().putBoolean(KEY_PERMISSIONS_REQUESTED, true).apply()
         }
+        
+        /**
+         * Prüft, ob eine spezifische Berechtigung als überprüft markiert wurde
+         */
+        fun isPermissionChecked(context: Context, permission: String): Boolean {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            return prefs.getBoolean("${permission}_checked", false)
+        }
+        
+        /**
+         * Markiert eine spezifische Berechtigung als überprüft
+         */
+        fun markPermissionChecked(context: Context, permission: String) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("${permission}_checked", true).apply()
+        }
 
         fun checkAndRequestPermissions(activity: Activity) {
             // Nur beim ersten Start die Berechtigungen anfordern

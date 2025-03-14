@@ -76,9 +76,15 @@ class TaskManager(private val context: Context) {
         try {
             val task = taskDao.getTaskById(taskId)
             task?.let {
-                val updatedTask = it.copy(completed = !it.completed)
+                val newCompletedState = !it.completed
+                val completedDate = if (newCompletedState) Date() else null
+                
+                val updatedTask = it.copy(
+                    completed = newCompletedState,
+                    completedDate = completedDate
+                )
                 taskDao.update(updatedTask)
-                Log.d(TAG, "Task ${taskId} Status geändert: ${updatedTask.completed}")
+                Log.d(TAG, "Task ${taskId} Status geändert: ${updatedTask.completed}, Abschlussdatum: ${updatedTask.completedDate}")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Fehler beim Ändern des Task-Status: ${e.message}", e)
@@ -103,5 +109,34 @@ class TaskManager(private val context: Context) {
     fun getTasksSortedByPriority(): Flow<List<Task>> {
         Log.d(TAG, "Lade Aufgaben sortiert nach Priorität")
         return taskDao.getTasksSortedByPriority()
+    }
+
+    /**
+     * Ruft alle abgeschlossenen Aufgaben in einem bestimmten Zeitraum ab.
+     * 
+     * @param startTime Startzeit des Zeitraums in Millisekunden
+     * @param endTime Endzeit des Zeitraums in Millisekunden
+     * @return Liste der abgeschlossenen Aufgaben im angegebenen Zeitraum
+     */
+    suspend fun getCompletedTasksInTimeRange(startTime: Long, endTime: Long): List<Task> {
+        try {
+            Log.d(TAG, "Lade abgeschlossene Aufgaben im Zeitraum von $startTime bis $endTime")
+            
+            // Hole alle abgeschlossenen Aufgaben
+            val allCompletedTasks = taskDao.getCompletedTasksAsList()
+            
+            // Filtere nach dem angegebenen Zeitraum
+            // Wir prüfen, ob die Aufgabe ein completedDate hat und ob es im Zeitraum liegt
+            return allCompletedTasks.filter { task ->
+                task.completedDate != null && 
+                task.completedDate!!.time >= startTime && 
+                task.completedDate!!.time <= endTime
+            }.also {
+                Log.d(TAG, "Gefundene abgeschlossene Aufgaben im Zeitraum: ${it.size}")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim Laden der abgeschlossenen Aufgaben im Zeitraum", e)
+            return emptyList()
+        }
     }
 } 

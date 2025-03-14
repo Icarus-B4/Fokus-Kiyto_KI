@@ -112,6 +112,46 @@ class SessionManager(context: Context) {
         return time
     }
 
+    /**
+     * Gibt die Fokuszeit für eine bestimmte Stunde eines Tages zurück.
+     * Da wir aktuell nur tägliche Fokuszeiten speichern, simulieren wir stündliche Daten
+     * basierend auf typischen Aktivitätsmustern.
+     * 
+     * @param timestamp Der Zeitstempel der Stunde, für die die Fokuszeit abgerufen werden soll
+     * @return Die Fokuszeit in Minuten (0-60)
+     */
+    fun getFocusTimeForHour(timestamp: Long): Int {
+        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val dateKey = getDateKey(calendar)
+        
+        // Hole die Gesamtfokuszeit für den Tag
+        val totalDayFocusTime = getFocusTimeForDate(dateKey)
+        
+        // Wenn keine Fokuszeit für den Tag vorhanden ist, gib 0 zurück
+        if (totalDayFocusTime == 0) {
+            return 0
+        }
+        
+        // Simuliere eine Verteilung der Fokuszeit über den Tag
+        // Produktive Stunden sind typischerweise 9-12 Uhr und 14-17 Uhr
+        val productivityFactor = when (hour) {
+            in 9..11 -> 0.2f  // Vormittag: hohe Produktivität
+            in 14..16 -> 0.15f // Nachmittag: mittlere bis hohe Produktivität
+            in 12..13 -> 0.05f // Mittagszeit: niedrige Produktivität
+            in 17..19 -> 0.1f  // Früher Abend: mittlere Produktivität
+            in 20..22 -> 0.05f // Später Abend: niedrige Produktivität
+            else -> 0.01f      // Nacht/früher Morgen: sehr niedrige Produktivität
+        }
+        
+        // Berechne die Fokuszeit für diese Stunde basierend auf dem Produktivitätsfaktor
+        // und der Gesamtfokuszeit für den Tag
+        val focusTimeForHour = (totalDayFocusTime * productivityFactor).toInt()
+        
+        // Begrenze die Fokuszeit auf maximal 60 Minuten pro Stunde
+        return focusTimeForHour.coerceIn(0, 60)
+    }
+
     private fun getFocusTimeForDate(dateKey: String): Int {
         return try {
             val savedTime = encryptedPrefs.getInt(KEY_FOCUS_TIME_PREFIX + dateKey, 0)

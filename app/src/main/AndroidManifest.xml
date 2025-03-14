@@ -178,5 +178,11 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
+        
+        <!-- Receiver für Produktivitätsanalyse-Benachrichtigungen -->
+        <receiver
+            android:name=".settings.NotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 </manifest>

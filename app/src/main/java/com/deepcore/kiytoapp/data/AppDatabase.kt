@@ -11,7 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Task::class], 
-    version = 9,  // Version auf 9 erhöht, um die neuen Felder zu berücksichtigen
+    version = 10,  // Version auf 10 erhöht, um das completedDate-Feld zu berücksichtigen
     exportSchema = true // Schema-Export aktivieren
 )
 @TypeConverters(Converters::class)
@@ -50,6 +50,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
         
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Füge das neue Feld completedDate hinzu
+                database.execSQL("ALTER TABLE tasks ADD COLUMN completedDate INTEGER DEFAULT NULL")
+            }
+        }
+        
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -62,7 +69,7 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabase::class.java,
                         DATABASE_NAME
                     )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_8_9)  // Neue Migration hinzugefügt
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_8_9, MIGRATION_9_10)  // Neue Migration hinzugefügt
                     .fallbackToDestructiveMigration() // Destruktive Migration bei Versionskonflikten
                     .build()
                     

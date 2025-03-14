@@ -12,6 +12,36 @@ param (
     [string]$commitMessage = "Release v$version"
 )
 
+# Funktion zum Finden des Git-Executable
+function Find-GitPath {
+    # Prüfe direkt
+    $gitCommand = Get-Command git -ErrorAction SilentlyContinue
+    if ($gitCommand) {
+        return "git"
+    }
+    
+    # Suche in üblichen Verzeichnissen
+    $commonPaths = @(
+        "C:\Program Files\Git\bin\git.exe",
+        "C:\Program Files (x86)\Git\bin\git.exe",
+        "$env:ProgramFiles\Git\bin\git.exe",
+        "$env:LOCALAPPDATA\Programs\Git\bin\git.exe"
+    )
+    
+    foreach ($path in $commonPaths) {
+        if (Test-Path $path) {
+            return $path
+        }
+    }
+    
+    Write-Host "Git wurde nicht gefunden. Bitte installiere Git und stelle sicher, dass es im PATH verfügbar ist." -ForegroundColor Red
+    exit 1
+}
+
+# Setze den Git-Pfad
+$gitExe = Find-GitPath
+Write-Host "Verwende Git von: $gitExe" -ForegroundColor Green
+
 # Funktion zum Aktualisieren der App-Version
 function Update-AppVersion {
     param (
@@ -67,21 +97,97 @@ function Get-GitHubToken {
 $token = Get-GitHubToken
 $env:GITHUB_TOKEN = $token
 
+# Funktion zum Generieren einer ausführlichen Commit-Nachricht aus der Git-History
+function Get-ReleaseNotes {
+    param (
+        [string]$version
+    )
+    
+    Write-Host "Generating release notes for version $version..." -ForegroundColor Green
+    
+    # Ermittle das letzte Tag/Release
+    $lastTag = & $gitExe describe --tags --abbrev=0 2>$null
+    $gitRange = if ($lastTag) { "$lastTag..HEAD" } else { "HEAD" }
+    
+    # Hole alle Commit-Nachrichten seit dem letzten Release
+    $commits = & $gitExe log $gitRange --pretty=format:"%s" --no-merges
+    
+    if (-not $commits) {
+        return "Release v$version`n`nKeine Änderungen dokumentiert."
+    }
+    
+    # Kategorisiere Commits (basierend auf Präfixen oder Keywords)
+    $features = @()
+    $bugfixes = @()
+    $improvements = @()
+    $others = @()
+    
+    foreach ($commit in $commits) {
+        if ($commit -match "^(feat|feature|add):|hinzugefügt|neue|feature") {
+            $features += "- $($commit -replace '^(feat|feature|add):\s*', '')"
+        }
+        elseif ($commit -match "^fix:|behoben|fehler|bug") {
+            $bugfixes += "- $($commit -replace '^fix:\s*', '')"
+        }
+        elseif ($commit -match "^(improve|perf|refactor):|verbessert|optimiert") {
+            $improvements += "- $($commit -replace '^(improve|perf|refactor):\s*', '')"
+        }
+        else {
+            $others += "- $commit"
+        }
+    }
+    
+    # Erstelle die Release-Nachricht
+    $releaseNotes = "# Kiyto App Release v$version`n`n"
+    
+    if ($features.Count -gt 0) {
+        $releaseNotes += "## Neue Funktionen`n"
+        $releaseNotes += $features -join "`n"
+        $releaseNotes += "`n`n"
+    }
+    
+    if ($bugfixes.Count -gt 0) {
+        $releaseNotes += "## Fehlerbehebungen`n"
+        $releaseNotes += $bugfixes -join "`n"
+        $releaseNotes += "`n`n"
+    }
+    
+    if ($improvements.Count -gt 0) {
+        $releaseNotes += "## Verbesserungen`n"
+        $releaseNotes += $improvements -join "`n"
+        $releaseNotes += "`n`n"
+    }
+    
+    if ($others.Count -gt 0) {
+        $releaseNotes += "## Sonstige Änderungen`n"
+        $releaseNotes += $others -join "`n"
+        $releaseNotes += "`n`n"
+    }
+    
+    $releaseNotes += "## Installation`nLade die APK herunter und installiere sie auf deinem Android-Gerät. Bei Problemen deinstalliere bitte vorher die App und versuche es erneut."
+    
+    return $releaseNotes
+}
+
 # Git Commit and Push
 Write-Host "Committing changes..."
-git add .
+
+# Wenn keine explizite Commit-Nachricht angegeben wurde, generiere Release Notes
+$releaseNotes = Get-ReleaseNotes -version $version
+
+& $gitExe add .
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error adding files to git." -ForegroundColor Red
     exit 1
 }
 
-git commit -m $commitMessage
+& $gitExe commit -m $commitMessage
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Warning: No changes to commit or commit failed." -ForegroundColor Yellow
 }
 
 Write-Host "Pushing changes..."
-git push
+& $gitExe push
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error pushing changes." -ForegroundColor Red
     Write-Host "Tipp: Wenn der Push aufgrund eines erkannten Tokens blockiert wird, prüfe den Git-Verlauf und bereinige ihn." -ForegroundColor Yellow
@@ -130,7 +236,7 @@ try {
 if ($ghInstalled) {
     # Use GitHub CLI
     Write-Host "Using GitHub CLI for upload..."
-    gh release create "v$version" --title "Kiyto App v$version" --notes "# Kiyto App Release v$version`n`n## New Features`n- Improved user interface`n- Bug fixes and performance improvements`n`n## Installation`nDownload and install the APK on your Android device. If you get an error, please uninstall the app and try again." $releasedApkPath
+    gh release create "v$version" --title "Kiyto App v$version" --notes "$releaseNotes" $releasedApkPath
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Error creating release with GitHub CLI." -ForegroundColor Red
     } else {
@@ -171,7 +277,7 @@ if ($ghInstalled) {
         $releaseData = @{
             tag_name = "v$version"
             name = "Kiyto App v$version"
-            body = "# Kiyto App Release v$version`n`n## New Features`n- Improved user interface`n- Bug fixes and performance improvements`n`n## Installation`nDownload and install the APK on your Android device."
+            body = $releaseNotes
             draft = $false
             prerelease = $false
         } | ConvertTo-Json

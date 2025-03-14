@@ -35,18 +35,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.deepcore.kiytoapp.ai.APISettingsDialog
-import com.deepcore.kiytoapp.ai.APISettingsManager
-import com.deepcore.kiytoapp.ai.ArchivedChat
-import com.deepcore.kiytoapp.ai.ArchivedChatFragment
-import com.deepcore.kiytoapp.ai.ChatAction
-import com.deepcore.kiytoapp.ai.ChatAdapter
-import com.deepcore.kiytoapp.ai.ChatManager
-import com.deepcore.kiytoapp.ai.ChatMessage
-import com.deepcore.kiytoapp.ai.ImageGenerationService
-import com.deepcore.kiytoapp.ai.OpenAIService
-import com.deepcore.kiytoapp.ai.SpeechManager
-import com.deepcore.kiytoapp.ai.TaskAIService
+import com.deepcore.kiytoapp.ai.*
 import com.deepcore.kiytoapp.base.BaseFragment
 import com.deepcore.kiytoapp.data.SessionManager
 import com.deepcore.kiytoapp.data.TaskManager
@@ -58,10 +47,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -454,15 +440,6 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     }
 
     private fun checkRequiredPermissions() {
-        // Speicherberechtigungen prüfen
-        val storagePermission = Manifest.permission.WRITE_EXTERNAL_STORAGE
-        
-        // Wenn die Berechtigung bereits geprüft wurde, nicht erneut prüfen
-        if (com.deepcore.kiytoapp.utils.PermissionManager.isPermissionChecked(requireContext(), storagePermission)) {
-            Log.d("AIChatFragment", "Speicherberechtigung wurde bereits geprüft")
-            return
-        }
-        
         val requiredPermissions = mutableListOf<String>()
         
         // Prüfe Kamera-Berechtigung
@@ -471,17 +448,13 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         }
         
         // Prüfe Speicher-Berechtigung
-        if (requireContext().checkSelfPermission(storagePermission) != PackageManager.PERMISSION_GRANTED) {
-            requiredPermissions.add(storagePermission)
+        if (requireContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requiredPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
         
         if (requiredPermissions.isNotEmpty()) {
             requestMultiplePermissionsLauncher.launch(requiredPermissions.toTypedArray())
         }
-        
-        // Markiere die Speicherberechtigung als geprüft, unabhängig vom Ergebnis
-        com.deepcore.kiytoapp.utils.PermissionManager.markPermissionChecked(requireContext(), storagePermission)
-        Log.d("AIChatFragment", "Speicherberechtigung als geprüft markiert")
     }
 
     private fun setupRecyclerView() {
@@ -624,8 +597,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                                     title = "PDF-Zusammenfassung",
                                     description = summary,
                                     priority = com.deepcore.kiytoapp.data.Priority.MEDIUM,
-                                    created = Date(),
-                                    completedDate = null
+                                    created = Date()
                                 )
                                 taskManager.createTask(task)
                                 
@@ -692,8 +664,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                                         title = title,
                                         description = "",
                                         priority = com.deepcore.kiytoapp.data.Priority.MEDIUM,
-                                        created = Date(),
-                                        completedDate = null
+                                        created = Date()
                                     )
 
                                     try {
@@ -870,9 +841,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                             val task = com.deepcore.kiytoapp.data.Task(
                                 title = action.title,
                                 description = action.description ?: "",
-                                priority = com.deepcore.kiytoapp.data.Priority.MEDIUM,
-                                created = Date(),
-                                completedDate = null
+                                priority = com.deepcore.kiytoapp.data.Priority.MEDIUM
                             )
                             taskManager.createTask(task)
                             Log.d("AIChatFragment", "Aufgabe erfolgreich erstellt")
@@ -1137,9 +1106,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                     val task = com.deepcore.kiytoapp.data.Task(
                         title = title,
                         description = "",
-                        priority = com.deepcore.kiytoapp.data.Priority.MEDIUM,
-                        created = Date(),
-                        completedDate = null
+                        priority = com.deepcore.kiytoapp.data.Priority.MEDIUM
                     )
                     taskManager.createTask(task)
 

@@ -30,7 +30,10 @@ data class Task(
     val startTime: Date? = null,
     
     @TypeConverters(Converters::class)
-    val endTime: Date? = null
+    val endTime: Date? = null,
+    
+    @TypeConverters(Converters::class)
+    val completedDate: Date? = null
 )
 
 enum class Priority {

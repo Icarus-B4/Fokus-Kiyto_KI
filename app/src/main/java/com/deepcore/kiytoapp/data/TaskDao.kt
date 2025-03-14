@@ -44,4 +44,7 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE date(dueDate/1000, 'unixepoch') = date(:date/1000, 'unixepoch') ORDER BY dueDate ASC")
     fun getTasksForDateSortedByTime(date: Date): Flow<List<Task>>
+
+    @Query("SELECT * FROM tasks WHERE completed = 1")
+    suspend fun getCompletedTasksAsList(): List<Task>
 } 

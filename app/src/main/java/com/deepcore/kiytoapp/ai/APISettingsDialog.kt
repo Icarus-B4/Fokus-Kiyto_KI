@@ -13,6 +13,7 @@ class APISettingsDialog : DialogFragment() {
     
     interface OnApiKeySetListener {
         fun onApiKeySet(apiKey: String)
+        fun showPermissionDeniedDialog()
     }
     
     private var listener: OnApiKeySetListener? = null

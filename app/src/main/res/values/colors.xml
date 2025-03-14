@@ -68,4 +68,9 @@
     <color name="timeline_indicator">#666666</color>
     <color name="timeline_dot">#2196F3</color>
     <color name="red">@color/coral</color>
+    
+    <!-- Fehlende Farben für Produktivitätsanalyse -->
+    <color name="background">@color/background_dark</color>
+    <color name="white_70">#B3FFFFFF</color> <!-- Weiß mit 70% Deckkraft -->
+    <color name="white_50">#80FFFFFF</color> <!-- Weiß mit 50% Deckkraft -->
 </resources>

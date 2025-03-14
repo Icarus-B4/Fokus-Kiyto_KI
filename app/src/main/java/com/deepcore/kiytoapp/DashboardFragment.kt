@@ -166,6 +166,14 @@ class DashboardFragment : BaseFragment() {
         _productivityValue = view.findViewById<TextView>(R.id.productivityValue)
         _calendarView = view.findViewById<CalendarView>(R.id.calendarView)
         _userStatusAnimation = view.findViewById<LottieAnimationView>(R.id.userStatusAnimation)
+        
+        // Diese Views sind nicht im Layout vorhanden, daher setzen wir sie auf null
+        _monthYearText = null
+        _categoryPieChart = null
+        _prevMonthButton = null
+        _nextMonthButton = null
+        
+        Log.d("DashboardFragment", "Optionale Views wurden auf null gesetzt, da sie nicht im Layout vorhanden sind")
 
         val welcomeText = view.findViewById<TextView>(R.id.welcomeText)
         val loginButton = view.findViewById<Button>(R.id.loginButton)
@@ -258,7 +266,9 @@ class DashboardFragment : BaseFragment() {
                     orientation = Legend.LegendOrientation.HORIZONTAL
                     setDrawInside(false)
                 }
-                setTouchEnabled(false)
+                setTouchEnabled(true)  // Erlaube Berührungen für bessere Interaktion
+                setScaleEnabled(true)  // Erlaube Skalierung
+                setPinchZoom(true)     // Erlaube Pinch-Zoom
                 setDrawGridBackground(false)
                 setDrawBorders(false)
                 setPadding(16, 16, 16, 16)
@@ -278,6 +288,7 @@ class DashboardFragment : BaseFragment() {
                             return "${value.toInt()}:00"
                         }
                     }
+                    labelCount = 12  // Zeige nur jede zweite Stunde an
                 }
                 
                 // Linke Y-Achse konfigurieren
@@ -297,6 +308,8 @@ class DashboardFragment : BaseFragment() {
                     }
                 }
                 
+                // Rechte Y-Achse deaktivieren
+                axisRight.isEnabled = false
                 
                 // Standardtext für leere Daten
                 setNoDataText("Keine Daten verfügbar")
@@ -450,11 +463,7 @@ class DashboardFragment : BaseFragment() {
                 }
                 
                 // Berechne Fokuszeit in dieser Stunde (0-60 Minuten)
-                val focusTimeInHour = if (isSelectedDateToday && hour == currentHour) {
-                    sessionManager.getTotalFocusTimeForToday().toFloat()
-                } else {
-                    sessionManager.getTotalFocusTimeForDate(startTimeMillis).toFloat()
-                }.coerceIn(0f, 60f)
+                val focusTimeInHour = sessionManager.getFocusTimeForHour(startTimeMillis).toFloat().coerceIn(0f, 60f)
                 
                 // Berechne Aktivität basierend auf realen Daten
                 val taskActivity = if (tasksInHour.isNotEmpty()) {
@@ -465,7 +474,18 @@ class DashboardFragment : BaseFragment() {
                 // Normalisiere Fokuszeit auf 100%
                 val focusActivity = (focusTimeInHour / 60f) * 100f
 
-                entries.add(Entry(hour.toFloat(), (taskActivity + focusActivity) / 2))
+                // Gewichteter Durchschnitt für die Gesamtaktivität
+                val totalActivity = if (focusActivity > 0 || taskActivity > 0) {
+                    // Wenn mindestens eine Aktivität vorhanden ist, berechne den Durchschnitt
+                    if (focusActivity > 0 && taskActivity > 0) {
+                        (focusActivity + taskActivity) / 2
+                    } else {
+                        // Wenn nur eine Aktivität vorhanden ist, verwende diese
+                        focusActivity + taskActivity
+                    }
+                } else 0f
+
+                entries.add(Entry(hour.toFloat(), totalActivity))
                 focusEntries.add(Entry(hour.toFloat(), focusActivity))
                 taskEntries.add(Entry(hour.toFloat(), taskActivity))
             }
@@ -485,6 +505,7 @@ class DashboardFragment : BaseFragment() {
                 fillColor = Color.parseColor("#4CAF50")
                 fillAlpha = 30
                 setDrawValues(false)
+                axisDependency = com.github.mikephil.charting.components.YAxis.AxisDependency.LEFT
             }
             dataSets.add(totalDataSet)
 
@@ -499,6 +520,7 @@ class DashboardFragment : BaseFragment() {
                 mode = LineDataSet.Mode.LINEAR
                 setDrawFilled(false)
                 setDrawValues(false)
+                axisDependency = com.github.mikephil.charting.components.YAxis.AxisDependency.LEFT
             }
             dataSets.add(focusDataSet)
 
@@ -513,12 +535,19 @@ class DashboardFragment : BaseFragment() {
                 mode = LineDataSet.Mode.LINEAR
                 setDrawFilled(false)
                 setDrawValues(false)
+                axisDependency = com.github.mikephil.charting.components.YAxis.AxisDependency.LEFT
             }
             dataSets.add(taskDataSet)
 
             dailyActivityChart.apply {
                 clear()
                 data = LineData(dataSets)
+                
+                // Konfiguriere die rechte Y-Achse
+                axisRight.apply {
+                    isEnabled = false  // Deaktiviere die rechte Y-Achse für bessere Übersichtlichkeit
+                }
+                
                 legend.apply {
                     textColor = Color.WHITE
                     textSize = 12f
@@ -534,6 +563,14 @@ class DashboardFragment : BaseFragment() {
                     yOffset = 15f
                     xEntrySpace = 20f
                 }
+                
+                // Setze den sichtbaren Bereich
+                xAxis.apply {
+                    axisMinimum = 0f
+                    axisMaximum = 23f
+                    labelCount = 12  // Zeige nur jede zweite Stunde an
+                }
+                
                 description.textColor = Color.WHITE
                 xAxis.textColor = Color.WHITE
                 axisLeft.textColor = Color.WHITE
@@ -706,7 +743,13 @@ class DashboardFragment : BaseFragment() {
                     
                     delay(1000) // Jede Sekunde prüfen
                 } catch (e: Exception) {
-                    Log.e("DashboardFragment", "Fehler bei der periodischen Aktualisierung", e)
+                    // CancellationException ist ein normaler Teil des Coroutine-Lebenszyklus
+                    // und sollte nicht als Fehler protokolliert werden
+                    if (e is kotlinx.coroutines.CancellationException) {
+                        Log.d("DashboardFragment", "Periodische Aktualisierung wurde abgebrochen: ${e.message}")
+                    } else {
+                        Log.e("DashboardFragment", "Fehler bei der periodischen Aktualisierung", e)
+                    }
                 }
             }
         }
@@ -778,76 +821,121 @@ class DashboardFragment : BaseFragment() {
     }
 
     private fun setupMonthNavigation() {
-        updateMonthYearText()
-        
-        prevMonthButton.setOnClickListener {
-            currentDate.add(Calendar.MONTH, -1)
+        try {
+            // Überprüfen, ob die Views initialisiert wurden
+            // Falls nicht, geben wir eine Log-Nachricht aus und kehren zurück
+            if (_monthYearText == null || _prevMonthButton == null || _nextMonthButton == null) {
+                Log.d("DashboardFragment", "Views für Month Navigation nicht gefunden")
+                return
+            }
+            
             updateMonthYearText()
-            updateCharts()
-        }
-        
-        nextMonthButton.setOnClickListener {
-            currentDate.add(Calendar.MONTH, 1)
-            updateMonthYearText()
-            updateCharts()
+            
+            prevMonthButton.setOnClickListener {
+                currentDate.add(Calendar.MONTH, -1)
+                updateMonthYearText()
+                updateCharts()
+            }
+            
+            nextMonthButton.setOnClickListener {
+                currentDate.add(Calendar.MONTH, 1)
+                updateMonthYearText()
+                updateCharts()
+            }
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler in setupMonthNavigation", e)
         }
     }
 
     private fun updateMonthYearText() {
-        val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        monthYearText.text = monthFormat.format(currentDate.time)
+        try {
+            // Überprüfen, ob monthYearText initialisiert wurde
+            if (_monthYearText == null) {
+                Log.d("DashboardFragment", "monthYearText nicht initialisiert")
+                return
+            }
+            
+            val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            monthYearText.text = monthFormat.format(currentDate.time)
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler in updateMonthYearText", e)
+        }
     }
 
     private fun setupPieChart() {
-        categoryPieChart.apply {
-            description.isEnabled = false
-            legend.isEnabled = false
-            setDrawEntryLabels(false)
-            setHoleColor(Color.TRANSPARENT)
-            setTransparentCircleColor(Color.TRANSPARENT)
-            setTransparentCircleAlpha(0)
-            holeRadius = 70f
-            setTouchEnabled(false)
+        try {
+            // Überprüfen, ob categoryPieChart initialisiert wurde
+            if (_categoryPieChart == null) {
+                Log.d("DashboardFragment", "categoryPieChart nicht initialisiert")
+                return
+            }
+            
+            categoryPieChart.apply {
+                description.isEnabled = false
+                legend.isEnabled = false
+                setDrawEntryLabels(false)
+                setHoleColor(Color.TRANSPARENT)
+                setTransparentCircleColor(Color.TRANSPARENT)
+                setTransparentCircleAlpha(0)
+                holeRadius = 70f
+                setTouchEnabled(false)
+            }
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler in setupPieChart", e)
         }
         
         updatePieChartData()
     }
 
     private fun updatePieChartData() {
-        val entries = listOf(
-            PieEntry(30f, "Work"),
-            PieEntry(20f, "Study"),
-            PieEntry(15f, "Exercise"),
-            PieEntry(10f, "Social"),
-            PieEntry(15f, "Entertainment"),
-            PieEntry(10f, "Other")
-        )
-        
-        val colors = listOf(
-            Color.parseColor("#FF4B81"),  // Pink
-            Color.parseColor("#4B7BFF"),  // Blue
-            Color.parseColor("#FFB74B"),  // Orange
-            Color.parseColor("#4BFF82"),  // Green
-            Color.parseColor("#9B4BFF"),  // Purple
-            Color.parseColor("#FF4B4B")   // Red
-        )
-        
-        val dataSet = PieDataSet(entries, "").apply {
-            this.colors = colors
-            valueTextSize = 0f
-            valueTextColor = Color.WHITE
-            sliceSpace = 2f
-        }
-        
-        categoryPieChart.apply {
-            data = PieData(dataSet)
-            invalidate()
+        try {
+            // Überprüfen, ob categoryPieChart initialisiert wurde
+            if (_categoryPieChart == null) {
+                Log.d("DashboardFragment", "categoryPieChart nicht initialisiert in updatePieChartData")
+                return
+            }
+            
+            val entries = listOf(
+                PieEntry(30f, "Work"),
+                PieEntry(20f, "Study"),
+                PieEntry(15f, "Exercise"),
+                PieEntry(10f, "Social"),
+                PieEntry(15f, "Entertainment"),
+                PieEntry(10f, "Other")
+            )
+            
+            val colors = listOf(
+                Color.parseColor("#FF4B81"),  // Pink
+                Color.parseColor("#4B7BFF"),  // Blue
+                Color.parseColor("#FFB74B"),  // Orange
+                Color.parseColor("#4BFF82"),  // Green
+                Color.parseColor("#9B4BFF"),  // Purple
+                Color.parseColor("#FF4B4B")   // Red
+            )
+            
+            val dataSet = PieDataSet(entries, "").apply {
+                this.colors = colors
+                valueTextSize = 0f
+                valueTextColor = Color.WHITE
+                sliceSpace = 2f
+            }
+            
+            categoryPieChart.apply {
+                data = PieData(dataSet)
+                invalidate()
+            }
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler in updatePieChartData", e)
         }
     }
 
     private fun updateCharts() {
-        updatePieChartData()
-        updateDailyActivityData(emptyList())
+        try {
+            updatePieChartData()
+            updateDailyActivityData(emptyList())
+        } catch (e: Exception) {
+            Log.e("DashboardFragment", "Fehler in updateCharts", e)
+        }
     }
 
     private fun setupDailyInspiration(view: View) {

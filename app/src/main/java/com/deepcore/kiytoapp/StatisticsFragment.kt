@@ -84,6 +84,11 @@ class StatisticsFragment : Fragment() {
         activeDaysText = view.findViewById(R.id.activeDaysText)
         productivityChart = view.findViewById(R.id.productivityChart)
         completedTasksChart = view.findViewById(R.id.completedTasksChart)
+        
+        // Button für Produktivitätsanalyse
+        view.findViewById<View>(R.id.productivityInsightsButton)?.setOnClickListener {
+            navigateToProductivityInsights()
+        }
     }
 
     private fun setupCharts() {
@@ -480,6 +485,13 @@ class StatisticsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         updateJob?.cancel()
+    }
+
+    private fun navigateToProductivityInsights() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, ProductivityInsightsFragment())
+            .addToBackStack(null)
+            .commit()
     }
 
     companion object {

@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.deepcore.kiytoapp.data.entity.Task
-import com.deepcore.kiytoapp.data.entity.Task.Priority
+import com.deepcore.kiytoapp.data.Task
+import com.deepcore.kiytoapp.data.Priority
 import com.deepcore.kiytoapp.data.TaskDatabase
 import com.deepcore.kiytoapp.data.dao.TaskDao
 import kotlinx.coroutines.flow.collectLatest
@@ -61,10 +61,11 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
                     dueDate = item.startTime,
                     completed = item.completed,
                     priority = when (item.type) {
-                        TimelineItemType.TASK -> Task.Priority.MEDIUM
-                        TimelineItemType.HABIT -> Task.Priority.LOW
-                        TimelineItemType.MEETING -> Task.Priority.HIGH
-                    }
+                        TimelineItemType.TASK -> Priority.MEDIUM
+                        TimelineItemType.HABIT -> Priority.LOW
+                        TimelineItemType.MEETING -> Priority.HIGH
+                    },
+                    completedDate = if (item.completed) item.startTime else null
                 )
                 taskDao.insert(task)
             }
@@ -90,7 +91,22 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
                     // Sortiere die Aufgaben nach Uhrzeit
                     val sortedTasks = filteredTasks.sortedBy { it.dueDate }
                     
-                    _timelineItems.value = sortedTasks.map { it.toTimelineItem() }
+                    _timelineItems.value = sortedTasks.map { task -> 
+                        TimelineItem(
+                            id = task.id,
+                            title = task.title,
+                            description = task.description,
+                            startTime = task.dueDate ?: Date(),
+                            endTime = task.endTime,
+                            completed = task.completed,
+                            type = when (task.priority) {
+                                Priority.HIGH -> TimelineItemType.MEETING
+                                Priority.MEDIUM -> TimelineItemType.TASK
+                                Priority.LOW -> TimelineItemType.HABIT
+                                else -> TimelineItemType.TASK // Standardwert für unbekannte Prioritäten
+                            }
+                        )
+                    }
                     
                     // Wenn ein Task ausgewählt war und nicht mehr in der Liste ist, Auswahl zurücksetzen
                     _selectedTask.value?.let { selectedTask ->
@@ -116,10 +132,11 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
                     dueDate = timelineItem.startTime,
                     completed = timelineItem.completed,
                     priority = when (timelineItem.type) {
-                        TimelineItemType.TASK -> Task.Priority.MEDIUM
-                        TimelineItemType.HABIT -> Task.Priority.LOW
-                        TimelineItemType.MEETING -> Task.Priority.HIGH
-                    }
+                        TimelineItemType.TASK -> Priority.MEDIUM
+                        TimelineItemType.HABIT -> Priority.LOW
+                        TimelineItemType.MEETING -> Priority.HIGH
+                    },
+                    completedDate = if (timelineItem.completed) timelineItem.startTime else null
                 )
                 taskDao.delete(task)
                 _selectedTask.value = null
@@ -139,10 +156,11 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
                     dueDate = timelineItem.startTime,
                     completed = false,
                     priority = when (timelineItem.type) {
-                        TimelineItemType.TASK -> Task.Priority.MEDIUM
-                        TimelineItemType.HABIT -> Task.Priority.LOW
-                        TimelineItemType.MEETING -> Task.Priority.HIGH
-                    }
+                        TimelineItemType.TASK -> Priority.MEDIUM
+                        TimelineItemType.HABIT -> Priority.LOW
+                        TimelineItemType.MEETING -> Priority.HIGH
+                    },
+                    completedDate = if (timelineItem.completed) timelineItem.startTime else null
                 )
                 taskDao.insert(task)
                 
@@ -171,23 +189,6 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
         return _selectedTask.value?.id
     }
 
-    private fun Task.toTimelineItem(): TimelineItem {
-        return TimelineItem(
-            id = this.id,
-            title = this.title,
-            description = this.description,
-            startTime = this.startTime ?: this.dueDate ?: Date(),
-            endTime = this.endTime,
-            completed = this.completed,
-            type = when (this.priority) {
-                Priority.HIGH -> TimelineItemType.MEETING
-                Priority.MEDIUM -> TimelineItemType.TASK
-                Priority.LOW -> TimelineItemType.HABIT
-                else -> TimelineItemType.TASK // Standardwert für unbekannte Prioritäten
-            }
-        )
-    }
-
     fun updateTimelineItem(timelineItem: TimelineItem) {
         viewModelScope.launch {
             try {
@@ -196,7 +197,6 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
                     title = timelineItem.title,
                     description = timelineItem.description,
                     dueDate = timelineItem.startTime,
-                    startTime = timelineItem.startTime,
                     endTime = timelineItem.endTime,
                     completed = timelineItem.completed,
                     priority = when (timelineItem.type) {
@@ -204,7 +204,8 @@ class DayVisualizerViewModel(application: Application) : AndroidViewModel(applic
                         TimelineItemType.HABIT -> Priority.LOW
                         TimelineItemType.MEETING -> Priority.HIGH
                         else -> Priority.MEDIUM // Standardwert für unbekannte Typen
-                    }
+                    },
+                    completedDate = if (timelineItem.completed) timelineItem.startTime else null
                 )
                 taskDao.update(task)
                 _selectedDate.value?.let { loadTimelineItems(it) }
