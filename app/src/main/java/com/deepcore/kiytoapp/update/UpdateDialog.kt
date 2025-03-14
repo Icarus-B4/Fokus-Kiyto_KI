@@ -86,12 +86,20 @@ class UpdateDialog : DialogFragment() {
             dismiss()
         }
 
-        return MaterialAlertDialogBuilder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setView(view)
             .create()
             .apply {
                 setCanceledOnTouchOutside(false)
+                
+                // Setze die Größe des Dialogs
+                window?.setLayout(
+                    android.view.WindowManager.LayoutParams.MATCH_PARENT,
+                    android.view.WindowManager.LayoutParams.WRAP_CONTENT
+                )
             }
+        
+        return dialog
     }
 
     private fun startDownload() {

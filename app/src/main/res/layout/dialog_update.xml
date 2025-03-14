@@ -6,7 +6,11 @@
     android:scrollbars="vertical"
     android:fadingEdge="vertical"
     android:scrollbarStyle="insideOverlay"
-    android:fadeScrollbars="false">
+    android:fadeScrollbars="false"
+    android:scrollbarThumbVertical="@android:color/darker_gray"
+    android:scrollbarSize="5dp"
+    android:fillViewport="true"
+    android:maxHeight="600dp">
     
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,8 +20,8 @@
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/updateAnimation"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
@@ -37,6 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:textIsSelectable="true"
             android:textAppearance="?attr/textAppearanceBody1" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator

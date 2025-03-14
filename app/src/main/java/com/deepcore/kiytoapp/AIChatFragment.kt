@@ -12,6 +12,8 @@ import android.media.ToneGenerator
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
@@ -60,6 +62,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -84,6 +87,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private lateinit var speechManager: SpeechManager
     private lateinit var voiceButton: ImageButton
     private var isSpeaking = false
+    private var isPlayingWelcomeMessage = false
     private lateinit var pinnedMessageContainer: ViewGroup
     private lateinit var plusButton: ImageButton
     private lateinit var plusMenuContainer: LinearLayout
@@ -220,6 +224,45 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             // Chat-Historie erst laden wenn alles initialisiert ist
             view.post {
                 loadChatHistory()
+                
+                // Prüfe, ob die Spracheingabe aktiviert werden soll
+                arguments?.let { args ->
+                    if (args.getBoolean("activate_voice", false)) {
+                        Log.d("AIChatFragment", "Wake Word aktiviert Spracheingabe automatisch")
+                        // Füge begrüßungsnachricht hinzu
+                        val welcomeMessage = ChatMessage("Ich höre dir zu. Was kann ich für dich tun?", false)
+                        adapter.addMessage(welcomeMessage)
+                        chatManager.addMessage(welcomeMessage)
+                        scrollToBottom()
+                        
+                        // Kurze Verzögerung, damit die UI-Updates abgeschlossen sind
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            // Starte die Sprachausgabe in einem Coroutine-Kontext
+                            if (isAdded && activity != null && !isPlayingWelcomeMessage) { // Überprüfung, ob Fragment noch angehängt ist und Sprachausgabe nicht bereits läuft
+                                isPlayingWelcomeMessage = true // Markiere, dass wir die Willkommensnachricht abspielen
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    try {
+                                        speakResponse("Ich höre dir zu. Was kann ich für dich tun?") 
+                                        
+                                        // Nach der Spracheingabe automatisch die Audioeingabe starten
+                                        delay(2000) // 2 Sekunden warten bis nach der Sprachausgabe
+                                        if (isAdded && activity != null) { // Nochmals prüfen vor der Spracherkennung
+                                            startVoiceRecognition()
+                                        } else {
+                                            Log.e("AIChatFragment", "Fragment nicht mehr an Activity angehängt - Spracherkennung abgebrochen")
+                                        }
+                                        isPlayingWelcomeMessage = false // Zurücksetzen nach Abschluss
+                                    } catch (e: Exception) {
+                                        isPlayingWelcomeMessage = false // Zurücksetzen im Fehlerfall
+                                        Log.e("AIChatFragment", "Fehler bei automatischer Sprachaktivierung", e)
+                                    }
+                                }
+                            } else {
+                                Log.d("AIChatFragment", "Fragment nicht angehängt oder Willkommensnachricht bereits aktiv")
+                            }
+                        }, 500)
+                    }
+                }
             }
 
             // Menü-Provider hinzufügen (ersetzt setHasOptionsMenu)
@@ -841,6 +884,11 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private suspend fun speakResponse(text: String) {
         try {
             Log.d("AIChatFragment", "Starte Sprachausgabe: $text")
+            if (!isAdded || activity == null) {
+                Log.e("AIChatFragment", "Fragment nicht angehängt - Sprachausgabe abgebrochen")
+                return
+            }
+            
             withContext(Dispatchers.IO) {
                 speechManager.speak(text)
             }
@@ -875,7 +923,17 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                                 completedDate = null
                             )
                             taskManager.createTask(task)
-                            Log.d("AIChatFragment", "Aufgabe erfolgreich erstellt")
+
+                            val confirmationMessage = ChatMessage(
+                                "✓ Neue Aufgabe erstellt: \"$action.title\"",
+                                false
+                            )
+                            adapter.addMessage(confirmationMessage)
+                            chatManager.addMessage(confirmationMessage)
+                            scrollToBottom()
+
+                            // Dashboard aktualisieren
+                            (parentFragmentManager.findFragmentByTag("dashboard") as? DashboardFragment)?.refreshTasks()
                         }
                     } catch (e: Exception) {
                         Log.e("AIChatFragment", "Fehler beim Erstellen der Aufgabe", e)
@@ -1845,6 +1903,34 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                 continuation.resumeWithException(exception)
             }
         }
+
+    /**
+     * Wird aufgerufen, wenn das Wake-Word "Hei Kiyto" erkannt wurde
+     */
+    fun onWakeWordDetected() {
+        // UI-Thread sicherstellen
+        activity?.runOnUiThread {
+            // Visuelle Bestätigung, dass Wake-Word erkannt wurde
+            // Kurz aufleuchten lassen durch Änderung des Bildmaterials
+            voiceButton.setImageResource(R.drawable.ic_mic_active)
+            
+            // Nach kurzer Verzögerung zum ursprünglichen Zustand zurückkehren
+            Handler(Looper.getMainLooper()).postDelayed({
+                voiceButton.setImageResource(R.drawable.ic_mic)
+            }, 500)
+            
+            // Spracherkennung starten
+            if (!isSpeaking) {
+                // Start-Sound abspielen
+                try {
+                    toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 150) // 150ms Ton
+                } catch (e: Exception) {
+                    Log.e("AIChatFragment", "Fehler beim Abspielen des Start-Sounds", e)
+                }
+                startVoiceRecognition()
+            }
+        }
+    }
 
     companion object {
         private const val TAG = "AIChatFragment"

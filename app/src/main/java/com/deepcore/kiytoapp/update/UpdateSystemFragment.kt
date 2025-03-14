@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import android.widget.ImageView
+import com.deepcore.kiytoapp.update.UpdateDownloadDialogFragment
 
 class UpdateSystemFragment : Fragment() {
     private lateinit var lastCheckedText: TextView
@@ -239,8 +240,9 @@ class UpdateSystemFragment : Fragment() {
     private fun showUpdateDialog() {
         updateManager.updateDescription?.let { description ->
             updateManager.updateUrl?.let { url ->
-                UpdateDialog.newInstance(description, url)
-                    .show(parentFragmentManager, "update_dialog")
+                // Verwende das neue DialogFragment für besseres Scrolling
+                UpdateDownloadDialogFragment.newInstance(description, url)
+                    .show(parentFragmentManager, "update_download_dialog")
             }
         }
     }

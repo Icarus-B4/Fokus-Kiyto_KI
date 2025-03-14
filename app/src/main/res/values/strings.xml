@@ -272,4 +272,6 @@
     <string name="download_update">Jetzt herunterladen</string>
     <string name="remind_me_later">Später erinnern</string>
     <string name="checking_for_updates">Suche nach Updates...</string>
+    <string name="ai_features">KI-Funktionen</string>
+    <string name="wake_word_test">Wake Word Test</string>
 </resources>
