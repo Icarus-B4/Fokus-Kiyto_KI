@@ -55,7 +55,7 @@ android {
         applicationId = "com.deepcore.kiytoapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 20011
+        versionCode = 20012
         versionName = "2.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -72,6 +72,7 @@ android {
 
         // BuildConfig Felder
         buildConfigField("String", "OPENAI_API_KEY", "\"${System.getenv("OPENAI_API_KEY") ?: ""}\"")
+        buildConfigField("String", "GITHUB_TOKEN", "\"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\"")
     }
 
     lint {
@@ -176,6 +177,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 }
+
 
 
 

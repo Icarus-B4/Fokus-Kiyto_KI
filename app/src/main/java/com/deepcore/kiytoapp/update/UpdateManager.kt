@@ -49,19 +49,12 @@ class UpdateManager(private val context: Context) {
         try {
             LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
             
-            // GitHub Token holen
-            val token = getGitHubToken()
-            if (token == null) {
-                LogUtils.error(this@UpdateManager, "GitHub Token nicht gefunden")
-                return@withContext false
-            }
-            
             // GitHub API aufrufen für Releases
             val url = URL("$GITHUB_API_BASE/releases")
             val connection = url.openConnection()
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
             // Authentifizierung hinzufügen
-            connection.setRequestProperty("Authorization", "token $token")
+            connection.setRequestProperty("Authorization", "token ${BuildConfig.GITHUB_TOKEN}")
             // Cache-Control Header hinzufügen
             connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
             connection.setRequestProperty("Pragma", "no-cache")
