@@ -6,6 +6,8 @@ import com.deepcore.kiytoapp.util.LogUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.net.URL
 import java.util.*
 
@@ -15,8 +17,6 @@ class UpdateManager(private val context: Context) {
         private const val PREFS_NAME = "update_prefs"
         private const val LAST_CHECK_KEY = "last_update_check"
         private const val UPDATE_STATUS_KEY = "update_status"
-        // GitHub Token für private Repository
-        private const val GITHUB_TOKEN = "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"
     }
 
     var latestVersion: String? = null
@@ -30,16 +30,38 @@ class UpdateManager(private val context: Context) {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    private fun getGitHubToken(): String? {
+        return try {
+            context.assets.open(".env").use { inputStream ->
+                BufferedReader(InputStreamReader(inputStream)).useLines { lines ->
+                    lines.firstOrNull { it.startsWith("GITHUB_TOKEN=") }
+                        ?.substringAfter("GITHUB_TOKEN=")
+                        ?.trim()
+                }
+            }
+        } catch (e: Exception) {
+            LogUtils.error(this, "Fehler beim Lesen des GitHub Tokens: ${e.message}", e)
+            null
+        }
+    }
+
     suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
         try {
             LogUtils.debug(this@UpdateManager, "Prüfe auf Updates...")
+            
+            // GitHub Token holen
+            val token = getGitHubToken()
+            if (token == null) {
+                LogUtils.error(this@UpdateManager, "GitHub Token nicht gefunden")
+                return@withContext false
+            }
             
             // GitHub API aufrufen für Releases
             val url = URL("$GITHUB_API_BASE/releases")
             val connection = url.openConnection()
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
             // Authentifizierung hinzufügen
-            connection.setRequestProperty("Authorization", "token $GITHUB_TOKEN")
+            connection.setRequestProperty("Authorization", "token $token")
             // Cache-Control Header hinzufügen
             connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
             connection.setRequestProperty("Pragma", "no-cache")
@@ -49,7 +71,7 @@ class UpdateManager(private val context: Context) {
             connection.useCaches = false
             
             val response = connection.getInputStream().bufferedReader().use { it.readText() }
-            LogUtils.debug(this@UpdateManager, "GitHub API Antwort erhalten")
+            LogUtils.debug(this@UpdateManager, "GitHub API Antwort erhalten: $response")
             
             val jsonArray = JSONObject("{\"releases\":$response}").getJSONArray("releases")
             

@@ -47,7 +47,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 20010
-        versionName = "2.0.8"
+        versionName = "2.0.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -167,6 +167,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 }
+
 
 
 
