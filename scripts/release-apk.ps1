@@ -50,18 +50,28 @@ function Update-AppVersion {
     
     Write-Host "Updating app version to $version..." -ForegroundColor Green
     
-    # Extrahiere versionCode aus der Version (z.B. 2.0.0 -> 200)
+    # Extrahiere versionCode aus der Version (z.B. 2.0.5 -> 20005)
     $versionParts = $version.Split('.')
     $versionCode = [int]($versionParts[0] + $versionParts[1].PadLeft(2, '0') + $versionParts[2].PadLeft(2, '0'))
     
-    # Update build.gradle.kts
+    # Lese aktuelle versionCode
     $gradlePath = "app/build.gradle.kts"
     $gradleContent = Get-Content $gradlePath -Raw
+    if ($gradleContent -match 'versionCode\s*=\s*(\d+)') {
+        $currentVersionCode = [int]$matches[1]
+        # Erhöhe versionCode nur wenn die neue Version größer ist
+        if ($versionCode -le $currentVersionCode) {
+            $versionCode = $currentVersionCode + 1
+            Write-Host "Increasing versionCode to $versionCode to ensure update detection" -ForegroundColor Yellow
+        }
+    }
+    
+    # Update build.gradle.kts
     $gradleContent = $gradleContent -replace 'versionCode\s*=\s*\d+', "versionCode = $versionCode"
     $gradleContent = $gradleContent -replace 'versionName\s*=\s*"[^"]*"', "versionName = `"$version`""
     Set-Content -Path $gradlePath -Value $gradleContent
     
-    Write-Host "Updated $gradlePath" -ForegroundColor Green
+    Write-Host "Updated $gradlePath with versionCode=$versionCode and versionName=$version" -ForegroundColor Green
 }
 
 # Version aktualisieren
