@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Äußerer Kreis -->
+    <path
+        android:fillColor="@color/blue"
+        android:pathData="M60,0C26.86,0 0,26.86 0,60s26.86,60 60,60s60,-26.86 60,-60S93.14,0 60,0zM60,110c-27.57,0 -50,-22.43 -50,-50s22.43,-50 50,-50s50,22.43 50,50S87.57,110 60,110z"/>
+
+    <!-- Innerer Kreis -->
+    <path
+        android:fillColor="@color/blue"
+        android:pathData="M60,30c-16.57,0 -30,13.43 -30,30s13.43,30 30,30s30,-13.43 30,-30S76.57,30 60,30zM60,80c-11.05,0 -20,-8.95 -20,-20s8.95,-20 20,-20s20,8.95 20,20S71.05,80 60,80z"/>
+
+    <!-- Fokus-Symbol (Zielscheibe) -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M60,45c-8.28,0 -15,6.72 -15,15s6.72,15 15,15s15,-6.72 15,-15S68.28,45 60,45zM60,65c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5s5,2.24 5,5S62.76,65 60,65z"/>
+
+    <!-- Horizontale Linie -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M85,58h-50v4h50z"/>
+
+    <!-- Vertikale Linie -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M58,35h4v50h-4z"/>
+</vector> 

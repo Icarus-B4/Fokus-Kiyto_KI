@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#3F51B5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Hauptfarben für das Structured-ähnliche Design -->
+    <color name="blue">#FF0088FF</color>
+    <color name="blue_dark">#0066CC</color>
+    <color name="blue_light">#66B3FF</color>
+    <color name="coral">#FF6B6B</color>
+    <color name="coral_dark">#E05050</color>
+    <color name="green">#4CAF50</color>
+    <color name="orange">#FFFF9800</color>
+    
+    <!-- Hintergrundfarben -->
+    <color name="background_dark">#121212</color>
+    <color name="card_dark">#1E1E1E</color>
+    <color name="card_background">#1E1E1E</color>
+    
+    <!-- Text und UI-Elemente -->
+    <color name="gray">#9E9E9E</color>
+    <color name="gray_light">#CCCCCC</color>
+    <color name="gray_dark">#666666</color>
+    <color name="black_gray_tz">#F30F0E0E</color>
+    
+    <!-- Theme Colors -->
+    <color name="primary">@color/coral</color>
+    <color name="primary_dark">@color/coral_dark</color>
+    <color name="accent">@color/coral</color>
+    <color name="accent_dark">@color/coral_dark</color>
+    <color name="error">#F44336</color>
+    <color name="success">#4CAF50</color>
+    <color name="surface">#1E1E1E</color>
+    
+    <!-- Priority Colors -->
+    <color name="priority_low">#2196F3</color>
+    <color name="priority_medium">#FFC107</color>
+    <color name="priority_high">@color/coral</color>
+    <color name="completed_task">#424242</color>
+    <color name="priority_high_completed">#8B2621</color>
+    <color name="priority_medium_completed">#856404</color>
+    <color name="priority_low_completed">#0D47A1</color>
+    
+    <!-- Chat Colors -->
+    <color name="user_message_background">@color/primary</color>
+    <color name="user_message_text">@color/white</color>
+    <color name="assistant_message_background">@color/card_dark</color>
+    <color name="assistant_message_text">@color/white</color>
+    <color name="snackbar_background">@color/card_dark</color>
+    <color name="snackbar_action">@color/primary</color>
+    <color name="ai_message_background_dark">#0F0E0E</color>
+    <color name="ai_message_background_light">#F5F5F5</color>
+    
+    <!-- Snackbar Colors -->
+    <color name="snackbar_text">#E0E0E0</color>
+
+    <color name="green_500">#4CAF50</color>
+    <color name="yellow_500">#FFC107</color>
+    <color name="blue_500">#2196F3</color>
+    <color name="gray_500">#9E9E9E</color>
+    <color name="background_color">#121212</color>
+    <color name="chip_background">#3F51B5</color>
+    <color name="timeline_indicator">#666666</color>
+    <color name="timeline_dot">#2196F3</color>
+    <color name="red">@color/coral</color>
+    
+    <!-- Fehlende Farben für Produktivitätsanalyse -->
+    <color name="background">@color/background_dark</color>
+    <color name="white_70">#B3FFFFFF</color> <!-- Weiß mit 70% Deckkraft -->
+    <color name="white_50">#80FFFFFF</color> <!-- Weiß mit 50% Deckkraft -->
+</resources>
