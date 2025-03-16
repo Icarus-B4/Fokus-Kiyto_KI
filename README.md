@@ -43,13 +43,6 @@ Fokus-Kiyto KI ist eine moderne Produktivitäts-App, die fortschrittliche KI-Tec
 
 ## 🛠️ Setup
 
-1. Klone das Repository:
-
-```bash
-git clone https://github.com/Icarus-B4/Fokus-Kiyto_KI.git
-cd Fokus-Kiyto_KI
-```
-
 2. API-Key Konfiguration:
 
 - Kopiere `config.properties.example` zu `config.properties`
