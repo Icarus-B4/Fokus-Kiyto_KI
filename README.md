@@ -1,9 +1,6 @@
 # 🚀 Fokus-Kiyto KI
 
-<div align="center">
-  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" alt="Fokus-Kiyto Logo" width="120"/>
-  <br>
-  
+
 ### Eine KI-gestützte Produktivitäts-App für Android
 
 </div>
