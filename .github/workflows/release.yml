@@ -55,10 +55,10 @@ jobs:
             exit 1
           fi
           mkdir -p app/keystore
-          echo "$ENCODED_KEYSTORE" | base64 --decode > app/keystore/kiyto_release.keystore
+          printf "%s" "$ENCODED_KEYSTORE" | base64 --decode > app/keystore/kiyto_release.keystore
 
       - name: Assemble Release APK
-        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.password=${{ secrets.KEY_STORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
