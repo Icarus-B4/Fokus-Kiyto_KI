@@ -43,13 +43,6 @@ jobs:
           java-version: 17
           cache: "gradle"
 
-      - name: Version Bump
-        uses: chkfung/android-version-actions@v1.2.3
-        with:
-          gradlePath: app/build.gradle.kts
-          versionCode: ${{ github.run_number + 20000 }}
-          versionName: 2.0.${{ github.run_number }}
-
       - name: Decode Keystore
         env:
           ENCODED_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
@@ -74,7 +67,7 @@ jobs:
           keytool -list -v -keystore app/keystore/kiyto_release.keystore -storepass "${{ secrets.KEY_STORE_PASSWORD }}" -alias "${{ secrets.KEY_ALIAS }}"
 
       - name: Assemble Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease -PversionCode=${{ github.run_number + 20000 }} -PversionName=2.0.${{ github.run_number }}
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
