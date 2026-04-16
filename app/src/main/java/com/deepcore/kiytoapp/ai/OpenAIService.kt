@@ -3,6 +3,7 @@ package com.deepcore.kiytoapp.ai
 import android.content.Context
 import android.util.Log
 import com.deepcore.kiytoapp.data.Quote
+import com.deepcore.kiytoapp.utils.ApiKeys
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -58,25 +59,9 @@ object OpenAIService {
 
     fun initialize(context: Context) {
         try {
-            val apiSettingsManager = APISettingsManager(context)
-            apiKey = apiSettingsManager.getApiKey()
-            
-            if (apiKey.isNullOrEmpty()) {
-                try {
-                    val properties = Properties()
-                    context.assets.open("config.properties").use { input ->
-                        properties.load(input)
-                    }
-                    apiKey = properties.getProperty("OPENAI_API_KEY")
-                    
-                    if (!apiKey.isNullOrEmpty()) {
-                        apiSettingsManager.saveApiKey(apiKey!!)
-                        Log.d(TAG, "API-Key aus config.properties in SharedPreferences gespeichert")
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Fehler beim Laden des API-Keys aus config.properties", e)
-                }
-            }
+            // Versuche den Key über den zentralen ApiKeys-Manager zu laden
+            // (behandelt BuildConfig, SharedPreferences und Verschlüsselung)
+            apiKey = ApiKeys.getOpenAIApiKey(context)
             
             if (apiKey.isNullOrEmpty()) {
                 Log.e(TAG, "Kein API-Key gefunden. Bitte in den Einstellungen konfigurieren.")
