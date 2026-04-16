@@ -50,7 +50,6 @@ import com.deepcore.kiytoapp.ai.ChatAction
 import com.deepcore.kiytoapp.ai.ChatAdapter
 import com.deepcore.kiytoapp.ai.ChatManager
 import com.deepcore.kiytoapp.ai.ChatMessage
-import com.deepcore.kiytoapp.ai.ImageGenerationService
 import com.deepcore.kiytoapp.ai.SpeechManager
 import com.deepcore.kiytoapp.ai.TaskAIService
 import com.deepcore.kiytoapp.base.BaseFragment
@@ -1842,35 +1841,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     }
 
     private fun generateImage(prompt: String, size: String) {
-        lifecycleScope.launch {
-            try {
-                showLoadingDialog("Bild wird generiert...")
-                
-                val generatedImage = withContext(Dispatchers.IO) {
-                    imageGenerationService.generateImage(prompt, size)
-                }
-
-                hideLoadingDialog()
-
-                if (generatedImage != null) {
-                    // Füge die Nachricht zum Chat hinzu
-                    val imageUri = Uri.fromFile(generatedImage).toString()
-                    Log.d(TAG, "Generiertes Bild URI: $imageUri")
-                    val message = ChatMessage(
-                        content = "Generiertes Bild für: \"$prompt\"",
-                        isUser = false,
-                        imageUri = imageUri
-                    )
-                    addMessageToChat(message)
-                } else {
-                    showSnackbar("Fehler bei der Bildgenerierung")
-                }
-            } catch (e: Exception) {
-                hideLoadingDialog()
-                Log.e(TAG, "Fehler bei der Bildgenerierung", e)
-                showSnackbar("Fehler bei der Bildgenerierung")
-            }
-        }
+        showSnackbar("Bildgenerierung ist in der Gemini-Version derzeit nicht verfügbar.")
     }
 
     private fun showLoadingDialog(message: String) {
