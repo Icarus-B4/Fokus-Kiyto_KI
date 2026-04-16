@@ -1,0 +1,11 @@
+# OpenAI API Konfiguration
+OPENAI_API_KEY=your_api_key_here
+
+# Andere API-Einstellungen
+MODEL_VERSION=gpt-4
+TEMPERATURE=0.7
+MAX_TOKENS=500
+
+# Spracheinstellungen
+DEFAULT_LANGUAGE=de
+VOICE_ID=nova 
