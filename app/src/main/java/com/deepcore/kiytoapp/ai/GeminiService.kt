@@ -158,9 +158,8 @@ object GeminiService {
         
         try {
             // Wir nutzen hier den direkten REST-Call, um responseModalities: ["AUDIO"] zu setzen
-            // Das ist der Weg, um die "schöne Stimme" nativ aus dem Modell zu bekommen.
-            // Nutze gemini-1.5-flash für bessere API-Kompatibilität in v1beta
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+            // Nutze das brandneue gemini-3.1-flash-tts-preview Modell für beste Audio-Qualität
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent?key=$apiKey"
             
             val requestBody = JSONObject().apply {
                 put("contents", JSONArray().apply {

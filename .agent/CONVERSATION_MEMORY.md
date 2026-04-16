@@ -78,3 +78,12 @@
   - **Transkription**: Przisierung der STT-Logik durch System-Prompts ("NUR Text ausgeben").
   - **Hybrid-Audio**: Automatisches Fallback auf lokale Android-TTS bei Offline-Status oder API-Fehlern.
 - **Release**: v2.1.9 erfolgreich auf GitHub verffentlicht.
+
+### 2026-04-16 - Diagnose-Update v2.1.10 (Fix 404 Probleme)
+- **Status**: Erledigt. Diagnose-Tools fr API-Probleme implementiert.
+- **Wichtigste Features**:
+  - **API-Test-Tool**: Button "Verbindung testen" in den KI-Einstellungen hinzugefügt. Prft den Key via Ping an die v1beta API.
+  - **Verbessertes Logging**: GeminiService loggt nun den vollstndigen Response-Body bei Fehlern (Code 404/401/429 etc.).
+  - **Error Feedback**: Mikrofon-Toast zeigt nun przise Fehlercodes (z.B. "FEHLER: API-Fehler 404").
+  - **Build**: v2.1.10 erfolgreich auf GitHub hochgeladen.
+- **Ziel**: Identifikation der Ursache fr die massiven 404-Fehler in der Google Console.
