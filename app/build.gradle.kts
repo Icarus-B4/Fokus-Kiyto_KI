@@ -63,7 +63,7 @@ android {
 
         // BuildConfig Felder
         buildConfigField("String", "OPENAI_API_KEY", "\"${System.getenv("OPENAI_API_KEY") ?: ""}\"")
-        buildConfigField("String", "GITHUB_TOKEN", "\"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\"")
+        buildConfigField("String", "GITHUB_TOKEN", "\"${System.getenv("GITHUB_TOKEN") ?: ""}\"")
     }
 
     lint {

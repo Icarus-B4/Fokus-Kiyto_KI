@@ -1,0 +1,183 @@
+﻿2026-04-16T10:32:50.7814249Z Current runner version: '2.333.1'
+2026-04-16T10:32:50.7837904Z ##[group]Runner Image Provisioner
+2026-04-16T10:32:50.7838709Z Hosted Compute Agent
+2026-04-16T10:32:50.7839248Z Version: 20260213.493
+2026-04-16T10:32:50.7839933Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+2026-04-16T10:32:50.7840633Z Build Date: 2026-02-13T00:28:41Z
+2026-04-16T10:32:50.7841265Z Worker ID: {f1810230-5d1d-4dc5-9ebf-870d08dcbca1}
+2026-04-16T10:32:50.7842001Z Azure Region: westus
+2026-04-16T10:32:50.7842511Z ##[endgroup]
+2026-04-16T10:32:50.7843926Z ##[group]Operating System
+2026-04-16T10:32:50.7844553Z Ubuntu
+2026-04-16T10:32:50.7845046Z 24.04.4
+2026-04-16T10:32:50.7845472Z LTS
+2026-04-16T10:32:50.7845966Z ##[endgroup]
+2026-04-16T10:32:50.7846688Z ##[group]Runner Image
+2026-04-16T10:32:50.7847279Z Image: ubuntu-24.04
+2026-04-16T10:32:50.7847832Z Version: 20260406.80.1
+2026-04-16T10:32:50.7848979Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260406.80/images/ubuntu/Ubuntu2404-Readme.md
+2026-04-16T10:32:50.7850441Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260406.80
+2026-04-16T10:32:50.7851353Z ##[endgroup]
+2026-04-16T10:32:50.7852419Z ##[group]GITHUB_TOKEN Permissions
+2026-04-16T10:32:50.7854255Z Contents: read
+2026-04-16T10:32:50.7854765Z Metadata: read
+2026-04-16T10:32:50.7855266Z Packages: read
+2026-04-16T10:32:50.7855840Z ##[endgroup]
+2026-04-16T10:32:50.7858607Z Secret source: Actions
+2026-04-16T10:32:50.7859340Z Prepare workflow directory
+2026-04-16T10:32:50.8193598Z Prepare all required actions
+2026-04-16T10:32:50.8233276Z Getting action download info
+2026-04-16T10:32:51.4081434Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-04-16T10:32:51.5142445Z Download action repository 'actions/setup-java@v4' (SHA:c1e323688fd81a25caa38c78aa6df2d33d3e20d9)
+2026-04-16T10:32:52.2523723Z Download action repository 'chkfung/android-version-actions@v1.2.3' (SHA:fcf89abef1c7afba2083146dcca0c6da4705ba4b)
+2026-04-16T10:32:52.9685262Z Download action repository 'r0adkll/sign-android-release@v1' (SHA:349ebdef58775b1e0d8099458af0816dc79b6407)
+2026-04-16T10:32:55.5858364Z Complete job name: Distribute bundle to Google Play
+2026-04-16T10:32:55.6525412Z ##[group]Run actions/checkout@v4
+2026-04-16T10:32:55.6525987Z with:
+2026-04-16T10:32:55.6526432Z   repository: Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T10:32:55.6526870Z   token: ***
+2026-04-16T10:32:55.6527050Z   ssh-strict: true
+2026-04-16T10:32:55.6527242Z   ssh-user: git
+2026-04-16T10:32:55.6527433Z   persist-credentials: true
+2026-04-16T10:32:55.6527655Z   clean: true
+2026-04-16T10:32:55.6527846Z   sparse-checkout-cone-mode: true
+2026-04-16T10:32:55.6528089Z   fetch-depth: 1
+2026-04-16T10:32:55.6528268Z   fetch-tags: false
+2026-04-16T10:32:55.6528461Z   show-progress: true
+2026-04-16T10:32:55.6528665Z   lfs: false
+2026-04-16T10:32:55.6528828Z   submodules: false
+2026-04-16T10:32:55.6529022Z   set-safe-directory: true
+2026-04-16T10:32:55.6529491Z ##[endgroup]
+2026-04-16T10:32:55.7621386Z Syncing repository: Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T10:32:55.7622718Z ##[group]Getting Git version info
+2026-04-16T10:32:55.7623207Z Working directory is '/home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI'
+2026-04-16T10:32:55.7623806Z [command]/usr/bin/git version
+2026-04-16T10:32:55.7692631Z git version 2.53.0
+2026-04-16T10:32:55.7719370Z ##[endgroup]
+2026-04-16T10:32:55.7733146Z Temporarily overriding HOME='/home/runner/work/_temp/2d35466a-70ae-42ae-b9e4-88950db42058' before making global git config changes
+2026-04-16T10:32:55.7733993Z Adding repository directory to the temporary git global config as a safe directory
+2026-04-16T10:32:55.7739084Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
+2026-04-16T10:32:55.7781504Z Deleting the contents of '/home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI'
+2026-04-16T10:32:55.7785512Z ##[group]Initializing the repository
+2026-04-16T10:32:55.7790408Z [command]/usr/bin/git init /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
+2026-04-16T10:32:55.7875987Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-04-16T10:32:55.7877638Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-04-16T10:32:55.7878635Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-04-16T10:32:55.7879399Z hint: call:
+2026-04-16T10:32:55.7879731Z hint:
+2026-04-16T10:32:55.7880387Z hint: 	git config --global init.defaultBranch <name>
+2026-04-16T10:32:55.7880965Z hint:
+2026-04-16T10:32:55.7881502Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-04-16T10:32:55.7882415Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-04-16T10:32:55.7883163Z hint:
+2026-04-16T10:32:55.7883536Z hint: 	git branch -m <name>
+2026-04-16T10:32:55.7883974Z hint:
+2026-04-16T10:32:55.7884544Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-04-16T10:32:55.7885555Z Initialized empty Git repository in /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/.git/
+2026-04-16T10:32:55.7890859Z [command]/usr/bin/git remote add origin https://github.com/Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T10:32:55.7919454Z ##[endgroup]
+2026-04-16T10:32:55.7920094Z ##[group]Disabling automatic garbage collection
+2026-04-16T10:32:55.7923421Z [command]/usr/bin/git config --local gc.auto 0
+2026-04-16T10:32:55.7950616Z ##[endgroup]
+2026-04-16T10:32:55.7951178Z ##[group]Setting up auth
+2026-04-16T10:32:55.7957758Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-04-16T10:32:55.7985907Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-04-16T10:32:55.8257222Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-04-16T10:32:55.8284529Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-04-16T10:32:55.8519999Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-04-16T10:32:55.8551604Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-04-16T10:32:55.8808969Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-04-16T10:32:55.8844878Z ##[endgroup]
+2026-04-16T10:32:55.8845787Z ##[group]Fetching the repository
+2026-04-16T10:32:55.8854247Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +4e81e518fe1fa184cb158561ad8ab5e6c6de4915:refs/remotes/origin/main
+2026-04-16T10:32:56.5066617Z From https://github.com/Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T10:32:56.5067561Z  * [new ref]         4e81e518fe1fa184cb158561ad8ab5e6c6de4915 -> origin/main
+2026-04-16T10:32:56.5097744Z ##[endgroup]
+2026-04-16T10:32:56.5098621Z ##[group]Determining the checkout info
+2026-04-16T10:32:56.5101774Z ##[endgroup]
+2026-04-16T10:32:56.5111938Z [command]/usr/bin/git sparse-checkout disable
+2026-04-16T10:32:56.5151129Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-04-16T10:32:56.5175131Z ##[group]Checking out the ref
+2026-04-16T10:32:56.5179400Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-04-16T10:32:56.5465963Z Switched to a new branch 'main'
+2026-04-16T10:32:56.5469257Z branch 'main' set up to track 'origin/main'.
+2026-04-16T10:32:56.5475718Z ##[endgroup]
+2026-04-16T10:32:56.5509901Z [command]/usr/bin/git log -1 --format=%H
+2026-04-16T10:32:56.5531164Z 4e81e518fe1fa184cb158561ad8ab5e6c6de4915
+2026-04-16T10:32:56.5813584Z ##[group]Run actions/setup-java@v4
+2026-04-16T10:32:56.5813881Z with:
+2026-04-16T10:32:56.5814063Z   distribution: temurin
+2026-04-16T10:32:56.5814450Z   java-version: 17
+2026-04-16T10:32:56.5814639Z   cache: gradle
+2026-04-16T10:32:56.5814819Z   java-package: jdk
+2026-04-16T10:32:56.5815014Z   check-latest: false
+2026-04-16T10:32:56.5815200Z   server-id: github
+2026-04-16T10:32:56.5815398Z   server-username: GITHUB_ACTOR
+2026-04-16T10:32:56.5815631Z   server-password: GITHUB_TOKEN
+2026-04-16T10:32:56.5815869Z   overwrite-settings: true
+2026-04-16T10:32:56.5816415Z   job-status: success
+2026-04-16T10:32:56.5816761Z   token: ***
+2026-04-16T10:32:56.5816938Z ##[endgroup]
+2026-04-16T10:32:56.7771968Z ##[group]Installed distributions
+2026-04-16T10:32:56.7830195Z Resolved Java 17.0.18+8 from tool-cache
+2026-04-16T10:32:56.7831346Z Setting Java 17.0.18+8 as the default
+2026-04-16T10:32:56.7844415Z Creating toolchains.xml for JDK version 17 from temurin
+2026-04-16T10:32:56.7921559Z Writing to /home/runner/.m2/toolchains.xml
+2026-04-16T10:32:56.7922302Z 
+2026-04-16T10:32:56.7922466Z Java configuration:
+2026-04-16T10:32:56.7926748Z   Distribution: temurin
+2026-04-16T10:32:56.7931788Z   Version: 17.0.18+8
+2026-04-16T10:32:56.7932526Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T10:32:56.7933554Z 
+2026-04-16T10:32:56.7934273Z ##[endgroup]
+2026-04-16T10:32:56.7951620Z Creating settings.xml with server-id: github
+2026-04-16T10:32:56.7952397Z Writing to /home/runner/.m2/settings.xml
+2026-04-16T10:32:57.1415178Z Cache hit for: setup-java-Linux-x64-gradle-8ce352530acad0ea7543991da6c47fb54769dace72e7fb7d69723057c718dc4d
+2026-04-16T10:32:58.4467438Z Received 0 of 604720834 (0.0%), 0.0 MBs/sec
+2026-04-16T10:32:59.4474271Z Received 92274688 of 604720834 (15.3%), 44.0 MBs/sec
+2026-04-16T10:33:00.4499584Z Received 218103808 of 604720834 (36.1%), 69.2 MBs/sec
+2026-04-16T10:33:01.4507322Z Received 343932928 of 604720834 (56.9%), 81.9 MBs/sec
+2026-04-16T10:33:02.4545686Z Received 490733568 of 604720834 (81.2%), 93.5 MBs/sec
+2026-04-16T10:33:03.2633973Z Received 604720834 of 604720834 (100.0%), 99.1 MBs/sec
+2026-04-16T10:33:03.2635337Z Cache Size: ~577 MB (604720834 B)
+2026-04-16T10:33:03.2765503Z [command]/usr/bin/tar -xf /home/runner/work/_temp/4867e640-8323-4df2-a7ce-db9919712d6c/cache.tzst -P -C /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI --use-compress-program unzstd
+2026-04-16T10:33:05.9046557Z Cache restored successfully
+2026-04-16T10:33:06.0654599Z Cache restored from key: setup-java-Linux-x64-gradle-8ce352530acad0ea7543991da6c47fb54769dace72e7fb7d69723057c718dc4d
+2026-04-16T10:33:06.0837777Z ##[group]Run chkfung/android-version-actions@v1.2.3
+2026-04-16T10:33:06.0838141Z with:
+2026-04-16T10:33:06.0838342Z   gradlePath: app/build.gradle.kts
+2026-04-16T10:33:06.0838603Z   versionCode: 84
+2026-04-16T10:33:06.0838816Z env:
+2026-04-16T10:33:06.0839123Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T10:33:06.0839604Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T10:33:06.0839978Z ##[endgroup]
+2026-04-16T10:33:06.1723528Z Gradle Path : app/build.gradle.kts
+2026-04-16T10:33:06.1728150Z Version Code : 84
+2026-04-16T10:33:06.1728584Z Version Name : 
+2026-04-16T10:33:06.1753229Z Successfully override version code 84
+2026-04-16T10:33:06.1850308Z ##[group]Run ./gradlew bundleRelease
+2026-04-16T10:33:06.1850894Z [36;1m./gradlew bundleRelease[0m
+2026-04-16T10:33:06.1877116Z shell: /usr/bin/bash -e {0}
+2026-04-16T10:33:06.1877376Z env:
+2026-04-16T10:33:06.1877683Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T10:33:06.1878187Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T10:33:06.1878562Z ##[endgroup]
+2026-04-16T10:33:06.1944352Z /home/runner/work/_temp/e337d41c-1cc3-4d1b-b7b9-942d21dd05f9.sh: line 1: ./gradlew: Permission denied
+2026-04-16T10:33:06.1959183Z ##[error]Process completed with exit code 126.
+2026-04-16T10:33:06.2071987Z Post job cleanup.
+2026-04-16T10:33:06.3841020Z Post job cleanup.
+2026-04-16T10:33:06.4798460Z [command]/usr/bin/git version
+2026-04-16T10:33:06.4834099Z git version 2.53.0
+2026-04-16T10:33:06.4881033Z Temporarily overriding HOME='/home/runner/work/_temp/6c601c22-5659-4cf4-8356-8e4c4deddd37' before making global git config changes
+2026-04-16T10:33:06.4882438Z Adding repository directory to the temporary git global config as a safe directory
+2026-04-16T10:33:06.4895143Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
+2026-04-16T10:33:06.4929694Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-04-16T10:33:06.4961512Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-04-16T10:33:06.5181296Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-04-16T10:33:06.5201619Z http.https://github.com/.extraheader
+2026-04-16T10:33:06.5214823Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-04-16T10:33:06.5244908Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-04-16T10:33:06.5459260Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-04-16T10:33:06.5488559Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-04-16T10:33:06.5809893Z Cleaning up orphan processes
+2026-04-16T10:33:06.6104892Z ##[warning]Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-java@v4, chkfung/android-version-actions@v1.2.3. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
