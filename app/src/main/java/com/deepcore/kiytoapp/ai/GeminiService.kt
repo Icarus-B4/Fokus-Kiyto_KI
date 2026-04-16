@@ -127,13 +127,17 @@ object GeminiService {
                 .build()
 
             client.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string() ?: ""
                 if (!response.isSuccessful) {
-                    val err = response.body?.string()
-                    Log.e(TAG, "Gemini Transcribe API Fehler: ${response.code} $err")
-                    return@withContext null
+                    Log.e(TAG, "Gemini Transcribe API Fehler (Code ${response.code}): $responseBody")
+                    // Falls wir einen 404 bekommen, loggen wir das spezifisch für den Nutzer
+                    if (response.code == 404) {
+                        Log.e(TAG, "KRITISCH: Modell nicht gefunden oder Dienst am Endpoint nicht verfügbar. Prüfe API-Key Berechtigungen.")
+                    }
+                    return@withContext "FEHLER: API-Fehler ${response.code}"
                 }
 
-                val jsonResponse = JSONObject(response.body?.string() ?: "")
+                val jsonResponse = JSONObject(responseBody)
                 val candidates = jsonResponse.optJSONArray("candidates")
                 val text = candidates?.optJSONObject(0)
                     ?.optJSONObject("content")
@@ -145,7 +149,7 @@ object GeminiService {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Gemini Transkription Fehler", e)
-            null // Keinen hässlichen Fehler-String in den Chat schreiben
+            "FEHLER: ${e.message}"
         }
     }
 
@@ -186,12 +190,13 @@ object GeminiService {
                 .build()
 
             client.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string() ?: ""
                 if (!response.isSuccessful) {
-                    Log.e(TAG, "Gemini Speech API Fehler: ${response.code} ${response.body?.string()}")
+                    Log.e(TAG, "Gemini Speech API Fehler (Code ${response.code}): $responseBody")
                     return@withContext null
                 }
 
-                val jsonResponse = JSONObject(response.body?.string() ?: "")
+                val jsonResponse = JSONObject(responseBody)
                 val candidates = jsonResponse.optJSONArray("candidates")
                 val parts = candidates?.optJSONObject(0)?.optJSONObject("content")?.optJSONArray("parts")
                 
@@ -209,6 +214,39 @@ object GeminiService {
         } catch (e: Exception) {
             Log.e(TAG, "Gemini Speech Generierung fehlgeschlagen", e)
             null
+        }
+    }
+
+    suspend fun testApiConnection(): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        if (apiKey.isNullOrEmpty()) return@withContext false to "API-Key ist leer oder nicht konfiguriert."
+        
+        try {
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+            val requestBody = JSONObject().apply {
+                put("contents", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("parts", JSONArray().apply {
+                            put(JSONObject().apply { put("text", "Ping") })
+                        })
+                    })
+                })
+            }
+
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                val body = response.body?.string() ?: ""
+                if (response.isSuccessful) {
+                    true to "Erfolgreich verbunden! Die KI hat geantwortet."
+                } else {
+                    false to "Fehler ${response.code}: $body"
+                }
+            }
+        } catch (e: Exception) {
+            false to "Verbindungsfehler: ${e.message}"
         }
     }
 

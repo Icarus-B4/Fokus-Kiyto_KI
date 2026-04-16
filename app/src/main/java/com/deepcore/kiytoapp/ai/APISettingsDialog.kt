@@ -5,10 +5,13 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
+import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.deepcore.kiytoapp.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
 class APISettingsDialog : DialogFragment() {
     
@@ -46,10 +49,40 @@ class APISettingsDialog : DialogFragment() {
         val inflater = requireActivity().layoutInflater
         val view = inflater.inflate(R.layout.dialog_api_settings, null)
         
-        val geminiApiKeyInput = view.findViewById<EditText>(R.id.geminiApiKeyInput)
+        val geminiTestButton = view.findViewById<Button>(R.id.geminiTestButton)
         
         // Lade den aktuellen Gemini-Key
         val currentGeminiKey = apiSettingsManager.getGeminiApiKey()
+        
+        // Test-Button Logik
+        geminiTestButton.setOnClickListener {
+            val inputKey = geminiApiKeyInput.text.toString().trim()
+            val keyToTest = if (inputKey.isNotEmpty()) inputKey else currentGeminiKey
+            
+            if (keyToTest.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "Bitte zuerst einen API-Key eingeben", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Temporär initialisieren für den Test
+            GeminiService.initialize(requireContext()) 
+            
+            lifecycleScope.launch {
+                geminiTestButton.isEnabled = false
+                geminiTestButton.text = "Teste..."
+                
+                val (success, message) = GeminiService.testApiConnection()
+                
+                geminiTestButton.isEnabled = true
+                geminiTestButton.text = "Verbindung testen"
+                
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(if (success) "Verbindung OK" else "Verbindungsfehler")
+                    .setMessage(message)
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
         
         // Zeige den aktuellen Status
         if (!currentGeminiKey.isNullOrEmpty()) {

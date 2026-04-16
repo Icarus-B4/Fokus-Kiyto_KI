@@ -69,3 +69,12 @@
   - .github/workflows/release.yml: Korrektur der Extraktions-Logik (grep/sed) fr den GitHub-Build.
   - PackageInstallerHelper.kt: Optimierung fr Android 11+ Installationen & Berechtigungs-Checks.
 - **Ergebnis**: v2.1.8 ist live. Die korrekte Versionsnummer wird nun sowohl lokal als auch im GitHub-Release korrekt angezeigt.
+
+### 2026-04-16 - Hero-Update v2.1.9: Sprach- & Wake-Word Revolution
+- **Status**: Erledigt. Fokus-Kiyto nutzt nun die moderne Gemini-Inference fr Sprache.
+- **Wichtigste Features**:
+  - **Wake-Word**: Umstellung auf robustes Regex-Matching fr "Hei Kiyto". Toleranter gegenüber verschiedenen Aussprachen.
+  - **Moderne Stimme**: Integration der nativen multimodalen Gemini-Stimme (Aoede) via v1beta API.
+  - **Transkription**: Przisierung der STT-Logik durch System-Prompts ("NUR Text ausgeben").
+  - **Hybrid-Audio**: Automatisches Fallback auf lokale Android-TTS bei Offline-Status oder API-Fehlern.
+- **Release**: v2.1.9 erfolgreich auf GitHub verffentlicht.
