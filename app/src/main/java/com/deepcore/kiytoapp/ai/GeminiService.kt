@@ -97,16 +97,54 @@ object GeminiService {
         
         try {
             val audioBytes = file.readBytes()
-            val response = voiceModel?.generateContent(
-                content {
-                    blob("audio/wav", audioBytes)
-                    text("Transkribiere dieses Audio präzise auf Deutsch. Gib NUR den transkribierten Text zurück.")
+            val base64Audio = android.util.Base64.encodeToString(audioBytes, android.util.Base64.NO_WRAP)
+            
+            // Wir nutzen REST für Transkription, da das SDK bei gRPC oft 404 liefert
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+            
+            val requestBody = JSONObject().apply {
+                put("contents", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("parts", JSONArray().apply {
+                            put(JSONObject().apply {
+                                put("inlineData", JSONObject().apply {
+                                    put("mimeType", "audio/wav")
+                                    put("data", base64Audio)
+                                })
+                            })
+                            put(JSONObject().apply {
+                                put("text", "Transkribiere dieses Audio präzise auf Deutsch. Gib NUR den transkribierten Text zurück.")
+                            })
+                        })
+                    })
+                })
+            }
+
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    val err = response.body?.string()
+                    Log.e(TAG, "Gemini Transcribe API Fehler: ${response.code} $err")
+                    return@withContext null
                 }
-            )
-            response?.text?.trim()
+
+                val jsonResponse = JSONObject(response.body?.string() ?: "")
+                val candidates = jsonResponse.optJSONArray("candidates")
+                val text = candidates?.optJSONObject(0)
+                    ?.optJSONObject("content")
+                    ?.optJSONArray("parts")
+                    ?.optJSONObject(0)
+                    ?.optString("text")
+
+                text?.trim()
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Gemini Transkription Fehler", e)
-            "FEHLER: ${e.localizedMessage ?: e.message ?: "Unbekannter API Fehler"}"
+            null // Keinen hässlichen Fehler-String in den Chat schreiben
         }
     }
 

@@ -125,27 +125,33 @@ class SpeechManager(
         try {
             val voices = textToSpeech?.voices?.toList() ?: return
             
-            // Filtere nach deutschen Stimmen mit hoher Qualität
+            // Suche gezielt nach weiblichen deutschen Stimmen
             val germanVoices = voices.filter { voice ->
                 voice.locale.language == "de" &&
-                voice.quality >= Voice.QUALITY_VERY_HIGH &&
-                !voice.name.contains("network") // Vermeide Netzwerk-Stimmen für bessere Performance
+                !voice.isNetworkConnectionRequired &&
+                (voice.name.lowercase().contains("female") || voice.name.lowercase().contains("w-")) 
             }
             
-            // Wähle die beste verfügbare Stimme
-            val bestVoice = germanVoices
-                .maxByOrNull { voice -> 
-                    voice.quality + (if (voice.name.contains("female")) 10 else 0) // Bevorzuge weibliche Stimmen
-                }
-                ?: voices.firstOrNull { it.locale.language == "de" }
+            // Fallback auf allgemeine deutsche Stimmen, falls keine explizit weibliche gefunden wurde
+            val fallbackVoices = if (germanVoices.isEmpty()) {
+                voices.filter { it.locale.language == "de" }
+            } else {
+                germanVoices
+            }
+
+            // Wähle die Stimme mit der höchsten Qualität
+            val bestVoice = fallbackVoices.maxByOrNull { it.quality }
             
             bestVoice?.let {
-                if (currentVoice?.name != it.name) {
-                    textToSpeech?.voice = it
-                    currentVoice = it
-                    Log.d(TAG, "Neue Stimme ausgewählt: ${it.name}")
-                }
+                textToSpeech?.voice = it
+                currentVoice = it
+                Log.d(TAG, "Beste weibliche/deutsche Stimme ausgewählt: ${it.name}")
             }
+            
+            // Pitch und Rate für weibliche Stimmen feinjustieren
+            textToSpeech?.setPitch(1.05f) // Ganz leicht höher für femininere Note
+            textToSpeech?.setSpeechRate(1.0f) // Standard Geschwindigkeit
+            
         } catch (e: Exception) {
             Log.e(TAG, "Fehler bei der Stimmenauswahl", e)
         }
