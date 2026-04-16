@@ -17,6 +17,9 @@ class UpdateManager(private val context: Context) {
         private const val PREFS_NAME = "update_prefs"
         private const val LAST_CHECK_KEY = "last_update_check"
         private const val UPDATE_STATUS_KEY = "update_status"
+        private const val LATEST_VERSION_KEY = "latest_version"
+        private const val UPDATE_DESC_KEY = "update_description"
+        private const val UPDATE_URL_KEY = "update_url"
     }
 
     var latestVersion: String? = null
@@ -29,6 +32,15 @@ class UpdateManager(private val context: Context) {
         private set
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    init {
+        // Lade gespeicherte Daten
+        latestVersion = prefs.getString(LATEST_VERSION_KEY, null)
+        updateDescription = prefs.getString(UPDATE_DESC_KEY, null)
+        updateUrl = prefs.getString(UPDATE_URL_KEY, null)
+        updateAvailable = prefs.getBoolean(UPDATE_STATUS_KEY, false)
+        LogUtils.debug(this, "UpdateManager initialisiert: Version=$latestVersion, Available=$updateAvailable")
+    }
 
     suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -148,9 +160,12 @@ class UpdateManager(private val context: Context) {
         prefs.edit().apply {
             putLong(LAST_CHECK_KEY, checkDate.time)
             putBoolean(UPDATE_STATUS_KEY, updateAvailable)
+            putString(LATEST_VERSION_KEY, latestVersion)
+            putString(UPDATE_DESC_KEY, updateDescription)
+            putString(UPDATE_URL_KEY, updateUrl)
             apply()
         }
-        LogUtils.debug(this, "Update-Status gespeichert: $updateAvailable, Datum: $checkDate")
+        LogUtils.debug(this, "Update-Status gespeichert: $updateAvailable, Version=$latestVersion, Datum: $checkDate")
     }
 
     fun getLastCheckDate(): Date? {
@@ -168,6 +183,9 @@ class UpdateManager(private val context: Context) {
         prefs.edit().apply {
             remove(LAST_CHECK_KEY)
             remove(UPDATE_STATUS_KEY)
+            remove(LATEST_VERSION_KEY)
+            remove(UPDATE_DESC_KEY)
+            remove(UPDATE_URL_KEY)
             apply()
         }
         updateAvailable = false

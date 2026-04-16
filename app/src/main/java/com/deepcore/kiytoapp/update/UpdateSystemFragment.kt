@@ -253,7 +253,8 @@ class UpdateSystemFragment : Fragment() {
             .append("Letzte Prüfung: ${updateManager.getLastCheckDate()}\n")
             .append("Update verfügbar: ${updateManager.updateAvailable}\n")
             .append("Neueste Version: ${updateManager.latestVersion}\n")
-            .append("Update URL: ${updateManager.updateUrl}\n")
+            .append("Update URL: ${updateManager.updateUrl}\n\n")
+            .append("Update Beschreibung / Fehler:\n${updateManager.updateDescription ?: "Keine"}")
             .toString()
             
         DebugLogDialog.newInstance(logs)

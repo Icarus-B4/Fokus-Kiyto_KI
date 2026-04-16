@@ -1,0 +1,18 @@
+Wir wollen einen neuen Skill erstellen, benutze dafür bitte den skill-creator.
+Ziel soll es sein, dass unser Skill immer wenn wir etwas Neues implementieren, vorher die aktuellen Docs (Dokumentationen) liest – sodass er immer auf dem neuesten Stand ist und keine fehlerhaften Versionen integriert. Manchmal kann es sein das eine App nicht die neuste Version nutzen kann und auf einer speztifische Version angewiesen ist um zu funktionier. Deshalb ist In diesem Projekt noch der code-Review um bugs, security issues, und quality problems zu beheben.
+Automatische Diagnose und Behebung von Phyton Problemen. Führt einen dreiphasigen Geräte-Workflow aus (Kompilieren, Hochladen, Überwachen) und wendet Korrekturen an. 
+
+Integration: bei Anweisung zu erstellung von Android App nutze den @android-e2e-testing
+
+@beautifulMention füge diesen skill hinzu und speichere den Chatverlauf. Für die witere nutzng in einem neuen Chat, falls ich dich dazu auffordere die memory apzurufen.@beautifulMention 
+
+Wenn ich "@beautifulMention Fasse chatverlauf zusammen und Aktualisiere die Memory"
+
+Wird die 
+CONVERSATION_MEMORY.md
+überschrieben/? Dann solltest du darauf achten dass neue Zusammenfassungen nun chronologisch hinzugefügt werden, anstatt die Datei zu überschreiben. So bleibt die gesamte Historie deiner Änderungen erhalten.
+
+Immer als letzter Schritt: Jedes Mal, wenn ich eine Aufgabe (Task) abschließe, wird das Update der Memory mein automatischer Schlusspunkt sein.
+Verankerung in den Regeln: Ich trage diese Anweisung fest in deine 
+GEMINI.md
+ und den Memory-Skill ein, damit ich (und jede zukünftige Instanz von mir) das immer proaktiv macht.
