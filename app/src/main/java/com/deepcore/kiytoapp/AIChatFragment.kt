@@ -322,8 +322,6 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             photosOption = view.findViewById(R.id.photosOption)
             cameraOption = view.findViewById(R.id.cameraOption)
             filesOption = view.findViewById(R.id.filesOption)
-            createImageOption = view.findViewById(R.id.createImageOption)
-            collectIdeasOption = view.findViewById(R.id.collectIdeasOption)
             analyzeImagesOption = view.findViewById(R.id.analyzeImagesOption)
             moreOption = view.findViewById(R.id.moreOption)
 
@@ -1414,10 +1412,6 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         // Initialisiere Dienste neu mit dem aktualisierten API-Key
         GeminiService.initialize(requireContext())
         taskAIService = TaskAIService(requireContext())
-        )
-        adapter.addMessage(message)
-        chatManager.addMessage(message)
-        scrollToBottom()
     }
 
     // Implementierung der abstrakten Methode aus dem Interface APISettingsDialog.OnApiKeySetListener

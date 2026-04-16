@@ -43,10 +43,6 @@ object ApiKeys {
             }
     }
 
-    fun getYouTubeApiKey(context: Context): String? {
-        return getEncryptedPrefs(context).getString(YOUTUBE_KEY, null)
-    }
-
     fun initializeApiKeys(context: Context) {
         Log.d(TAG, "Initialisiere API-Schlüssel...")
         // Nur YouTube Initialisierung falls nötig
