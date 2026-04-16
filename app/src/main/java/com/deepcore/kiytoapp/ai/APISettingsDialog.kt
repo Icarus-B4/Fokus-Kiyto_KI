@@ -93,12 +93,13 @@ class APISettingsDialog : DialogFragment() {
                 
                 if (!success) {
                     com.google.android.material.snackbar.Snackbar.make(
-                        requireActivity().findViewById(android.R.id.content),
-                        "Einige API-Keys waren ungültig",
+                        view,
+                        getString(R.string.api_key_invalid),
                         com.google.android.material.snackbar.Snackbar.LENGTH_LONG
                     ).show()
                 } else {
-                    Toast.makeText(context, "KI-Einstellungen gespeichert", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.api_settings_updated), Toast.LENGTH_SHORT).show()
+                    dismiss()
                 }
             }
             .setNegativeButton("Abbrechen", null)

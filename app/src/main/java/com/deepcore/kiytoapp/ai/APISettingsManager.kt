@@ -86,19 +86,14 @@ class APISettingsManager(context: Context) {
     fun validateApiKey(apiKey: String): Boolean {
         val trimmedKey = apiKey.trim()
         
-        // Gemini Keys beginnen oft mit AIza
-        if (trimmedKey.startsWith("AIza")) {
-            return trimmedKey.length >= 30
-        }
-
-        // Überprüfe zuerst die Mindestlänge für OpenAI
-        if (trimmedKey.length < 32) {
+        // Grundlegende Prüfung auf Mindestlänge (unterstützt nun auch kürzere/temporäre Keys)
+        if (trimmedKey.length < 8) {
             Log.d(TAG, "API-Key zu kurz: ${trimmedKey.length} Zeichen")
             return false
         }
         
-        // Überprüfe das Format
-        val validFormat = trimmedKey.matches(Regex("^[A-Za-z0-9_-]+$"))
+        // Überprüfe das Format (erlaubt Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte)
+        val validFormat = trimmedKey.matches(Regex("^[A-Za-z0-9_\\-.]+$"))
         if (!validFormat) {
             Log.d(TAG, "API-Key enthält ungültige Zeichen")
             return false

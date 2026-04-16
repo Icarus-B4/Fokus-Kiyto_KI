@@ -136,10 +136,10 @@
     <string name="day_stats">Statistiken für %1$s:\n%2$d abgeschlossen, %3$d offen, %4$s Fokuszeit</string>
     <!-- API Settings -->
     <string name="api_settings">KI API-Key Einstellungen</string>
-    <string name="api_key_hint">OpenAI API-Key eingeben</string>
+    <string name="api_key_hint">API-Key eingeben</string>
     <string name="use_custom_key">Eigenen API-Key verwenden</string>
     <string name="api_key_invalid">Ungültiger API-Key</string>
-    <string name="api_key_invalid_message">Bitte geben Sie einen gültigen OpenAI API-Key ein. Der Key sollte mit \'sk-\' oder \'sk-proj-\' beginnen und mindestens 32 Zeichen lang sein.</string>
+    <string name="api_key_invalid_message">Bitte geben Sie einen gültigen KI API-Key ein. Die Länge und das Format müssen korrekt sein.</string>
     <string name="api_settings_updated">API-Einstellungen wurden aktualisiert</string>
     <string name="api_key_secure_note">Hinweis: Der API-Key wird sicher verschlüsselt gespeichert.</string>
     <string name="theme">Erscheinungsbild</string>
@@ -231,7 +231,7 @@
     <string name="notification_background_updated">Benachrichtigungshintergrund wurde aktualisiert</string>
     <string name="notification_background_error">Fehler beim Aktualisieren des Benachrichtigungshintergrunds</string>
     <string name="welcome_message">👋 Hallo! Ich bin Kiyto, Ihr persönlicher KI-Assistent. Ich kann Ihnen bei verschiedenen Aufgaben helfen:\n\n• Aufgaben erstellen und verwalten\n• Timer setzen\n• Kalendereinträge erstellen\n• Bilder analysieren\n• Dokumente zusammenfassen\n• und vieles mehr!\n\nWie kann ich Ihnen heute helfen?</string>
-    <string name="openai_api_key">OpenAI API-KEY</string>
+    <string name="openai_api_key">API-Key</string>
     <string name="web_content">web content</string>
     <string name="x_tweeter">X-tweeter</string>
     <string name="e_mail">E-Mail:</string>
