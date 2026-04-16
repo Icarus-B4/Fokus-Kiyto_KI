@@ -122,6 +122,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
     private lateinit var pickFileLauncher: ActivityResultLauncher<Intent>
 
+    private val RECORDING_DURATION_MS = 2000 // auf 2000 ms reduzieren
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -193,12 +194,13 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             taskManager = TaskManager(requireContext())
             imageGenerationService = ImageGenerationService(requireContext())
             // SpeechManager korrekt initialisieren
-            speechManager = SpeechManager(requireContext(), OpenAIService).apply {
+            speechManager = SpeechManager(requireContext(), com.deepcore.kiytoapp.ai.OpenAIService).apply {
                 initialize()
                 onVolumeChanged = { amplitude ->
                     // Wir loggen die Amplitude für das Debugging über Logcat
                     if (amplitude > 0) {
                         // Bei hohen Amplituden können wir optional ein visuelles Feedback geben
+                        // Log.d("AIChatFragment", "Mic Amplitude: $amplitude")
                     }
                 }
             }
@@ -466,36 +468,33 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                                 // Starte die Sprachausgabe sofort
                                 launch { speakResponse(response.text) }
                                 
-                    if (!spokenText.isNullOrEmpty() && !spokenText.startsWith("FEHLER:")) {
-                        withContext(Dispatchers.Main) {
-                            hideLoadingState()
-                            addMessage(spokenText, true)
-                            processMessage(spokenText)
+                                // Aktualisiere die UI parallel zur Sprachausgabe
+                                withContext(Dispatchers.Main) {
+                                    adapter.addMessage(response)
+                                    chatManager.addMessage(response)
+                                    scrollToBottom()
+                                }
+                            }
                         }
                     } else {
-                        // Feedback wenn nichts erkannt wurde oder ein Fehler auftrat
-                        withContext(Dispatchers.Main) {
-                            hideLoadingState()
-                            val errorMessage = if (spokenText?.startsWith("FEHLER:") == true) {
-                                spokenText
-                            } else {
-                                "Ich habe keine Sprache gehört. Bitte prüfe dein Mikrofon oder sprich lauter."
-                            }
-                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                            Log.e("AIChatFragment", "Spracherkennung fehlgeschlagen: $errorMessage")
+                        // Feedback wenn nichts erkannt wurde oder API Fehler auftrat
+                        val errorMessage = if (spokenText?.startsWith("FEHLER:") == true) {
+                            spokenText
+                        } else {
+                            "Ich habe keine Sprache gehört. Bitte prüfe dein Mikrofon oder sprich lauter."
                         }
+                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                        Log.e("AIChatFragment", "Spracherkennung fehlgeschlagen: $errorMessage")
                     }
                 } catch (e: Exception) {
                     Log.e("AIChatFragment", "Fehler bei der Spracherkennung", e)
-                    withContext(Dispatchers.Main) {
-                        val errorMsg = ChatMessage(
-                            "Entschuldigung, es gab einen Fehler bei der Spracherkennung. Bitte versuchen Sie es erneut.",
-                            false
-                        )
-                        adapter.addMessage(errorMsg)
-                        chatManager.addMessage(errorMsg)
-                        scrollToBottom()
-                    }
+                    val errorMsg = ChatMessage(
+                        "Entschuldigung, es gab einen Fehler bei der Spracherkennung. Bitte versuchen Sie es erneut.",
+                        false
+                    )
+                    adapter.addMessage(errorMsg)
+                    chatManager.addMessage(errorMsg)
+                    scrollToBottom()
                 }
             }
         }
