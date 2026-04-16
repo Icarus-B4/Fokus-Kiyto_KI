@@ -20,7 +20,7 @@ import com.deepcore.kiytoapp.services.YouTubeService
 
 object GeminiService {
     private const val TAG = "GeminiService"
-    private const val TEXT_MODEL_ID = "gemini-1.5-flash-latest"
+    private const val TEXT_MODEL_ID = "gemini-3.1-flash-tts-preview"
     private const val VOICE_MODEL_ID = "gemini-3.1-flash-tts-preview"
     
     private var model: GenerativeModel? = null
