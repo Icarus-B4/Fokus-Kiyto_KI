@@ -74,11 +74,12 @@ class UpdateDownloadDialogFragment : DialogFragment() {
 
     private fun startDownload(url: String) {
         try {
+            val updateManager = UpdateManager(requireContext())
+            
             // Bevorzuge die übergebene URL, falls sie valide ist (endet auf .apk oder enthält /releases/download/)
             val downloadUrl = if (url.endsWith(".apk") || url.contains("/releases/download/")) {
                 url
             } else {
-                val updateManager = UpdateManager(requireContext())
                 updateManager.downloadUrl ?: url
             }
             
@@ -89,7 +90,7 @@ class UpdateDownloadDialogFragment : DialogFragment() {
                 dismiss()
                 return
             }
-
+ 
             Toast.makeText(requireContext(), "Download gestartet. Installation folgt automatisch...", Toast.LENGTH_LONG).show()
             
             val downloader = APKDownloader(requireContext())
