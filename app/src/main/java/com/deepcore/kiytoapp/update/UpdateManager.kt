@@ -53,13 +53,8 @@ class UpdateManager(private val context: Context) {
             val connection = url.openConnection() as java.net.HttpURLConnection
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
             
-            // Nur Auth-Header setzen, wenn Token vorhanden ist
-            if (BuildConfig.GITHUB_TOKEN.isNotEmpty()) {
-                connection.setRequestProperty("Authorization", "token ${BuildConfig.GITHUB_TOKEN}")
-                LogUtils.debug(this@UpdateManager, "Nutze GITHUB_TOKEN für Authentifizierung")
-            } else {
-                LogUtils.debug(this@UpdateManager, "Kein GITHUB_TOKEN vorhanden, sende anonyme Anfrage")
-            }
+            // Anonyme Anfrage für öffentliche Repositories (vermeidet 401 bei abgelaufenen Tokens)
+            LogUtils.debug(this@UpdateManager, "Sende anonyme Anfrage an GitHub API")
             
             connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
             connection.setRequestProperty("Pragma", "no-cache")
