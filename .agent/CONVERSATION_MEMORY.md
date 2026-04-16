@@ -95,3 +95,11 @@
   - **404 Fix**: Das spezialisierte Routing behebt die Inkompatibilitten des Standard-1.5 Modells bei Audio-Output.
   - **Dual-Model-System**: 1.5 Flash fr Text/STT + 3.1 Flash fr TTS.
   - **Build**: v2.1.11 erfolgreich verffentlicht.
+
+### 2026-04-16 - All-In Upgrade v2.1.13: Gemini 3.1 Flash konsequent
+- **Status**: Erledigt. Volle Modell-Vereinheitlichung.
+- **Wichtigste Features**:
+  - **100% Gemini 3.1**: Die gesamte App nutzt nun 'gemini-3.1-flash-tts-preview' fr Chat, STT und TTS.
+  - **Kein 1.5 mehr**: Modell 'gemini-1.5-flash' wurde vollstndig entfernt, um 404 Fehler zu vermeiden.
+  - **Stabilisierung**: Alle API-Endpunkte (REST & SDK) sind nun synchronisiert.
+  - **Build**: v2.1.13 erfolgreich verffentlicht.
