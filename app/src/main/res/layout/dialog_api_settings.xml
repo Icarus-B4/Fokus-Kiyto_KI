@@ -52,7 +52,7 @@
         android:layout_gravity="end"
         android:layout_marginBottom="16dp"
         android:text="Verbindung testen"
-        app:icon="@drawable/ic_refresh" />
+        app:icon="@android:drawable/ic_popup_sync" />
 
     <TextView
         android:layout_width="match_parent"
