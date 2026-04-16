@@ -214,6 +214,12 @@ if (-not (Test-Path $releasesDir)) {
 # Build APK mit Keystore-Parameter
 Write-Host "Building release APK with proper signing..."
 Write-Host "Building debug APK for testing..."
+Write-Host "Cleaning previous build artifacts..." -ForegroundColor Yellow
+./gradlew clean
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error cleaning build." -ForegroundColor Red
+    exit 1
+}
 ./gradlew assembleDebug
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error building APK." -ForegroundColor Red

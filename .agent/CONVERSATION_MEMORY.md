@@ -51,3 +51,12 @@
   - App-Version auf v2.1.4 aktualisiert.
   - APK erfolgreich lokal unter 'releases/Fokus-Kiyto-v2.1.4-debug.apk' erstellt.
 - **Blocker**: GitHub-Token 'ghp_...' ungültig für automatisiertes Release.
+
+### 2026-04-16 - Download-Fix & v2.1.5 Release
+- **Status**: Update-System repariert, v2.1.5 erfolgreich veröffentlicht.
+- **Änderungen**:
+  - UpdateManager.kt: fetchLatestDownloadUrl speichert nun Daten in SharedPreferences.
+  - UpdateSystemFragment.kt: Übergibt direkte Download-URL an den Dialog.
+  - UpdateDownloadDialogFragment.kt: Priorisiert APK-Links vor HTML-Seiten; Variablen-Scope korrigiert.
+  - GitHub-Upload: v2.1.5 mit neuem Token erfolgreich erstellt (ID: 310022167).
+- **Ergebnis**: Der Download-Button "Herunterladen und Installieren" funktioniert nun wie erwartet und stösst den automatischen APK-Download an.

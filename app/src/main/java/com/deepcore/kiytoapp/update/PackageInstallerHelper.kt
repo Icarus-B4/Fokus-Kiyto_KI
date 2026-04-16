@@ -14,17 +14,40 @@ class PackageInstallerHelper(private val context: Context) {
         try {
             LogUtils.debug(this, "Starte APK-Installation für: $uri")
             
-            // Konvertiere URI in FileProvider URI wenn nötig
-            val installIntent = Intent(Intent.ACTION_VIEW).apply {
+            // Auf Android 8.0 (API 26) und höher prüfen wir die Berechtigung zum Installieren unbekannter Apps
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!context.packageManager.canRequestPackageInstalls()) {
+                    LogUtils.debug(this, "Keine Berechtigung zum Installieren unbekannter Apps. Öffne Einstellungen.")
+                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:${context.packageName}")
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(intent)
+                    return
+                }
+            }
+
+            val installIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
                 setDataAndType(uri, "application/vnd.android.package-archive")
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+                putExtra(Intent.EXTRA_RETURN_RESULT, true)
+                putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)
             }
             
-            // Auf neueren Android-Versionen müssen wir den FileProvider nutzen, 
-            // wenn die Datei aus einem privaten Ordner kommt. 
-            // Wenn sie vom DownloadManager in Downloads liegt, ist es oft eine content:// URI.
+            // Fallback für ACTION_INSTALL_PACKAGE (da deprecated ab API 29, aber oft zuverlässiger)
+            // Wenn ACTION_INSTALL_PACKAGE nicht geht, nutzen wir ACTION_VIEW
+            try {
+                context.startActivity(installIntent)
+            } catch (e: Exception) {
+                LogUtils.debug(this, "Fallback auf ACTION_VIEW für Installation")
+                val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                }
+                context.startActivity(viewIntent)
+            }
             
-            context.startActivity(installIntent)
             LogUtils.debug(this, "Installations-Intent gesendet")
             
         } catch (e: Exception) {

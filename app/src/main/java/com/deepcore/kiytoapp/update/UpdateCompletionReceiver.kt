@@ -19,8 +19,11 @@ class UpdateCompletionReceiver : BroadcastReceiver() {
                     
                     if (uri != null) {
                         LogUtils.debug(this, "Starte automatische Installation für: $uri")
+                        android.widget.Toast.makeText(context, "Download abgeschlossen. Starte Installation...", android.widget.Toast.LENGTH_SHORT).show()
                         val installer = PackageInstallerHelper(context)
                         installer.installAPK(uri)
+                    } else {
+                        android.widget.Toast.makeText(context, "Fehler: Heruntergeladene Datei konnte nicht gefunden werden.", android.widget.Toast.LENGTH_LONG).show()
                     }
                 }
             }
