@@ -67,8 +67,9 @@ function Update-AppVersion {
     }
     
     # Update build.gradle.kts
-    $gradleContent = $gradleContent -replace 'versionCode\s*=\s*\d+', "versionCode = $versionCode"
-    $gradleContent = $gradleContent -replace 'versionName\s*=\s*"[^"]*"', "versionName = `"$version`""
+    # Robusteres Regex fuer versionCode und versionName
+    $gradleContent = $gradleContent -replace 'versionCode\s*=\s*.*', "versionCode = $versionCode"
+    $gradleContent = $gradleContent -replace 'versionName\s*=\s*.*', "versionName = `"$version`""
     Set-Content -Path $gradlePath -Value $gradleContent
     
     Write-Host "Updated $gradlePath with versionCode=$versionCode and versionName=$version" -ForegroundColor Green
