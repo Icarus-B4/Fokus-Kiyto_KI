@@ -89,8 +89,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v2.0.${{ github.run_number }}
-          name: Fokus-Kiyto v2.0.${{ github.run_number }}
+          tag_name: v${{ env.VERSION_NAME }}
+          name: Fokus-Kiyto v${{ env.VERSION_NAME }}
           files: app/build/outputs/apk/release/*.apk
           body: |
             Automatisch generierter Release Build.

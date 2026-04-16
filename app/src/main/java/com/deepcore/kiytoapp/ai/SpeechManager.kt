@@ -203,7 +203,15 @@ class SpeechManager(
                 
                 val audioFile = recordAudio()
                 audioFile?.let { file ->
-                    val transcription = openAIService.transcribeAudio(file)
+                    // Bevorzuge Gemini für die Transkription
+                    val transcription = if (GeminiService.isEnabled()) {
+                        Log.d(TAG, "Nutze Gemini zur Transkription")
+                        GeminiService.transcribeAudio(file)
+                    } else {
+                        Log.d(TAG, "Nutze OpenAI zur Transkription")
+                        openAIService.transcribeAudio(file)
+                    }
+                    
                     file.delete() // Cleanup
                     return@withContext transcription
                 }
@@ -265,7 +273,7 @@ class SpeechManager(
                         // Prüfe auf Geräusche
                         for (i in 0 until readBytes step 2) {
                             val sample = (audioData[i + 1].toInt() shl 8) or (audioData[i].toInt() and 0xFF)
-                            if (Math.abs(sample) > 1000) { // Erhöhter Schwellenwert
+                            if (Math.abs(sample) > 500) { // Gesenkter Schwellenwert (vorher 1000) für bessere Empfindlichkeit
                                 hasSound = true
                                 lastSoundTime = System.currentTimeMillis()
                                 break
@@ -379,15 +387,20 @@ class SpeechManager(
     suspend fun speak(text: String) {
         try {
             stopSpeaking()
-            
             isSpeaking = true
             statusCallback?.invoke(isRecording, isSpeaking)
             
-            // Versuche zuerst OpenAI TTS
-            val audioData = openAIService.textToSpeech(text)
+            // Versuche zuerst natives Gemini Audio (die "schöne Stimme")
+            val audioData = if (GeminiService.isEnabled()) {
+                Log.d(TAG, "Nutze natives Gemini Audio für Sprache")
+                GeminiService.generateGeminiSpeech(text)
+            } else {
+                Log.d(TAG, "Nutze OpenAI TTS")
+                openAIService.textToSpeech(text)
+            }
             
             if (audioData != null) {
-                // OpenAI TTS erfolgreich, nutze die erhaltenen Audiodaten
+                // Audio erfolgreich (Gemini oder OpenAI), nutze die erhaltenen Audiodaten
                 val tempFile = File(context.cacheDir, "tts_output.mp3")
                 tempFile.writeBytes(audioData)
                 
@@ -395,8 +408,8 @@ class SpeechManager(
                     playAudioFile(tempFile)
                 }
             } else {
-                // OpenAI TTS fehlgeschlagen, nutze lokale Android TTS als Fallback
-                Log.d(TAG, "OpenAI TTS fehlgeschlagen, verwende lokale TTS als Fallback")
+                // Alle KI-Stimmen fehlgeschlagen, nutze lokale Android TTS als letzten Fallback
+                Log.d(TAG, "KI-Sprachausgabe fehlgeschlagen, verwende lokale TTS als Fallback")
                 
                 withContext(Dispatchers.Main) {
                     if (textToSpeech != null && ttsInitialized) {

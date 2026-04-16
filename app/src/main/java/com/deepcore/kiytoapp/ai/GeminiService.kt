@@ -10,12 +10,22 @@ import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import org.json.JSONArray
+import com.google.ai.client.generativeai.type.content
+import com.google.ai.client.generativeai.type.blob
 
 object GeminiService {
     private const val TAG = "GeminiService"
     private var model: GenerativeModel? = null
     private var visionModel: GenerativeModel? = null
+    private var voiceModel: GenerativeModel? = null // Für Audio-Input/Output
     private var apiKey: String? = null
+    private val client = OkHttpClient()
 
     fun initialize(context: Context) {
         val settingsManager = APISettingsManager(context)
@@ -34,6 +44,11 @@ object GeminiService {
             
             visionModel = GenerativeModel(
                 modelName = "gemini-1.5-flash",
+                apiKey = apiKey!!
+            )
+
+            voiceModel = GenerativeModel(
+                modelName = "gemini-2.0-flash",
                 apiKey = apiKey!!
             )
             Log.d(TAG, "GeminiService erfolgreich initialisiert")
@@ -75,6 +90,86 @@ object GeminiService {
             response?.text
         } catch (e: Exception) {
             Log.e(TAG, "Gemini Bildanalyse Fehler", e)
+            null
+        }
+    }
+
+    suspend fun transcribeAudio(file: File): String? = withContext(Dispatchers.IO) {
+        if (apiKey.isNullOrEmpty()) return@withContext null
+        
+        try {
+            val audioBytes = file.readBytes()
+            val response = voiceModel?.generateContent(
+                content {
+                    blob("audio/wav", audioBytes)
+                    text("Transkribiere dieses Audio präzise auf Deutsch. Gib NUR den transkribierten Text zurück.")
+                }
+            )
+            response?.text?.trim()
+        } catch (e: Exception) {
+            Log.e(TAG, "Gemini Transkription Fehler", e)
+            null
+        }
+    }
+
+    suspend fun generateGeminiSpeech(text: String): ByteArray? = withContext(Dispatchers.IO) {
+        if (apiKey.isNullOrEmpty()) return@withContext null
+        
+        try {
+            // Wir nutzen hier den direkten REST-Call, um responseModalities: ["AUDIO"] zu setzen
+            // Das ist der Weg, um die "schöne Stimme" nativ aus dem Modell zu bekommen.
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey"
+            
+            val requestBody = JSONObject().apply {
+                put("contents", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("parts", JSONArray().apply {
+                            put(JSONObject().apply {
+                                put("text", text)
+                            })
+                        })
+                    })
+                })
+                put("generationConfig", JSONObject().apply {
+                    put("responseModalities", JSONArray().apply { put("AUDIO") })
+                    put("speechConfig", JSONObject().apply {
+                        put("voiceConfig", JSONObject().apply {
+                            put("prebuiltVoiceConfig", JSONObject().apply {
+                                put("voiceName", "Aoede") // Aoede ist eine sehr natürliche Stimme
+                            })
+                        })
+                    })
+                })
+            }
+
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody.toString().toRequestBody("application/json".toMediaTypeOrNull()))
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    Log.e(TAG, "Gemini Speech API Fehler: ${response.code} ${response.body?.string()}")
+                    return@withContext null
+                }
+
+                val jsonResponse = JSONObject(response.body?.string() ?: "")
+                val candidates = jsonResponse.optJSONArray("candidates")
+                val parts = candidates?.optJSONObject(0)?.optJSONObject("content")?.optJSONArray("parts")
+                
+                // Wir suchen den Part mit den inlineData (Audio)
+                for (i in 0 until (parts?.length() ?: 0)) {
+                    val part = parts?.optJSONObject(i)
+                    val inlineData = part?.optJSONObject("inlineData")
+                    if (inlineData != null) {
+                        val base64Audio = inlineData.optString("data")
+                        return@withContext android.util.Base64.decode(base64Audio, android.util.Base64.DEFAULT)
+                    }
+                }
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Gemini Speech Generierung fehlgeschlagen", e)
             null
         }
     }
