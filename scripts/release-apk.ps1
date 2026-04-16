@@ -213,19 +213,16 @@ if (-not (Test-Path $releasesDir)) {
 
 # Build APK mit Keystore-Parameter
 Write-Host "Building release APK with proper signing..."
-$env:KEYSTORE_PASSWORD = "kiytoapp"  # Setze deinen Keystore-Passwort hier
-$env:KEY_ALIAS = "kiyto"          # Setze deinen Key-Alias hier
-$env:KEY_PASSWORD = "kiytoapp"    # Setze dein Key-Passwort hier
-
-./gradlew assembleRelease
+Write-Host "Building debug APK for testing..."
+./gradlew assembleDebug
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error building APK." -ForegroundColor Red
     exit 1
 }
 
 # Define paths
-$apkPath = "app/build/outputs/apk/release/app-release.apk"
-$releasedApkPath = "$releasesDir/KiytoApp-v$version.apk"
+$apkPath = "app/build/outputs/apk/debug/app-debug.apk"
+$releasedApkPath = "$releasesDir/KiytoApp-v$version-debug.apk"
 
 # Copy APK
 Write-Host "Copying APK..."
