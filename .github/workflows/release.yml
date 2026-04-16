@@ -51,11 +51,19 @@ jobs:
           ENCODED_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
         run: |
           if [ -z "$ENCODED_KEYSTORE" ]; then
-            echo "Error: ANDROID_KEYSTORE secret is empty. Please set it in GitHub Secrets."
+            echo "Error: ANDROID_KEYSTORE secret is empty."
             exit 1
           fi
           mkdir -p app/keystore
           printf "%s" "$ENCODED_KEYSTORE" | base64 --decode > app/keystore/kiyto_release.keystore
+          
+          # Validation: Check if the file was created and has a reasonable size (>1KB)
+          FILESIZE=$(stat -c%s "app/keystore/kiyto_release.keystore")
+          echo "Keystore file size: $FILESIZE bytes"
+          if [ "$FILESIZE" -lt 1000 ]; then
+            echo "Error: Keystore file is too small ($FILESIZE bytes). Secret might be truncated."
+            exit 1
+          fi
 
       - name: Verify Keystore
         run: |
