@@ -50,6 +50,7 @@ import com.deepcore.kiytoapp.ai.ChatAction
 import com.deepcore.kiytoapp.ai.ChatAdapter
 import com.deepcore.kiytoapp.ai.ChatManager
 import com.deepcore.kiytoapp.ai.ChatMessage
+import com.deepcore.kiytoapp.ai.GeminiService
 import com.deepcore.kiytoapp.ai.SpeechManager
 import com.deepcore.kiytoapp.ai.TaskAIService
 import com.deepcore.kiytoapp.base.BaseFragment
@@ -1160,7 +1161,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         when (action.id) {
             "save_ideas" -> saveGeneratedIdeas()
             "to_mindmap" -> transferIdeasToMindMap()
-            "more_ideas" -> showIdeaCollectionDialog()
+            "more_ideas" -> showSnackbar("Ideensammlung ist derzeit deaktiviert.")
             // Weitere Aktionen können hier hinzugefügt werden
             else -> {
                 // Wenn nichts passt, einfach den Text in die Eingabe einfügen
@@ -1410,7 +1411,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
 
     override fun onApiKeySet() {
         // Initialisiere Dienste neu mit dem aktualisierten API-Key
-        GeminiService.initialize(requireContext())
+        GeminiService.instance.initialize(requireContext())
         taskAIService = TaskAIService(requireContext())
     }
 
@@ -1802,7 +1803,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private fun showImageGenerationDialog() {
         // Prüfe zuerst, ob ein API-Key vorhanden ist
         val apiSettingsManager = APISettingsManager(requireContext())
-        if (apiSettingsManager.getApiKey().isNullOrEmpty()) {
+        if (apiSettingsManager.getGeminiApiKey().isNullOrEmpty()) {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Gemini API-Key erforderlich")
                 .setMessage("Für diese Funktion wird ein Gemini API-Key benötigt. Möchten Sie jetzt einen API-Key hinzufügen?")

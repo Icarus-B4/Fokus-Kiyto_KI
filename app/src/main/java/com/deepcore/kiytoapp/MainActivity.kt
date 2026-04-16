@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.deepcore.kiytoapp.ai.AIRecommendationsActivity
+import com.deepcore.kiytoapp.ai.GeminiService
 import com.deepcore.kiytoapp.ai.ChatAdapter
 import com.deepcore.kiytoapp.ai.ChatManager
 import com.deepcore.kiytoapp.ai.ChatMessage
@@ -69,7 +70,7 @@ class MainActivity : BaseActivity() {
         
         // Initialisiere Services im Hintergrund
         lifecycleScope.launch(Dispatchers.IO) {
-            GeminiService.initialize(this@MainActivity)
+            GeminiService.instance.initialize(this@MainActivity)
             
             withContext(Dispatchers.Main) {
                 // Initialisiere Speech Manager
