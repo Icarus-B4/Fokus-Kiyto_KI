@@ -12,15 +12,32 @@ import androidx.security.crypto.MasterKeys
 
 class SessionManager(context: Context) {
     private val TAG = "SessionManager"
-    private val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+    private val masterKeyAlias = try {
+        MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+    } catch (e: Exception) {
+        Log.e(TAG, "Fehler beim Erstellen des MasterKeys", e)
+        "fallback_master_key_session"
+    }
     
-    private val encryptedPrefs = EncryptedSharedPreferences.create(
-        "session_data",
-        masterKeyAlias,
-        context,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    private val encryptedPrefs = try {
+        EncryptedSharedPreferences.create(
+            "session_data",
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    } catch (e: Exception) {
+        Log.e(TAG, "Kritischer Fehler bei Session-ESP, setze zurück...", e)
+        context.getSharedPreferences("session_data", Context.MODE_PRIVATE).edit().clear().apply()
+        EncryptedSharedPreferences.create(
+            "session_data",
+            MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val gson = Gson()

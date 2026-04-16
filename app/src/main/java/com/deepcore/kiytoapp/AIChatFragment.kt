@@ -326,9 +326,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             analyzeImagesOption = view.findViewById(R.id.analyzeImagesOption)
             moreOption = view.findViewById(R.id.moreOption)
 
-            // Speech-Manager initialisieren
-            speechManager = SpeechManager(requireContext(), OpenAIService)
-
+            // Speech-Manager (wird bereits in onCreate initialisiert)
             setupVoiceButton()
 
             Log.d("AIChatFragment", "Views erfolgreich initialisiert")
@@ -470,6 +468,11 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                                     scrollToBottom()
                                 }
                             }
+                        }
+                    } else {
+                        // Feedback wenn nichts erkannt wurde
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "Keine Sprache erkannt. Bitte deutlicher sprechen.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 } catch (e: Exception) {
