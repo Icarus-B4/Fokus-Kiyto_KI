@@ -74,11 +74,15 @@ class UpdateDownloadDialogFragment : DialogFragment() {
 
     private fun startDownload(url: String) {
         try {
-            val updateManager = UpdateManager(requireContext())
-            val downloadUrl = updateManager.downloadUrl ?: url
+            // Bevorzuge die übergebene URL, falls sie valide ist (endet auf .apk oder enthält /releases/download/)
+            val downloadUrl = if (url.endsWith(".apk") || url.contains("/releases/download/")) {
+                url
+            } else {
+                val updateManager = UpdateManager(requireContext())
+                updateManager.downloadUrl ?: url
+            }
             
-            // Wenn die URL keine direkte APK-URL ist, versuchen wir sie zu konvertieren 
-            // oder öffnen den Browser als Fallback
+            // Wenn immer noch keine direkte APK-URL vorliegt, Browser als Fallback
             if (!downloadUrl.endsWith(".apk") && !downloadUrl.contains("/releases/download/")) {
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl))
                 startActivity(browserIntent)

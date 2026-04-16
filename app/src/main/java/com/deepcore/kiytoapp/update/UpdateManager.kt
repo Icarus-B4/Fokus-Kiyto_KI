@@ -143,6 +143,9 @@ class UpdateManager(private val context: Context) {
             val latestRelease = JSONObject(responseText)
             
             latestVersion = latestRelease.getString("tag_name").removePrefix("v")
+            updateDescription = latestRelease.optString("body", "Keine Beschreibung verfügbar")
+            updateUrl = latestRelease.getString("html_url")
+
             val assets = latestRelease.optJSONArray("assets")
             if (assets != null) {
                 for (i in 0 until assets.length()) {
@@ -150,6 +153,10 @@ class UpdateManager(private val context: Context) {
                     if (asset.getString("name").endsWith(".apk")) {
                         val dlUrl = asset.getString("browser_download_url")
                         downloadUrl = dlUrl
+                        
+                        // Speichere die neuen Daten sofort
+                        saveUpdateStatus(Date())
+                        
                         return@withContext dlUrl
                     }
                 }

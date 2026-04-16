@@ -61,8 +61,8 @@ class UpdateSystemFragment : Fragment() {
                     
                     val directDownloadUrl = updateManager.fetchLatestDownloadUrl()
                     if (directDownloadUrl != null) {
-                        // Starte den Download-Dialog oder direkt den Download
-                        showUpdateDialog()
+                        // Starte den Download-Dialog mit der direkten URL
+                        showUpdateDialog(directDownloadUrl)
                     } else {
                         android.widget.Toast.makeText(requireContext(), "Kein aktuelles Release auf GitHub gefunden.", android.widget.Toast.LENGTH_LONG).show()
                         updateAnimationState(isError = true)
@@ -159,7 +159,7 @@ class UpdateSystemFragment : Fragment() {
                 setAnimation(R.raw.no_update)
                 playAnimation()
             }
-
+ 
             // Starte die Animation
             playAnimation()
         }
@@ -224,7 +224,7 @@ class UpdateSystemFragment : Fragment() {
                 
                 // Zeige Update-Dialog wenn verfügbar
                 if (updateAvailable) {
-                    showUpdateDialog()
+                    showUpdateDialog(updateManager.downloadUrl)
                 }
                 
                 // Aktualisiere Informationen und Animation
@@ -249,13 +249,13 @@ class UpdateSystemFragment : Fragment() {
         ).show(parentFragmentManager, "update_status")
     }
 
-    private fun showUpdateDialog() {
-        updateManager.updateDescription?.let { description ->
-            updateManager.updateUrl?.let { url ->
-                // Verwende das neue DialogFragment für besseres Scrolling
-                UpdateDownloadDialogFragment.newInstance(description, url)
-                    .show(parentFragmentManager, "update_download_dialog")
-            }
+    private fun showUpdateDialog(explicitUrl: String? = null) {
+        val description = updateManager.updateDescription ?: "Neues Update verfügbar."
+        val url = explicitUrl ?: updateManager.downloadUrl ?: updateManager.updateUrl
+        
+        if (url != null) {
+            UpdateDownloadDialogFragment.newInstance(description, url)
+                .show(parentFragmentManager, "update_download_dialog")
         }
     }
 
