@@ -9,15 +9,34 @@ import java.security.MessageDigest
 
 class AuthManager(context: Context) {
     private val TAG = "AuthManager"
-    private val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+    private val masterKeyAlias = try {
+        MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+    } catch (e: Exception) {
+        Log.e(TAG, "Fehler beim Erstellen des MasterKeys", e)
+        "fallback_master_key"
+    }
     
-    private val encryptedPrefs = EncryptedSharedPreferences.create(
-        "auth_settings",
-        masterKeyAlias,
-        context,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    private val encryptedPrefs = try {
+        EncryptedSharedPreferences.create(
+            "auth_settings",
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    } catch (e: Exception) {
+        Log.e(TAG, "Kritischer Fehler bei EncryptedSharedPreferences, setze zurück...", e)
+        // Fallback: Lösche alte korrupte Preferences
+        context.getSharedPreferences("auth_settings", Context.MODE_PRIVATE).edit().clear().apply()
+        // Zweiter Versuch
+        EncryptedSharedPreferences.create(
+            "auth_settings",
+            MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     companion object {
         private const val KEY_USER_DATA = "user_data"

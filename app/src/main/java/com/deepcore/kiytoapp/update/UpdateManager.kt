@@ -38,20 +38,32 @@ class UpdateManager(private val context: Context) {
             
             // GitHub API aufrufen für Releases
             val url = URL("$GITHUB_API_BASE/releases")
-            val connection = url.openConnection()
+            val connection = url.openConnection() as java.net.HttpURLConnection
             connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
-            connection.setRequestProperty("Authorization", "token ${BuildConfig.GITHUB_TOKEN}")
+            
+            // Nur Auth-Header setzen, wenn Token vorhanden ist
+            if (BuildConfig.GITHUB_TOKEN.isNotEmpty()) {
+                connection.setRequestProperty("Authorization", "token ${BuildConfig.GITHUB_TOKEN}")
+                LogUtils.debug(this@UpdateManager, "Nutze GITHUB_TOKEN für Authentifizierung")
+            } else {
+                LogUtils.debug(this@UpdateManager, "Kein GITHUB_TOKEN vorhanden, sende anonyme Anfrage")
+            }
+            
             connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
             connection.setRequestProperty("Pragma", "no-cache")
             connection.setRequestProperty("Expires", "0")
-            
-            LogUtils.debug(this@UpdateManager, "API Request URL: $url")
-            LogUtils.debug(this@UpdateManager, "Token (erste 4 Zeichen): ${BuildConfig.GITHUB_TOKEN.take(4)}...")
-            
             connection.useCaches = false
             
-            val response = connection.getInputStream().bufferedReader().use { it.readText() }
-            LogUtils.debug(this@UpdateManager, "GitHub API Antwort erhalten: $response")
+            val responseCode = connection.responseCode
+            if (responseCode != 200) {
+                val errorMsg = "GitHub API Fehler: $responseCode ${connection.responseMessage}"
+                LogUtils.error(this@UpdateManager, errorMsg)
+                updateDescription = errorMsg
+                return@withContext false
+            }
+            
+            val response = connection.inputStream.bufferedReader().use { it.readText() }
+            LogUtils.debug(this@UpdateManager, "GitHub API Antwort erhalten (Länge: ${response.length})")
             
             val jsonArray = JSONObject("{\"releases\":$response}").getJSONArray("releases")
             LogUtils.debug(this@UpdateManager, "Anzahl gefundener Releases: ${jsonArray.length()}")
@@ -65,15 +77,10 @@ class UpdateManager(private val context: Context) {
                 
                 val currentVersion = BuildConfig.VERSION_NAME
                 
-                LogUtils.debug(this@UpdateManager, "Vergleiche Versionen:")
-                LogUtils.debug(this@UpdateManager, "Aktuelle Version: $currentVersion")
-                LogUtils.debug(this@UpdateManager, "Neueste Version: $latestVersion")
+                LogUtils.debug(this@UpdateManager, "Vergleiche Versionen: App=$currentVersion, GitHub=$latestVersion")
                 
                 // Versions-Vergleich
                 updateAvailable = compareVersions(currentVersion, latestVersion ?: "0.0.0") < 0
-                
-                LogUtils.debug(this@UpdateManager, "Update verfügbar: $updateAvailable")
-                LogUtils.debug(this@UpdateManager, "Update URL: $updateUrl")
                 
                 // Cache löschen und Status speichern
                 resetUpdateStatus()
@@ -81,13 +88,15 @@ class UpdateManager(private val context: Context) {
                 
                 updateAvailable
             } else {
+                updateDescription = "Keine Releases auf GitHub gefunden."
                 LogUtils.debug(this@UpdateManager, "Keine Releases gefunden")
                 false
             }
             
         } catch (e: Exception) {
-            LogUtils.error(this@UpdateManager, "Fehler beim Prüfen auf Updates: ${e.message}", e)
-            LogUtils.error(this@UpdateManager, "Stack trace: ${e.stackTraceToString()}")
+            val errorMsg = "Fehler: ${e.message}"
+            LogUtils.error(this@UpdateManager, errorMsg, e)
+            updateDescription = errorMsg
             false
         }
     }
