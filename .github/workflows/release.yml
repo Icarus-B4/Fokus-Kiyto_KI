@@ -69,8 +69,8 @@ jobs:
       - name: Calculate Version
         run: |
           # Extrahiere die Versionsnummern direkt aus der build.gradle.kts (Fallback-Werte nach ?:)
-          V_NAME=$(grep "versionName =" app/build.gradle.kts | sed 's/.*?: "//;s/"//')
-          V_CODE=$(grep "versionCode =" app/build.gradle.kts | sed 's/.*?: //')
+          V_NAME=$(grep "versionName =" app/build.gradle.kts | sed 's/.*= "//;s/".*//')
+          V_CODE=$(grep "versionCode =" app/build.gradle.kts | sed 's/.*= //;s/[^0-9]//g')
           
           # Falls keine Fallback-Werte gefunden wurden (andere Formatierung), nutze Standardwerte
           if [ -z "$V_NAME" ]; then V_NAME="2.1.2"; fi
