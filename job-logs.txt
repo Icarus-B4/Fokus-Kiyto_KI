@@ -1,487 +1,242 @@
-﻿2026-04-16T11:59:44.9502674Z Current runner version: '2.333.1'
-2026-04-16T11:59:44.9536651Z ##[group]Runner Image Provisioner
-2026-04-16T11:59:44.9537830Z Hosted Compute Agent
-2026-04-16T11:59:44.9538639Z Version: 20260213.493
-2026-04-16T11:59:44.9539733Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
-2026-04-16T11:59:44.9540802Z Build Date: 2026-02-13T00:28:41Z
-2026-04-16T11:59:44.9541859Z Worker ID: {921ba83f-5cc3-4392-a025-af646b4109ce}
-2026-04-16T11:59:44.9542830Z Azure Region: eastus
-2026-04-16T11:59:44.9543634Z ##[endgroup]
-2026-04-16T11:59:44.9546117Z ##[group]Operating System
-2026-04-16T11:59:44.9547066Z Ubuntu
-2026-04-16T11:59:44.9547738Z 24.04.4
-2026-04-16T11:59:44.9548529Z LTS
-2026-04-16T11:59:44.9549269Z ##[endgroup]
-2026-04-16T11:59:44.9550545Z ##[group]Runner Image
-2026-04-16T11:59:44.9551441Z Image: ubuntu-24.04
-2026-04-16T11:59:44.9552250Z Version: 20260406.80.1
-2026-04-16T11:59:44.9554474Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260406.80/images/ubuntu/Ubuntu2404-Readme.md
-2026-04-16T11:59:44.9556828Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260406.80
-2026-04-16T11:59:44.9558429Z ##[endgroup]
-2026-04-16T11:59:44.9560107Z ##[group]GITHUB_TOKEN Permissions
-2026-04-16T11:59:44.9562968Z Contents: read
-2026-04-16T11:59:44.9563801Z Metadata: read
-2026-04-16T11:59:44.9564891Z Packages: read
-2026-04-16T11:59:44.9565745Z ##[endgroup]
-2026-04-16T11:59:44.9568547Z Secret source: Actions
-2026-04-16T11:59:44.9569885Z Prepare workflow directory
-2026-04-16T11:59:45.0017012Z Prepare all required actions
-2026-04-16T11:59:45.0070566Z Getting action download info
-2026-04-16T11:59:45.4254633Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
-2026-04-16T11:59:45.5687480Z Download action repository 'actions/setup-java@v4' (SHA:c1e323688fd81a25caa38c78aa6df2d33d3e20d9)
-2026-04-16T11:59:45.8669007Z Download action repository 'chkfung/android-version-actions@v1.2.3' (SHA:fcf89abef1c7afba2083146dcca0c6da4705ba4b)
-2026-04-16T11:59:46.1818594Z Download action repository 'softprops/action-gh-release@v2' (SHA:3bb12739c298aeb8a4eeaf626c5b8d85266b0e65)
-2026-04-16T11:59:46.3355733Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
-2026-04-16T11:59:46.5889023Z Complete job name: Build Signed APK
-2026-04-16T11:59:46.6740134Z ##[group]Run actions/checkout@v4
-2026-04-16T11:59:46.6741480Z with:
-2026-04-16T11:59:46.6742479Z   repository: Icarus-B4/Fokus-Kiyto_KI
-2026-04-16T11:59:46.6743922Z   token: ***
-2026-04-16T11:59:46.6744946Z   ssh-strict: true
-2026-04-16T11:59:46.6745918Z   ssh-user: git
-2026-04-16T11:59:46.6746826Z   persist-credentials: true
-2026-04-16T11:59:46.6747815Z   clean: true
-2026-04-16T11:59:46.6748797Z   sparse-checkout-cone-mode: true
-2026-04-16T11:59:46.6749830Z   fetch-depth: 1
-2026-04-16T11:59:46.6750742Z   fetch-tags: false
-2026-04-16T11:59:46.6751759Z   show-progress: true
-2026-04-16T11:59:46.6752669Z   lfs: false
-2026-04-16T11:59:46.6753447Z   submodules: false
-2026-04-16T11:59:46.6754639Z   set-safe-directory: true
-2026-04-16T11:59:46.6755915Z ##[endgroup]
-2026-04-16T11:59:46.7922903Z Syncing repository: Icarus-B4/Fokus-Kiyto_KI
-2026-04-16T11:59:46.7926172Z ##[group]Getting Git version info
-2026-04-16T11:59:46.7927823Z Working directory is '/home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI'
-2026-04-16T11:59:46.7930020Z [command]/usr/bin/git version
-2026-04-16T11:59:46.7947083Z git version 2.53.0
-2026-04-16T11:59:46.7971894Z ##[endgroup]
-2026-04-16T11:59:46.7995178Z Temporarily overriding HOME='/home/runner/work/_temp/ad061368-359d-440a-b4b2-dc1c90c19ae8' before making global git config changes
-2026-04-16T11:59:46.7997858Z Adding repository directory to the temporary git global config as a safe directory
-2026-04-16T11:59:46.8000737Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
-2026-04-16T11:59:46.8033949Z Deleting the contents of '/home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI'
-2026-04-16T11:59:46.8037927Z ##[group]Initializing the repository
-2026-04-16T11:59:46.8041878Z [command]/usr/bin/git init /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
-2026-04-16T11:59:46.8104610Z hint: Using 'master' as the name for the initial branch. This default branch name
-2026-04-16T11:59:46.8107059Z hint: will change to "main" in Git 3.0. To configure the initial branch name
-2026-04-16T11:59:46.8109035Z hint: to use in all of your new repositories, which will suppress this warning,
-2026-04-16T11:59:46.8111010Z hint: call:
-2026-04-16T11:59:46.8111843Z hint:
-2026-04-16T11:59:46.8113186Z hint: 	git config --global init.defaultBranch <name>
-2026-04-16T11:59:46.8114611Z hint:
-2026-04-16T11:59:46.8116140Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
-2026-04-16T11:59:46.8118105Z hint: 'development'. The just-created branch can be renamed via this command:
-2026-04-16T11:59:46.8119573Z hint:
-2026-04-16T11:59:46.8120471Z hint: 	git branch -m <name>
-2026-04-16T11:59:46.8121575Z hint:
-2026-04-16T11:59:46.8122835Z hint: Disable this message with "git config set advice.defaultBranchName false"
-2026-04-16T11:59:46.8125137Z Initialized empty Git repository in /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/.git/
-2026-04-16T11:59:46.8128544Z [command]/usr/bin/git remote add origin https://github.com/Icarus-B4/Fokus-Kiyto_KI
-2026-04-16T11:59:46.8149900Z ##[endgroup]
-2026-04-16T11:59:46.8151492Z ##[group]Disabling automatic garbage collection
-2026-04-16T11:59:46.8153211Z [command]/usr/bin/git config --local gc.auto 0
-2026-04-16T11:59:46.8183445Z ##[endgroup]
-2026-04-16T11:59:46.8185101Z ##[group]Setting up auth
-2026-04-16T11:59:46.8189632Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-04-16T11:59:46.8220815Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-04-16T11:59:46.8508609Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-04-16T11:59:46.8541048Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-04-16T11:59:46.8771185Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-04-16T11:59:46.8805635Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-04-16T11:59:46.9042138Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
-2026-04-16T11:59:46.9078299Z ##[endgroup]
-2026-04-16T11:59:46.9080510Z ##[group]Fetching the repository
-2026-04-16T11:59:46.9089566Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +7693b593a88645ad45bb5ebafc2b9163bd74ee18:refs/remotes/origin/main
-2026-04-16T11:59:47.1416118Z From https://github.com/Icarus-B4/Fokus-Kiyto_KI
-2026-04-16T11:59:47.1417780Z  * [new ref]         7693b593a88645ad45bb5ebafc2b9163bd74ee18 -> origin/main
-2026-04-16T11:59:47.1445474Z ##[endgroup]
-2026-04-16T11:59:47.1446871Z ##[group]Determining the checkout info
-2026-04-16T11:59:47.1448330Z ##[endgroup]
-2026-04-16T11:59:47.1454034Z [command]/usr/bin/git sparse-checkout disable
-2026-04-16T11:59:47.1493985Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
-2026-04-16T11:59:47.1521777Z ##[group]Checking out the ref
-2026-04-16T11:59:47.1525854Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
-2026-04-16T11:59:47.1825095Z Switched to a new branch 'main'
-2026-04-16T11:59:47.1826731Z branch 'main' set up to track 'origin/main'.
-2026-04-16T11:59:47.1835153Z ##[endgroup]
-2026-04-16T11:59:47.1875530Z [command]/usr/bin/git log -1 --format=%H
-2026-04-16T11:59:47.1898808Z 7693b593a88645ad45bb5ebafc2b9163bd74ee18
-2026-04-16T11:59:47.2230481Z ##[group]Run actions/setup-java@v4
-2026-04-16T11:59:47.2231613Z with:
-2026-04-16T11:59:47.2232309Z   distribution: temurin
-2026-04-16T11:59:47.2233118Z   java-version: 17
-2026-04-16T11:59:47.2233852Z   cache: gradle
-2026-04-16T11:59:47.2234737Z   java-package: jdk
-2026-04-16T11:59:47.2235498Z   check-latest: false
-2026-04-16T11:59:47.2236272Z   server-id: github
-2026-04-16T11:59:47.2237036Z   server-username: GITHUB_ACTOR
-2026-04-16T11:59:47.2237948Z   server-password: GITHUB_TOKEN
-2026-04-16T11:59:47.2238856Z   overwrite-settings: true
-2026-04-16T11:59:47.2239683Z   job-status: success
-2026-04-16T11:59:47.2240688Z   token: ***
-2026-04-16T11:59:47.2241378Z ##[endgroup]
-2026-04-16T11:59:47.4207650Z ##[group]Installed distributions
-2026-04-16T11:59:47.4269142Z Resolved Java 17.0.18+8 from tool-cache
-2026-04-16T11:59:47.4271801Z Setting Java 17.0.18+8 as the default
-2026-04-16T11:59:47.4288781Z Creating toolchains.xml for JDK version 17 from temurin
-2026-04-16T11:59:47.4396051Z Writing to /home/runner/.m2/toolchains.xml
-2026-04-16T11:59:47.4397270Z 
-2026-04-16T11:59:47.4399395Z Java configuration:
-2026-04-16T11:59:47.4400647Z   Distribution: temurin
-2026-04-16T11:59:47.4401893Z   Version: 17.0.18+8
-2026-04-16T11:59:47.4403567Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:47.4405366Z 
-2026-04-16T11:59:47.4406690Z ##[endgroup]
-2026-04-16T11:59:47.4422651Z Creating settings.xml with server-id: github
-2026-04-16T11:59:47.4428004Z Writing to /home/runner/.m2/settings.xml
-2026-04-16T11:59:47.5925784Z Cache hit for: setup-java-Linux-x64-gradle-02b99822b8be0708abd60bed5cd71d443033462f95a77d4b8114a99c2e6b62b8
-2026-04-16T11:59:48.6272552Z Received 264241152 of 604708257 (43.7%), 252.3 MBs/sec
-2026-04-16T11:59:49.6296550Z Received 541065216 of 604708257 (89.5%), 257.7 MBs/sec
-2026-04-16T11:59:49.8144272Z Received 604708257 of 604708257 (100.0%), 263.7 MBs/sec
-2026-04-16T11:59:49.8145392Z Cache Size: ~577 MB (604708257 B)
-2026-04-16T11:59:49.8301495Z [command]/usr/bin/tar -xf /home/runner/work/_temp/08f3d766-4e1e-40d1-aa0d-bdf84a3b8faa/cache.tzst -P -C /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI --use-compress-program unzstd
-2026-04-16T11:59:52.5926241Z Cache restored successfully
-2026-04-16T11:59:52.6231214Z Cache restored from key: setup-java-Linux-x64-gradle-02b99822b8be0708abd60bed5cd71d443033462f95a77d4b8114a99c2e6b62b8
-2026-04-16T11:59:52.6455440Z ##[group]Run chkfung/android-version-actions@v1.2.3
-2026-04-16T11:59:52.6455847Z with:
-2026-04-16T11:59:52.6456111Z   gradlePath: app/build.gradle.kts
-2026-04-16T11:59:52.6456449Z   versionCode: 92
-2026-04-16T11:59:52.6456705Z env:
-2026-04-16T11:59:52.6457060Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:52.6457590Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:52.6458007Z ##[endgroup]
-2026-04-16T11:59:52.7382204Z Gradle Path : app/build.gradle.kts
-2026-04-16T11:59:52.7385772Z Version Code : 92
-2026-04-16T11:59:52.7386453Z Version Name : 
-2026-04-16T11:59:52.7412276Z Successfully override version code 92
-2026-04-16T11:59:52.7538212Z ##[group]Run if [ -z "$ENCODED_KEYSTORE" ]; then
-2026-04-16T11:59:52.7538920Z [36;1mif [ -z "$ENCODED_KEYSTORE" ]; then[0m
-2026-04-16T11:59:52.7539552Z [36;1m  echo "Error: ANDROID_KEYSTORE secret is empty."[0m
-2026-04-16T11:59:52.7540109Z [36;1m  exit 1[0m
-2026-04-16T11:59:52.7540500Z [36;1mfi[0m
-2026-04-16T11:59:52.7540881Z [36;1mmkdir -p app/keystore[0m
-2026-04-16T11:59:52.7541911Z [36;1mprintf "%s" "$ENCODED_KEYSTORE" | base64 --decode > app/keystore/***_release.keystore[0m
-2026-04-16T11:59:52.7542685Z [36;1m[0m
-2026-04-16T11:59:52.7543266Z [36;1m# Validation: Check if the file was created and has a reasonable size (>1KB)[0m
-2026-04-16T11:59:52.7544392Z [36;1mFILESIZE=$(stat -c%s "app/keystore/***_release.keystore")[0m
-2026-04-16T11:59:52.7545091Z [36;1mecho "Keystore file size: $FILESIZE bytes"[0m
-2026-04-16T11:59:52.7545688Z [36;1mif [ "$FILESIZE" -lt 1000 ]; then[0m
-2026-04-16T11:59:52.7546549Z [36;1m  echo "Error: Keystore file is too small ($FILESIZE bytes). Secret might be truncated."[0m
-2026-04-16T11:59:52.7547633Z [36;1m  exit 1[0m
-2026-04-16T11:59:52.7548009Z [36;1mfi[0m
-2026-04-16T11:59:52.7583442Z shell: /usr/bin/bash -e {0}
-2026-04-16T11:59:52.7583916Z env:
-2026-04-16T11:59:52.7584730Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:52.7585615Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:52.7610736Z   ENCODED_KEYSTORE: ***
-
-
-2026-04-16T11:59:52.7611176Z ##[endgroup]
-2026-04-16T11:59:52.7741426Z Keystore file size: 2119 bytes
-2026-04-16T11:59:52.7811764Z ##[group]Run keytool -list -v -keystore app/keystore/***_release.keystore -storepass "***" -alias "***"
-2026-04-16T11:59:52.7813135Z [36;1mkeytool -list -v -keystore app/keystore/***_release.keystore -storepass "***" -alias "***"[0m
-2026-04-16T11:59:52.7845006Z shell: /usr/bin/bash -e {0}
-2026-04-16T11:59:52.7845459Z env:
-2026-04-16T11:59:52.7846013Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:52.7846919Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:52.7847601Z ##[endgroup]
-2026-04-16T11:59:53.0221983Z Alias name: ***
-2026-04-16T11:59:53.0595802Z Creation date: Apr 16, 2026
-2026-04-16T11:59:53.0597013Z Entry type: PrivateKeyEntry
-2026-04-16T11:59:53.0597756Z Certificate chain length: 1
-2026-04-16T11:59:53.0598481Z Certificate[1]:
-2026-04-16T11:59:53.0768688Z Owner: CN=Ed, O=Deepcore, C=DE
-2026-04-16T11:59:53.0769555Z Issuer: CN=Ed, O=Deepcore, C=DE
-2026-04-16T11:59:53.0770172Z Serial number: 2250944c
-2026-04-16T11:59:53.0770829Z Valid from: Thu Apr 16 11:51:30 UTC 2026 until: Mon Sep 01 11:51:30 UTC 2053
-2026-04-16T11:59:53.0771481Z Certificate fingerprints:
-2026-04-16T11:59:53.0772125Z 	 SHA1: EE:C5:48:C7:66:13:A7:3E:CA:8D:9C:5F:59:E5:F3:13:3D:26:DF:51
-2026-04-16T11:59:53.0772958Z 	 SHA256: C6:66:98:46:9C:EC:63:F4:4D:22:CA:70:EC:ED:46:DD:10:10:60:AF:A7:E4:A3:6D:28:E3:D3:DA:DC:7B:DC:4D
-2026-04-16T11:59:53.0773771Z Signature algorithm name: SHA256withRSA
-2026-04-16T11:59:53.0774530Z Subject Public Key Algorithm: 2048-bit RSA key
-2026-04-16T11:59:53.0775100Z Version: 3
-2026-04-16T11:59:53.0775325Z 
-2026-04-16T11:59:53.0775541Z Extensions: 
-2026-04-16T11:59:53.0775771Z 
-2026-04-16T11:59:53.0779475Z #1: ObjectId: 2.5.29.14 Criticality=false
-2026-04-16T11:59:53.0780022Z SubjectKeyIdentifier [
-2026-04-16T11:59:53.0780445Z KeyIdentifier [
-2026-04-16T11:59:53.0780926Z 0000: 25 35 AC 3F 08 79 AA 57   02 CF 45 FB 22 2E 1C A0  %5.?.y.W..E."...
-2026-04-16T11:59:53.0781624Z 0010: F4 BB B6 CF                                        ....
-2026-04-16T11:59:53.0782129Z ]
-2026-04-16T11:59:53.0782453Z ]
-2026-04-16T11:59:53.0782629Z 
-2026-04-16T11:59:53.0797604Z 
-2026-04-16T11:59:53.0797865Z Warning:
-2026-04-16T11:59:53.0799792Z The JKS keystore uses a proprietary format. It is recommended to migrate to PKCS12 which is an industry standard format using "keytool -importkeystore -srckeystore app/keystore/***_release.keystore -destkeystore app/keystore/***_release.keystore -deststoretype pkcs12".
-2026-04-16T11:59:53.0886879Z ##[group]Run ./gradlew assembleRelease
-2026-04-16T11:59:53.0887268Z [36;1m./gradlew assembleRelease[0m
-2026-04-16T11:59:53.0911289Z shell: /usr/bin/bash -e {0}
-2026-04-16T11:59:53.0911596Z env:
-2026-04-16T11:59:53.0911948Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:53.0912479Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T11:59:53.0913077Z   KEYSTORE_PASSWORD: ***
-2026-04-16T11:59:53.0913372Z   KEY_ALIAS: ***
-2026-04-16T11:59:53.0913653Z   KEY_PASSWORD: ***
-2026-04-16T11:59:53.0913908Z ##[endgroup]
-2026-04-16T11:59:53.6864387Z 
-2026-04-16T11:59:53.6866348Z Welcome to Gradle 8.10.2!
-2026-04-16T11:59:53.6867289Z 
-2026-04-16T11:59:53.6874939Z Here are the highlights of this release:
-2026-04-16T11:59:53.6876060Z  - Support for Java 23
-2026-04-16T11:59:53.6876988Z  - Faster configuration cache
-2026-04-16T11:59:53.6878226Z  - Better configuration cache reports
-2026-04-16T11:59:53.6878721Z 
-2026-04-16T11:59:53.6881061Z For more details see https://docs.gradle.org/8.10.2/release-notes.html
-2026-04-16T11:59:53.6881834Z 
-2026-04-16T11:59:53.8858666Z Starting a Gradle Daemon (subsequent builds will be faster)
-2026-04-16T11:59:56.3870231Z Calculating task graph as no cached configuration is available for tasks: assembleRelease
-2026-04-16T12:00:15.8907805Z > Task :app:preBuild UP-TO-DATE
-2026-04-16T12:00:15.8913166Z > Task :app:preReleaseBuild UP-TO-DATE
-2026-04-16T12:00:15.8914013Z > Task :app:checkKotlinGradlePluginConfigurationErrors
-2026-04-16T12:00:15.9880724Z > Task :app:generateReleaseResValues
-2026-04-16T12:00:15.9885245Z > Task :app:buildKotlinToolingMetadata
-2026-04-16T12:00:15.9886785Z > Task :app:generateSafeArgsRelease
-2026-04-16T12:00:15.9888120Z > Task :app:generateReleaseBuildConfig
-2026-04-16T12:00:16.0865624Z > Task :app:generateReleaseResources
-2026-04-16T12:00:16.6848973Z > Task :app:mapReleaseSourceSetPaths
-2026-04-16T12:00:16.6850080Z > Task :app:dataBindingMergeDependencyArtifactsRelease
-2026-04-16T12:00:16.7859889Z > Task :app:checkReleaseAarMetadata
-2026-04-16T12:00:16.7898131Z > Task :app:createReleaseCompatibleScreenManifests
-2026-04-16T12:00:16.7938832Z > Task :app:extractDeepLinksRelease
-2026-04-16T12:00:16.7982112Z > Task :app:javaPreCompileRelease
-2026-04-16T12:00:16.8026438Z > Task :app:extractProguardFiles
-2026-04-16T12:00:16.8870730Z > Task :app:mergeReleaseJniLibFolders
-2026-04-16T12:00:17.9885640Z > Task :app:mergeReleaseNativeLibs
-2026-04-16T12:00:17.9944684Z 
-2026-04-16T12:00:17.9984837Z > Task :app:processReleaseMainManifest
-2026-04-16T12:00:17.9996597Z package="com.deepcore.***" found in source AndroidManifest.xml: /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/AndroidManifest.xml.
-2026-04-16T12:00:18.0045467Z Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
-2026-04-16T12:00:18.0055918Z Recommendation: remove package="com.deepcore.***" from the source AndroidManifest.xml: /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/AndroidManifest.xml.
-2026-04-16T12:00:18.0156052Z [org.chromium.net:cronet-embedded:119.6045.31] /home/runner/.gradle/caches/8.10.2/transforms/1a67f9caf2cd457547732b96308cf162/transformed/cronet-embedded-119.6045.31/AndroidManifest.xml Warning:
-2026-04-16T12:00:18.0159705Z 	Namespace 'org.chromium.net' is used in multiple modules and/or libraries: org.chromium.net:cronet-embedded:119.6045.31, org.chromium.net:cronet-common:119.6045.31, org.chromium.net:cronet-api:119.6045.31. Please ensure that all modules and libraries have a unique namespace. For more information, See https://developer.android.com/studio/build/configure-app-module#set-namespace
-2026-04-16T12:00:18.2874793Z 
-2026-04-16T12:00:18.2935638Z > Task :app:packageReleaseResources
-2026-04-16T12:00:18.2962991Z > Task :app:processReleaseManifest
-2026-04-16T12:00:18.3866358Z > Task :app:processReleaseManifestForPackage
-2026-04-16T12:00:18.3894458Z 
-2026-04-16T12:00:18.3913784Z > Task :app:stripReleaseDebugSymbols
-2026-04-16T12:00:18.3915233Z Unable to strip the following libraries, packaging them as they are: libcronet.119.0.6045.31.so, libmlkit_google_ocr_pipeline.so.
-2026-04-16T12:00:19.0864871Z 
-2026-04-16T12:00:19.0910062Z > Task :app:parseReleaseLocalResources
-2026-04-16T12:00:21.0894418Z > Task :app:extractReleaseNativeSymbolTables
-2026-04-16T12:00:21.0895147Z > Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
-2026-04-16T12:00:21.1865215Z > Task :app:mergeReleaseShaders
-2026-04-16T12:00:21.1894806Z > Task :app:compileReleaseShaders NO-SOURCE
-2026-04-16T12:00:21.1920362Z > Task :app:generateReleaseAssets UP-TO-DATE
-2026-04-16T12:00:21.2844979Z > Task :app:mergeReleaseArtProfile
-2026-04-16T12:00:21.3895565Z > Task :app:checkReleaseDuplicateClasses
-2026-04-16T12:00:21.4848365Z > Task :app:extractReleaseVersionControlInfo
-2026-04-16T12:00:21.4875145Z > Task :app:processApplicationManifestReleaseForBundle
-2026-04-16T12:00:21.4876617Z > Task :app:validateSigningRelease
-2026-04-16T12:00:21.4905018Z > Task :app:writeReleaseAppMetadata
-2026-04-16T12:00:21.4934872Z > Task :app:writeReleaseSigningConfigVersions
-2026-04-16T12:00:21.5872054Z > Task :app:mergeReleaseAssets
-2026-04-16T12:00:21.6867287Z > Task :app:compressReleaseAssets
-2026-04-16T12:00:21.7844874Z > Task :app:collectReleaseDependencies
-2026-04-16T12:00:21.8847480Z > Task :app:sdkReleaseDependencyData
-2026-04-16T12:00:21.9844029Z > Task :app:mergeReleaseResources
-2026-04-16T12:00:22.5844728Z > Task :app:dataBindingGenBaseClassesRelease
-2026-04-16T12:00:22.9847644Z > Task :app:processReleaseResources
-2026-04-16T12:00:23.9844985Z > Task :app:bundleReleaseResources
-2026-04-16T12:00:40.0844820Z > Task :app:kaptGenerateStubsReleaseKotlin
-2026-04-16T12:00:43.8843978Z > Task :app:kaptReleaseKotlin
-2026-04-16T12:01:13.7874854Z 
-2026-04-16T12:01:13.7875926Z > Task :app:compileReleaseKotlin
-2026-04-16T12:01:13.7925512Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/AIChatFragment.kt:1144:13 'when' is exhaustive so 'else' is redundant here
-2026-04-16T12:01:13.7931118Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/AIChatFragment.kt:1953:13 'requestPermissions(Array<(out) String!>, Int): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.7966307Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/AIChatFragment.kt:2132:37 Parameter 'dialog' is never used, could be renamed to _
-2026-04-16T12:01:13.7995482Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/AIChatFragment.kt:2362:17 Variable 'audioManager' is never used
-2026-04-16T12:01:13.8006392Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/AboutMeActivity.kt:99:9 'onBackPressed(): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8025845Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/AddTaskFragment.kt:275:60 Type mismatch: inferred type is Date? but Date was expected
-2026-04-16T12:01:13.8055807Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/AddTaskFragment.kt:300:53 Type mismatch: inferred type is Date? but Date was expected
-2026-04-16T12:01:13.8085568Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/DashboardFragment.kt:1083:46 Name shadowed: view
-2026-04-16T12:01:13.8105551Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/MainActivity.kt:217:19 'onBackPressed(): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8115559Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/MindMapView.kt:200:45 Destructured parameter 'task' is never used
-2026-04-16T12:01:13.8145459Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/MindMapView.kt:260:25 Parameter 'suggestions' is never used
-2026-04-16T12:01:13.8175964Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ProductivityInsightsFragment.kt:320:13 Variable 'calendar' is never used
-2026-04-16T12:01:13.8195773Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SettingsFragment.kt:47:36 'getParcelableExtra(String!): T?' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8205717Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SplashActivity.kt:24:40 'FLAG_TRANSLUCENT_STATUS: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8235639Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SplashActivity.kt:25:40 'FLAG_TRANSLUCENT_NAVIGATION: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8265634Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SplashActivity.kt:27:40 'FLAG_TRANSLUCENT_STATUS: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8295668Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SplashActivity.kt:28:40 'FLAG_TRANSLUCENT_NAVIGATION: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8309851Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SplashActivity.kt:34:26 'setter for systemUiVisibility: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8325938Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SplashActivity.kt:34:52 'SYSTEM_UI_FLAG_LIGHT_STATUS_BAR: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8355627Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/SplashActivity.kt:56:17 'overridePendingTransition(Int, Int): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8385542Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/StatisticsFragment.kt:330:73 Parameter 'sessions' is never used
-2026-04-16T12:01:13.8395443Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/StatisticsFragment.kt:460:31 'toLowerCase(): String' is deprecated. Use lowercase() instead.
-2026-04-16T12:01:13.8415584Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/TaskFragment.kt:214:21 Variable 'deleteUri' is never used
-2026-04-16T12:01:13.8445368Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/TaskFragment.kt:240:43 'getter for adapterPosition: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8475586Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/WelcomeActivity.kt:22:26 'setter for systemUiVisibility: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8507708Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/WelcomeActivity.kt:22:52 'SYSTEM_UI_FLAG_LIGHT_STATUS_BAR: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8518367Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/adapter/CalendarAdapter.kt:70:43 'getter for adapterPosition: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8585948Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/APISettingsManager.kt:6:33 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8597136Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/APISettingsManager.kt:10:34 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8641039Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/APISettingsManager.kt:10:57 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8646801Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/APISettingsManager.kt:12:61 'create(String, String, Context, EncryptedSharedPreferences.PrefKeyEncryptionScheme, EncryptedSharedPreferences.PrefValueEncryptionScheme): SharedPreferences' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8675616Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/ArchivedChatFragment.kt:72:33 Parameter 'action' is never used, could be renamed to _
-2026-04-16T12:01:13.8705670Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/ArchivedChatFragment.kt:75:37 Parameter 'actionItem' is never used, could be renamed to _
-2026-04-16T12:01:13.8717088Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/ArchivedChatFragment.kt:78:38 Parameter 'message' is never used, could be renamed to _
-2026-04-16T12:01:13.8736248Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/ArchivedChatFragment.kt:78:47 Parameter 'position' is never used, could be renamed to _
-2026-04-16T12:01:13.8741029Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/ChatAdapter.kt:59:13 Variable 'message' is never used
-2026-04-16T12:01:13.8743094Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/ChatAdapter.kt:217:36 Unnecessary safe call on a non-null receiver of type List<ActionItem>
-2026-04-16T12:01:13.8745491Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/ChatAdapter.kt:221:40 Unnecessary safe call on a non-null receiver of type List<ActionItem>
-2026-04-16T12:01:13.8750383Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/DailyInspirationManager.kt:8:33 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8752963Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/DailyInspirationManager.kt:25:30 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8755441Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/DailyInspirationManager.kt:25:53 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8758599Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/DailyInspirationManager.kt:26:44 'create(String, String, Context, EncryptedSharedPreferences.PrefKeyEncryptionScheme, EncryptedSharedPreferences.PrefValueEncryptionScheme): SharedPreferences' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8762571Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/DailyInspirationManager.kt:107:34 Parameter 'quote' is never used
-2026-04-16T12:01:13.8764937Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/OpenAIService.kt:416:47 Type mismatch: inferred type is String? but String was expected
-2026-04-16T12:01:13.8767187Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/OpenAIService.kt:551:47 Type mismatch: inferred type is String? but String was expected
-2026-04-16T12:01:13.8769444Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/OpenAIService.kt:602:47 Type mismatch: inferred type is String? but String was expected
-2026-04-16T12:01:13.8771706Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/SpeechManager.kt:10:40 'OnUtteranceCompletedListener' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8774460Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/SpeechManager.kt:417:39 'setOnUtteranceCompletedListener(TextToSpeech.OnUtteranceCompletedListener!): Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8777441Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/SpeechManager.kt:424:43 'speak(String!, Int, HashMap<String!, String!>!): Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8779700Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/SpeechManager.kt:493:34 Parameter 'mp' is never used, could be renamed to _
-2026-04-16T12:01:13.8781664Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/TaskAnalyzer.kt:15:13 Variable 'completedTasks' is never used
-2026-04-16T12:01:13.8783563Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/TaskAnalyzer.kt:17:13 Variable 'highPriorityTasks' is never used
-2026-04-16T12:01:13.8785596Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ai/TaskAnalyzer.kt:18:13 Variable 'overdueTasks' is never used
-2026-04-16T12:01:13.8787535Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/auth/AuthManager.kt:6:33 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8789794Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/auth/AuthManager.kt:12:34 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8791850Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/auth/AuthManager.kt:12:57 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8795080Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/auth/AuthManager.kt:14:61 'create(String, String, Context, EncryptedSharedPreferences.PrefKeyEncryptionScheme, EncryptedSharedPreferences.PrefValueEncryptionScheme): SharedPreferences' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8798259Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/base/BaseActivity.kt:127:9 'overridePendingTransition(Int, Int): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8800646Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/base/BaseActivity.kt:133:9 'overridePendingTransition(Int, Int): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8803025Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/base/BaseActivity.kt:139:9 'overridePendingTransition(Int, Int): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8805833Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/AppDatabase.kt:26:34 The corresponding parameter in the supertype 'Migration' is named 'db'. This may cause problems when calling this function with named arguments.
-2026-04-16T12:01:13.8808894Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/AppDatabase.kt:32:34 The corresponding parameter in the supertype 'Migration' is named 'db'. This may cause problems when calling this function with named arguments.
-2026-04-16T12:01:13.8812000Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/AppDatabase.kt:39:34 The corresponding parameter in the supertype 'Migration' is named 'db'. This may cause problems when calling this function with named arguments.
-2026-04-16T12:01:13.8815375Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/AppDatabase.kt:46:34 The corresponding parameter in the supertype 'Migration' is named 'db'. This may cause problems when calling this function with named arguments.
-2026-04-16T12:01:13.8818593Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/AppDatabase.kt:54:34 The corresponding parameter in the supertype 'Migration' is named 'db'. This may cause problems when calling this function with named arguments.
-2026-04-16T12:01:13.8821629Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/ProductivityAnalyzer.kt:77:76 Unnecessary non-null assertion (!!) on a non-null receiver of type Date
-2026-04-16T12:01:13.8823925Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/ProductivityAnalyzer.kt:186:21 'when' is exhaustive so 'else' is redundant here
-2026-04-16T12:01:13.8826180Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/SessionManager.kt:11:33 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8828245Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/SessionManager.kt:15:34 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8830261Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/SessionManager.kt:15:57 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8833640Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/SessionManager.kt:17:61 'create(String, String, Context, EncryptedSharedPreferences.PrefKeyEncryptionScheme, EncryptedSharedPreferences.PrefValueEncryptionScheme): SharedPreferences' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8837517Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/TaskDatabase.kt:24:34 The corresponding parameter in the supertype 'Migration' is named 'db'. This may cause problems when calling this function with named arguments.
-2026-04-16T12:01:13.8840259Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/TaskManager.kt:132:35 Unnecessary non-null assertion (!!) on a non-null receiver of type Date
-2026-04-16T12:01:13.8842522Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/data/TaskManager.kt:133:35 Unnecessary non-null assertion (!!) on a non-null receiver of type Date
-2026-04-16T12:01:13.8844920Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/services/TaskNotificationService.kt:124:47 Parameter 'taskId' is never used
-2026-04-16T12:01:13.8847168Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/services/TaskNotificationService.kt:156:33 Unnecessary non-null assertion (!!) on a non-null receiver of type Date
-2026-04-16T12:01:13.8849631Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/services/TaskNotificationService.kt:157:33 Unnecessary non-null assertion (!!) on a non-null receiver of type Date
-2026-04-16T12:01:13.8852385Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/services/TaskNotificationService.kt:213:33 'getRunningServices(Int): (Mutable)List<ActivityManager.RunningServiceInfo!>!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8855143Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/services/YouTubeService.kt:49:13 Variable 'dataMatch' is never used
-2026-04-16T12:01:13.8857411Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ui/DayVisualizerFragment.kt:438:56 Unnecessary safe call on a non-null receiver of type Date
-2026-04-16T12:01:13.8859847Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ui/DayVisualizerFragment.kt:438:63 Elvis operator (?:) always returns the left operand of non-nullable type Long
-2026-04-16T12:01:13.8862251Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ui/DayVisualizerFragment.kt:439:85 Unnecessary safe call on a non-null receiver of type Date
-2026-04-16T12:01:13.8864736Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/ui/FocusModeFragment.kt:232:23 Enum argument can be null in Java, but exhaustive when contains no null branch
-2026-04-16T12:01:13.8867081Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/update/UpdateDialog.kt:50:13 Variable 'url' is never used
-2026-04-16T12:01:13.8869245Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/update/UpdateDialog.kt:183:17 'requestPermissions(Array<(out) String!>, Int): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8871417Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/update/UpdateDialog.kt:410:47 Parameter 'file' is never used
-2026-04-16T12:01:13.8873381Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:6:29 'Allocation' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8875598Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:7:29 'Element' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8877632Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:8:29 'RenderScript' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8879987Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:9:29 'ScriptIntrinsicBlur' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8882142Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:36:22 'RenderScript' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8884543Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:36:35 'create(Context!): RenderScript!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8886722Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:37:25 'Allocation' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8889262Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:37:36 'createFromBitmap(RenderScript!, Bitmap!, Allocation.MipmapControl!, Int): Allocation!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8891798Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:37:65 'Allocation' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8893889Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:37:76 'MipmapControl' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8896114Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:37:90 'MIPMAP_NONE' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8898232Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:38:17 'Allocation' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8900360Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:38:28 'USAGE_SCRIPT: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8902451Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:39:26 'Allocation' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8904862Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:39:37 'createTyped(RenderScript!, Type!): Allocation!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8907187Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:39:59 'getter for type: Type!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8909345Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:40:26 'ScriptIntrinsicBlur' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8912046Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:40:46 'create(RenderScript!, Element!): ScriptIntrinsicBlur!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8914630Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:40:57 'Element' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8916776Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:40:65 'U8_4(RenderScript!): Element!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8919013Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:42:20 'setRadius(Float): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8921189Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:43:20 'setInput(Allocation!): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8923687Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:44:20 'forEach(Allocation!): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8926043Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/BlurTransformation.kt:46:20 'copyTo(Bitmap!): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8928397Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/NotificationHelper.kt:203:79 'getBitmap(ContentResolver!, Uri!): Bitmap!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8930693Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/NotificationHelper.kt:218:81 'FLAG_SHOW_LIGHTS: Int' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8932987Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/util/NotificationHelper.kt:221:26 'sound: Uri!' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8935372Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/utils/ApiKeys.kt:6:33 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8938343Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/utils/ApiKeys.kt:15:82 'create(String, String, Context, EncryptedSharedPreferences.PrefKeyEncryptionScheme, EncryptedSharedPreferences.PrefValueEncryptionScheme): SharedPreferences' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8941475Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/utils/ApiKeys.kt:17:9 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8943445Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/utils/ApiKeys.kt:17:32 'MasterKeys' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8945878Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/utils/PermissionManager.kt:104:26 'requestPermissions(Array<(out) String!>, Int): Unit' is deprecated. Deprecated in Java
-2026-04-16T12:01:13.8948255Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/viewmodel/DayVisualizerViewModel.kt:106:33 'when' is exhaustive so 'else' is redundant here
-2026-04-16T12:01:13.8950515Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/viewmodel/DayVisualizerViewModel.kt:206:25 'when' is exhaustive so 'else' is redundant here
-2026-04-16T12:01:13.8952655Z w: file:///home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/java/com/deepcore/***/views/MindMapCanvas.kt:149:30 Destructured parameter 'task' is never used
-2026-04-16T12:01:14.0854586Z 
-2026-04-16T12:01:14.0884898Z > Task :app:processReleaseJavaRes
-2026-04-16T12:01:17.0866176Z > Task :app:mergeReleaseJavaResource
-2026-04-16T12:01:17.3851837Z > Task :app:compileReleaseJavaWithJavac
-2026-04-16T12:01:17.4885500Z > Task :app:mergeReleaseGeneratedProguardFiles
-2026-04-16T12:01:18.5857225Z > Task :app:expandReleaseArtProfileWildcards
-2026-04-16T12:01:19.0845220Z > Task :app:generateReleaseLintVitalReportModel
-2026-04-16T12:01:19.3854749Z 
-2026-04-16T12:01:19.3885381Z > Task :app:lintVitalAnalyzeRelease
-2026-04-16T12:01:19.3886628Z Generating lint files for backported methods only (compile API B)
-2026-04-16T12:01:48.5867964Z 
-2026-04-16T12:01:48.5868827Z > Task :app:minifyReleaseWithR8
-2026-04-16T12:02:17.3844638Z > Task :app:lintVitalReportRelease
-2026-04-16T12:02:17.3874833Z > Task :app:lintVitalRelease
-2026-04-16T12:03:29.0855325Z > Task :app:compileReleaseArtProfile
-2026-04-16T12:03:32.2855261Z > Task :app:shrinkReleaseRes
-2026-04-16T12:03:32.4843144Z > Task :app:optimizeReleaseResources
-2026-04-16T12:03:33.1850185Z > Task :app:packageRelease
-2026-04-16T12:03:33.1851860Z > Task :app:assembleRelease
-2026-04-16T12:03:33.1852728Z > Task :app:createReleaseApkListingFileRedirect
-2026-04-16T12:03:33.1853289Z 
-2026-04-16T12:03:33.1853891Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
-2026-04-16T12:03:33.1859315Z 
-2026-04-16T12:03:33.1860263Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
-2026-04-16T12:03:33.1861317Z 
-2026-04-16T12:03:33.1862360Z For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
-2026-04-16T12:03:33.1863491Z 
-2026-04-16T12:03:33.1863819Z BUILD SUCCESSFUL in 3m 40s
-2026-04-16T12:03:33.1864588Z 56 actionable tasks: 56 executed
-2026-04-16T12:03:33.2241244Z Configuration cache entry stored.
-2026-04-16T12:03:33.5523200Z ##[group]Run softprops/action-gh-release@v2
-2026-04-16T12:03:33.5523522Z with:
-2026-04-16T12:03:33.5523716Z   tag_name: v2.0.92
-2026-04-16T12:03:33.5523937Z   name: Fokus-Kiyto v2.0.92
-2026-04-16T12:03:33.5524454Z   files: app/build/outputs/apk/release/*.apk
-2026-04-16T12:03:33.5524944Z   body: Automatisch generierter Release Build.
-
-- Build Nummer: 92
-- Status: Signierte APK
-
-2026-04-16T12:03:33.5525383Z   overwrite_files: true
-2026-04-16T12:03:33.5525706Z   token: ***
-2026-04-16T12:03:33.5525904Z env:
-2026-04-16T12:03:33.5526205Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T12:03:33.5526679Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-04-16T12:03:33.5527137Z   GITHUB_TOKEN: ***
-2026-04-16T12:03:33.5527353Z ##[endgroup]
-2026-04-16T12:03:33.7900260Z 👩‍🏭 Creating new GitHub release for tag v2.0.92...
-2026-04-16T12:03:33.8938550Z ⚠️ GitHub release failed with status: 403
-2026-04-16T12:03:33.8939758Z {"message":"Resource not accessible by integration","documentation_url":"https://docs.github.com/rest/releases/releases#create-a-release","status":"403"}
-2026-04-16T12:03:33.8941191Z Skip retry — your GitHub token/PAT does not have the required permission to create a release
-2026-04-16T12:03:33.8942974Z ⚠️ Unexpected error fetching GitHub release for tag refs/heads/main: HttpError: Resource not accessible by integration - https://docs.github.com/rest/releases/releases#create-a-release
-2026-04-16T12:03:33.8961597Z ##[error]Resource not accessible by integration - https://docs.github.com/rest/releases/releases#create-a-release
-2026-04-16T12:03:33.9082050Z Post job cleanup.
-2026-04-16T12:03:34.0796153Z Post job cleanup.
-2026-04-16T12:03:34.1800032Z [command]/usr/bin/git version
-2026-04-16T12:03:34.1848937Z git version 2.53.0
-2026-04-16T12:03:34.1899974Z Temporarily overriding HOME='/home/runner/work/_temp/c8989333-0441-4320-99f0-48f87c347230' before making global git config changes
-2026-04-16T12:03:34.1901000Z Adding repository directory to the temporary git global config as a safe directory
-2026-04-16T12:03:34.1905751Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
-2026-04-16T12:03:34.1944058Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-04-16T12:03:34.1988739Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-04-16T12:03:34.2265065Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-04-16T12:03:34.2286730Z http.https://github.com/.extraheader
-2026-04-16T12:03:34.2310996Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
-2026-04-16T12:03:34.2331680Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-04-16T12:03:34.2560524Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-04-16T12:03:34.2591838Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-04-16T12:03:34.2936357Z Cleaning up orphan processes
-2026-04-16T12:03:34.3230260Z Terminate orphan process: pid (2400) (java)
-2026-04-16T12:03:34.3253337Z Terminate orphan process: pid (2526) (java)
-2026-04-16T12:03:34.3268256Z ##[warning]Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-java@v4, chkfung/android-version-actions@v1.2.3, softprops/action-gh-release@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+﻿2026-04-16T14:41:07.8794244Z Current runner version: '2.333.1'
+2026-04-16T14:41:07.8819654Z ##[group]Runner Image Provisioner
+2026-04-16T14:41:07.8820514Z Hosted Compute Agent
+2026-04-16T14:41:07.8821062Z Version: 20260213.493
+2026-04-16T14:41:07.8821661Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+2026-04-16T14:41:07.8822300Z Build Date: 2026-02-13T00:28:41Z
+2026-04-16T14:41:07.8823067Z Worker ID: {e1e18190-51f2-44d3-a3fb-c46eb3485f92}
+2026-04-16T14:41:07.8823732Z Azure Region: northcentralus
+2026-04-16T14:41:07.8824304Z ##[endgroup]
+2026-04-16T14:41:07.8826246Z ##[group]Operating System
+2026-04-16T14:41:07.8826889Z Ubuntu
+2026-04-16T14:41:07.8827351Z 24.04.4
+2026-04-16T14:41:07.8827913Z LTS
+2026-04-16T14:41:07.8828368Z ##[endgroup]
+2026-04-16T14:41:07.8829082Z ##[group]Runner Image
+2026-04-16T14:41:07.8829714Z Image: ubuntu-24.04
+2026-04-16T14:41:07.8830204Z Version: 20260406.80.1
+2026-04-16T14:41:07.8831429Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260406.80/images/ubuntu/Ubuntu2404-Readme.md
+2026-04-16T14:41:07.8832921Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260406.80
+2026-04-16T14:41:07.8833818Z ##[endgroup]
+2026-04-16T14:41:07.8834855Z ##[group]GITHUB_TOKEN Permissions
+2026-04-16T14:41:07.8836855Z Contents: write
+2026-04-16T14:41:07.8837532Z Metadata: read
+2026-04-16T14:41:07.8838069Z ##[endgroup]
+2026-04-16T14:41:07.8840463Z Secret source: Actions
+2026-04-16T14:41:07.8841497Z Prepare workflow directory
+2026-04-16T14:41:07.9185883Z Prepare all required actions
+2026-04-16T14:41:07.9225550Z Getting action download info
+2026-04-16T14:41:08.4301160Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-04-16T14:41:08.5352574Z Download action repository 'actions/setup-java@v4' (SHA:c1e323688fd81a25caa38c78aa6df2d33d3e20d9)
+2026-04-16T14:41:09.2495805Z Complete job name: Unit Test
+2026-04-16T14:41:09.3228201Z ##[group]Run actions/checkout@v4
+2026-04-16T14:41:09.3229410Z with:
+2026-04-16T14:41:09.3229881Z   repository: Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T14:41:09.3230669Z   token: ***
+2026-04-16T14:41:09.3231106Z   ssh-strict: true
+2026-04-16T14:41:09.3231541Z   ssh-user: git
+2026-04-16T14:41:09.3231994Z   persist-credentials: true
+2026-04-16T14:41:09.3232489Z   clean: true
+2026-04-16T14:41:09.3232943Z   sparse-checkout-cone-mode: true
+2026-04-16T14:41:09.3233479Z   fetch-depth: 1
+2026-04-16T14:41:09.3233920Z   fetch-tags: false
+2026-04-16T14:41:09.3234364Z   show-progress: true
+2026-04-16T14:41:09.3234833Z   lfs: false
+2026-04-16T14:41:09.3235252Z   submodules: false
+2026-04-16T14:41:09.3235706Z   set-safe-directory: true
+2026-04-16T14:41:09.3236452Z ##[endgroup]
+2026-04-16T14:41:09.4316760Z Syncing repository: Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T14:41:09.4319139Z ##[group]Getting Git version info
+2026-04-16T14:41:09.4320094Z Working directory is '/home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI'
+2026-04-16T14:41:09.4321303Z [command]/usr/bin/git version
+2026-04-16T14:41:09.4355988Z git version 2.53.0
+2026-04-16T14:41:09.4382776Z ##[endgroup]
+2026-04-16T14:41:09.4397480Z Temporarily overriding HOME='/home/runner/work/_temp/81893c0f-1f6b-4ffc-909c-d2be3cdd34a5' before making global git config changes
+2026-04-16T14:41:09.4400249Z Adding repository directory to the temporary git global config as a safe directory
+2026-04-16T14:41:09.4410963Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
+2026-04-16T14:41:09.4442641Z Deleting the contents of '/home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI'
+2026-04-16T14:41:09.4446161Z ##[group]Initializing the repository
+2026-04-16T14:41:09.4450321Z [command]/usr/bin/git init /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
+2026-04-16T14:41:09.4533919Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-04-16T14:41:09.4535878Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-04-16T14:41:09.4537009Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-04-16T14:41:09.4538076Z hint: call:
+2026-04-16T14:41:09.4538847Z hint:
+2026-04-16T14:41:09.4539451Z hint: 	git config --global init.defaultBranch <name>
+2026-04-16T14:41:09.4540122Z hint:
+2026-04-16T14:41:09.4540844Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-04-16T14:41:09.4542203Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-04-16T14:41:09.4542938Z hint:
+2026-04-16T14:41:09.4543363Z hint: 	git branch -m <name>
+2026-04-16T14:41:09.4543841Z hint:
+2026-04-16T14:41:09.4544485Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-04-16T14:41:09.4545612Z Initialized empty Git repository in /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/.git/
+2026-04-16T14:41:09.4547996Z [command]/usr/bin/git remote add origin https://github.com/Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T14:41:09.4576441Z ##[endgroup]
+2026-04-16T14:41:09.4577255Z ##[group]Disabling automatic garbage collection
+2026-04-16T14:41:09.4580475Z [command]/usr/bin/git config --local gc.auto 0
+2026-04-16T14:41:09.4607722Z ##[endgroup]
+2026-04-16T14:41:09.4609151Z ##[group]Setting up auth
+2026-04-16T14:41:09.4614328Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-04-16T14:41:09.4643372Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-04-16T14:41:09.4920926Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-04-16T14:41:09.4950713Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-04-16T14:41:09.5164589Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-04-16T14:41:09.5194239Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-04-16T14:41:09.5422510Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-04-16T14:41:09.5455781Z ##[endgroup]
+2026-04-16T14:41:09.5464641Z ##[group]Fetching the repository
+2026-04-16T14:41:09.5466150Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +92475922582e05f442b9a4c02970aae6156f8af7:refs/remotes/origin/main
+2026-04-16T14:41:09.9969758Z From https://github.com/Icarus-B4/Fokus-Kiyto_KI
+2026-04-16T14:41:09.9971171Z  * [new ref]         92475922582e05f442b9a4c02970aae6156f8af7 -> origin/main
+2026-04-16T14:41:09.9998811Z ##[endgroup]
+2026-04-16T14:41:10.0002355Z ##[group]Determining the checkout info
+2026-04-16T14:41:10.0004441Z ##[endgroup]
+2026-04-16T14:41:10.0005858Z [command]/usr/bin/git sparse-checkout disable
+2026-04-16T14:41:10.0042100Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-04-16T14:41:10.0071128Z ##[group]Checking out the ref
+2026-04-16T14:41:10.0074360Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-04-16T14:41:10.0395884Z Switched to a new branch 'main'
+2026-04-16T14:41:10.0397644Z branch 'main' set up to track 'origin/main'.
+2026-04-16T14:41:10.0406270Z ##[endgroup]
+2026-04-16T14:41:10.0441081Z [command]/usr/bin/git log -1 --format=%H
+2026-04-16T14:41:10.0462467Z 92475922582e05f442b9a4c02970aae6156f8af7
+2026-04-16T14:41:10.0849205Z ##[group]Run actions/setup-java@v4
+2026-04-16T14:41:10.0850560Z with:
+2026-04-16T14:41:10.0851358Z   distribution: temurin
+2026-04-16T14:41:10.0852283Z   java-version: 17
+2026-04-16T14:41:10.0853112Z   cache: gradle
+2026-04-16T14:41:10.0853943Z   java-package: jdk
+2026-04-16T14:41:10.0854814Z   check-latest: false
+2026-04-16T14:41:10.0855697Z   server-id: github
+2026-04-16T14:41:10.0856561Z   server-username: GITHUB_ACTOR
+2026-04-16T14:41:10.0857617Z   server-password: GITHUB_TOKEN
+2026-04-16T14:41:10.0859174Z   overwrite-settings: true
+2026-04-16T14:41:10.0860135Z   job-status: success
+2026-04-16T14:41:10.0861271Z   token: ***
+2026-04-16T14:41:10.0862039Z ##[endgroup]
+2026-04-16T14:41:10.2840935Z ##[group]Installed distributions
+2026-04-16T14:41:10.2899158Z Resolved Java 17.0.18+8 from tool-cache
+2026-04-16T14:41:10.2900889Z Setting Java 17.0.18+8 as the default
+2026-04-16T14:41:10.2913311Z Creating toolchains.xml for JDK version 17 from temurin
+2026-04-16T14:41:10.2990893Z Writing to /home/runner/.m2/toolchains.xml
+2026-04-16T14:41:10.2992009Z 
+2026-04-16T14:41:10.2992713Z Java configuration:
+2026-04-16T14:41:10.2994202Z   Distribution: temurin
+2026-04-16T14:41:10.2995466Z   Version: 17.0.18+8
+2026-04-16T14:41:10.2997015Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T14:41:10.2999022Z 
+2026-04-16T14:41:10.3000570Z ##[endgroup]
+2026-04-16T14:41:10.3019045Z Creating settings.xml with server-id: github
+2026-04-16T14:41:10.3032653Z Writing to /home/runner/.m2/settings.xml
+2026-04-16T14:41:10.5316668Z Cache hit for: setup-java-Linux-x64-gradle-5908cdfbffdb00f5da737a851837b1edd806622b952ac95749232f7e207c7d9e
+2026-04-16T14:41:11.6280316Z Received 134217728 of 604750255 (22.2%), 127.9 MBs/sec
+2026-04-16T14:41:12.6290490Z Received 385875968 of 604750255 (63.8%), 183.8 MBs/sec
+2026-04-16T14:41:13.6288276Z Received 583778735 of 604750255 (96.5%), 185.5 MBs/sec
+2026-04-16T14:41:13.7171011Z Received 604750255 of 604750255 (100.0%), 186.6 MBs/sec
+2026-04-16T14:41:13.7178729Z Cache Size: ~577 MB (604750255 B)
+2026-04-16T14:41:13.7235094Z [command]/usr/bin/tar -xf /home/runner/work/_temp/874dec14-b650-466c-858a-735cf4c42149/cache.tzst -P -C /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI --use-compress-program unzstd
+2026-04-16T14:41:16.7289710Z Cache restored successfully
+2026-04-16T14:41:16.9588311Z Cache restored from key: setup-java-Linux-x64-gradle-5908cdfbffdb00f5da737a851837b1edd806622b952ac95749232f7e207c7d9e
+2026-04-16T14:41:16.9789531Z ##[group]Run chmod +x gradlew
+2026-04-16T14:41:16.9790173Z [36;1mchmod +x gradlew[0m
+2026-04-16T14:41:16.9817724Z shell: /usr/bin/bash -e {0}
+2026-04-16T14:41:16.9818000Z env:
+2026-04-16T14:41:16.9818315Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T14:41:16.9819112Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T14:41:16.9819519Z ##[endgroup]
+2026-04-16T14:41:16.9924705Z ##[group]Run ./gradlew clean testDebug
+2026-04-16T14:41:16.9925059Z [36;1m./gradlew clean testDebug[0m
+2026-04-16T14:41:17.0007407Z shell: /usr/bin/bash -e {0}
+2026-04-16T14:41:17.0007675Z env:
+2026-04-16T14:41:17.0008044Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T14:41:17.0008811Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-04-16T14:41:17.0009249Z ##[endgroup]
+2026-04-16T14:41:19.9792253Z 
+2026-04-16T14:41:19.9793530Z Welcome to Gradle 8.10.2!
+2026-04-16T14:41:19.9794376Z 
+2026-04-16T14:41:19.9795164Z Here are the highlights of this release:
+2026-04-16T14:41:19.9797368Z  - Support for Java 23
+2026-04-16T14:41:19.9800416Z  - Faster configuration cache
+2026-04-16T14:41:19.9804577Z  - Better configuration cache reports
+2026-04-16T14:41:19.9804996Z 
+2026-04-16T14:41:19.9805415Z For more details see https://docs.gradle.org/8.10.2/release-notes.html
+2026-04-16T14:41:19.9806020Z 
+2026-04-16T14:41:20.4777649Z Starting a Gradle Daemon (subsequent builds will be faster)
+2026-04-16T14:41:23.9786678Z Calculating task graph as no cached configuration is available for tasks: clean testDebug
+2026-04-16T14:41:36.2923398Z > Task :app:preBuild UP-TO-DATE
+2026-04-16T14:41:36.2928287Z > Task :app:preDebugBuild UP-TO-DATE
+2026-04-16T14:41:36.2929424Z > Task :app:preDebugUnitTestBuild UP-TO-DATE
+2026-04-16T14:41:36.2930180Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+2026-04-16T14:41:36.2930893Z > Task :app:clean UP-TO-DATE
+2026-04-16T14:41:36.3780870Z > Task :app:generateDebugResValues
+2026-04-16T14:41:36.3819663Z > Task :app:generateDebugBuildConfig
+2026-04-16T14:41:36.3845449Z > Task :app:generateSafeArgsDebug
+2026-04-16T14:41:36.4784371Z > Task :app:generateDebugResources
+2026-04-16T14:41:37.1799702Z > Task :app:mapDebugSourceSetPaths
+2026-04-16T14:41:37.1800619Z > Task :app:dataBindingMergeDependencyArtifactsDebug
+2026-04-16T14:41:37.1801005Z > Task :app:createDebugCompatibleScreenManifests
+2026-04-16T14:41:37.2791531Z > Task :app:checkDebugAarMetadata
+2026-04-16T14:41:37.2869399Z > Task :app:javaPreCompileDebug
+2026-04-16T14:41:37.2899318Z > Task :app:javaPreCompileDebugUnitTest
+2026-04-16T14:41:37.3794780Z > Task :app:extractDeepLinksDebug
+2026-04-16T14:41:37.9809127Z 
+2026-04-16T14:41:37.9839434Z > Task :app:processDebugMainManifest
+2026-04-16T14:41:37.9849834Z package="com.deepcore.kiytoapp" found in source AndroidManifest.xml: /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/AndroidManifest.xml.
+2026-04-16T14:41:37.9852048Z Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+2026-04-16T14:41:37.9854530Z Recommendation: remove package="com.deepcore.kiytoapp" from the source AndroidManifest.xml: /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI/app/src/main/AndroidManifest.xml.
+2026-04-16T14:41:37.9857298Z [org.chromium.net:cronet-embedded:119.6045.31] /home/runner/.gradle/caches/8.10.2/transforms/1a67f9caf2cd457547732b96308cf162/transformed/cronet-embedded-119.6045.31/AndroidManifest.xml Warning:
+2026-04-16T14:41:37.9862010Z 	Namespace 'org.chromium.net' is used in multiple modules and/or libraries: org.chromium.net:cronet-embedded:119.6045.31, org.chromium.net:cronet-common:119.6045.31, org.chromium.net:cronet-api:119.6045.31. Please ensure that all modules and libraries have a unique namespace. For more information, See https://developer.android.com/studio/build/configure-app-module#set-namespace
+2026-04-16T14:41:38.2814450Z 
+2026-04-16T14:41:38.2839397Z > Task :app:processDebugManifest
+2026-04-16T14:41:38.2848022Z > Task :app:processDebugManifestForPackage
+2026-04-16T14:41:38.6776015Z > Task :app:packageDebugResources
+2026-04-16T14:41:39.2775737Z > Task :app:parseDebugLocalResources
+2026-04-16T14:41:40.7819569Z > Task :app:mergeDebugResources
+2026-04-16T14:41:41.5780694Z > Task :app:dataBindingGenBaseClassesDebug
+2026-04-16T14:41:41.7780730Z > Task :app:processDebugResources FAILED
+2026-04-16T14:41:41.8775646Z 
+2026-04-16T14:41:41.8776833Z FAILURE: Build failed with an exception.
+2026-04-16T14:41:41.8777629Z 
+2026-04-16T14:41:41.8777991Z * What went wrong:
+2026-04-16T14:41:41.8779027Z Execution failed for task ':app:processDebugResources'.
+2026-04-16T14:41:41.8780577Z > A failure occurred while executing com.android.build.gradle.internal.res.LinkApplicationAndroidResourcesTask$TaskAction
+2026-04-16T14:41:41.8781996Z    > Android resource linking failed
+2026-04-16T14:41:41.8783816Z      com.deepcore.kiytoapp-mergeDebugResources-62:/layout/dialog_api_settings.xml:15: error: resource attr/textAppearanceHeadlineS3 (aka com.deepcore.kiytoapp:attr/textAppearanceHeadlineS3) not found.
+2026-04-16T14:41:41.8785347Z 
+2026-04-16T14:41:41.8785880Z      error: failed linking file resources.
+2026-04-16T14:41:41.8786447Z 
+2026-04-16T14:41:41.8786626Z 
+2026-04-16T14:41:41.8786930Z * Try:
+2026-04-16T14:41:41.8787553Z > Run with --stacktrace option to get the stack trace.
+2026-04-16T14:41:41.8788747Z > Run with --info or --debug option to get more log output.
+2026-04-16T14:41:41.8789643Z > Run with --scan to get full insights.
+2026-04-16T14:41:41.8790415Z > Get more help at https://help.gradle.org.
+2026-04-16T14:41:41.8811857Z 
+2026-04-16T14:41:41.8812749Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+2026-04-16T14:41:41.8817473Z BUILD FAILED in 24s
+2026-04-16T14:41:41.8817725Z 
+2026-04-16T14:41:41.8819238Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-04-16T14:41:41.8820930Z 
+2026-04-16T14:41:41.8822565Z For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+2026-04-16T14:41:41.8824183Z 21 actionable tasks: 20 executed, 1 up-to-date
+2026-04-16T14:41:41.8830734Z Configuration cache entry stored.
+2026-04-16T14:41:42.2988137Z ##[error]Process completed with exit code 1.
+2026-04-16T14:41:42.3100952Z Post job cleanup.
+2026-04-16T14:41:42.4873328Z Post job cleanup.
+2026-04-16T14:41:42.5846479Z [command]/usr/bin/git version
+2026-04-16T14:41:42.5888743Z git version 2.53.0
+2026-04-16T14:41:42.5935134Z Temporarily overriding HOME='/home/runner/work/_temp/4b180131-13c2-4ff9-9463-5e6bd48b5af7' before making global git config changes
+2026-04-16T14:41:42.5936427Z Adding repository directory to the temporary git global config as a safe directory
+2026-04-16T14:41:42.5941586Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Fokus-Kiyto_KI/Fokus-Kiyto_KI
+2026-04-16T14:41:42.5977353Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-04-16T14:41:42.6009538Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-04-16T14:41:42.6232452Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-04-16T14:41:42.6252951Z http.https://github.com/.extraheader
+2026-04-16T14:41:42.6265043Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-04-16T14:41:42.6294314Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-04-16T14:41:42.6509995Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-04-16T14:41:42.6539625Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-04-16T14:41:42.6873336Z Cleaning up orphan processes
+2026-04-16T14:41:42.7190184Z Terminate orphan process: pid (2329) (java)
+2026-04-16T14:41:42.7295869Z ##[warning]Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-java@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
