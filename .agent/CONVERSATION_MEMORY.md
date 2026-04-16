@@ -103,3 +103,11 @@
   - **Kein 1.5 mehr**: Modell 'gemini-1.5-flash' wurde vollstndig entfernt, um 404 Fehler zu vermeiden.
   - **Stabilisierung**: Alle API-Endpunkte (REST & SDK) sind nun synchronisiert.
   - **Build**: v2.1.13 erfolgreich verffentlicht.
+
+### 2026-04-16 - Quota-Rettung v2.1.14: Hybrid-Modell-System
+- **Status**: Erledigt. Quota-Probleme (429) umgangen.
+- **Wichtigste Features**:
+  - **Hybrid-Engine**: Chat, Mikrofon und API-Diagnose nutzen 'gemini-1.5-flash-latest' (1.500 Aufrufe/Tag).
+  - **Voice-Modell**: 'gemini-3.1-flash-tts-preview' wrid nur noch fr die nackte Audio-Generierung genutzt (Limit 10/Tag).
+  - **Stabilisierung**: Der API-Test Button funktioniert wieder, da er das Modell mit dem hohen Kontingent nutzt.
+  - **Build**: v2.1.14 erfolgreich auf GitHub bereitgestellt.
