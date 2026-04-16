@@ -53,13 +53,25 @@ class UpdateSystemFragment : Fragment() {
 
         // Setze Click-Listener
         downloadCard.setOnClickListener {
-            // Zeige update_available animation
-            updateAnimation.apply {
-                cancelAnimation()
-                setAnimation(R.raw.update_available)
-                playAnimation()
+            lifecycleScope.launch {
+                try {
+                    // Zeige Lade-Animation
+                    updateAnimationState(isLoading = true)
+                    android.widget.Toast.makeText(requireContext(), "Suche nach dem neuesten Release...", android.widget.Toast.LENGTH_SHORT).show()
+                    
+                    val directDownloadUrl = updateManager.fetchLatestDownloadUrl()
+                    if (directDownloadUrl != null) {
+                        // Starte den Download-Dialog oder direkt den Download
+                        showUpdateDialog()
+                    } else {
+                        android.widget.Toast.makeText(requireContext(), "Kein aktuelles Release auf GitHub gefunden.", android.widget.Toast.LENGTH_LONG).show()
+                        updateAnimationState(isError = true)
+                    }
+                } catch (e: Exception) {
+                    LogUtils.error(this@UpdateSystemFragment, "Fehler beim Direkt-Download", e)
+                    updateAnimationState(isError = true)
+                }
             }
-            checkForUpdates()
         }
 
         statusCard.setOnClickListener {

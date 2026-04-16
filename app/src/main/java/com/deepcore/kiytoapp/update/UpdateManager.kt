@@ -126,6 +126,41 @@ class UpdateManager(private val context: Context) {
         }
     }
 
+    suspend fun fetchLatestDownloadUrl(): String? = withContext(Dispatchers.IO) {
+        try {
+            LogUtils.debug(this@UpdateManager, "Suche direkt nach dem neuesten Release...")
+            val url = URL("$GITHUB_API_BASE/releases/latest")
+            val connection = url.openConnection() as java.net.HttpURLConnection
+            connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+            connection.useCaches = false
+            
+            if (connection.responseCode != 200) {
+                LogUtils.error(this@UpdateManager, "GitHub API Fehler bei /latest: ${connection.responseCode}")
+                return@withContext null
+            }
+            
+            val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+            val latestRelease = JSONObject(responseText)
+            
+            latestVersion = latestRelease.getString("tag_name").removePrefix("v")
+            val assets = latestRelease.optJSONArray("assets")
+            if (assets != null) {
+                for (i in 0 until assets.length()) {
+                    val asset = assets.getJSONObject(i)
+                    if (asset.getString("name").endsWith(".apk")) {
+                        val dlUrl = asset.getString("browser_download_url")
+                        downloadUrl = dlUrl
+                        return@withContext dlUrl
+                    }
+                }
+            }
+            null
+        } catch (e: Exception) {
+            LogUtils.error(this@UpdateManager, "Fehler beim Abrufen der neuesten URL", e)
+            null
+        }
+    }
+
     private fun compareVersions(version1: String, version2: String): Int {
         try {
             LogUtils.debug(this, "Vergleiche Version1: $version1 mit Version2: $version2")
