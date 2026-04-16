@@ -46,12 +46,16 @@ jobs:
           gradlePath: app/build.gradle.kts
           versionCode: ${{ github.run_number }}
 
-      - name: Create Keystore Directory
-        run: mkdir -p app/keystore
-
       - name: Decode Keystore
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > app/keystore/kiyto_release.keystore
+          if [ -z "$ENCODED_KEYSTORE" ]; then
+            echo "Error: ANDROID_KEYSTORE secret is empty. Please set it in GitHub Secrets."
+            exit 1
+          fi
+          mkdir -p app/keystore
+          echo "$ENCODED_KEYSTORE" | base64 --decode > app/keystore/kiyto_release.keystore
 
       - name: Assemble Release APK
         run: ./gradlew assembleRelease
@@ -59,6 +63,20 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0.${{ github.run_number }}
+          name: Fokus-Kiyto v2.0.${{ github.run_number }}
+          files: app/build/outputs/apk/release/*.apk
+          body: |
+            Automatisch generierter Release Build.
+            
+            - Build Nummer: ${{ github.run_number }}
+            - Status: Signierte APK
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
