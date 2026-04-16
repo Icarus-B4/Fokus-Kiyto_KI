@@ -10,38 +10,67 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Geben Sie einen benutzerdefinierten OpenAI API-Key ein oder verwenden Sie den Standard-Key."
+        android:text="KI-Dienste konfigurieren"
+        android:textAppearance="?attr/textAppearanceHeadlineS3"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Geben Sie Ihre API-Keys ein, um erweiterte KI-Funktionen zu nutzen."
         android:textAppearance="?attr/textAppearanceBody2"
         android:layout_marginBottom="16dp"/>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/apiKeyInputLayout"
+    <!-- OpenAI -->
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="OpenAI API Key"
+        android:text="OpenAI (GPT-4o mini)"
+        android:textAppearance="?attr/textAppearanceSubtitle2"
+        android:layout_marginBottom="4dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         app:endIconMode="password_toggle">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/apiKeyInput"
-            android:layout_width="379dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="sk-..."
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Gemini -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Google Gemini (1.5 Flash)"
+        android:textAppearance="?attr/textAppearanceSubtitle2"
+        android:layout_marginBottom="4dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:endIconMode="password_toggle">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/geminiApiKeyInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="AIza..."
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Ihr API-Key wird sicher gespeichert und nur für OpenAI-Dienste verwendet."
-        android:textSize="12sp" />
+        android:text="Ihre API-Keys werden sicher verschlüsselt auf dem Gerät gespeichert."
+        android:textSize="12sp"
+        android:alpha="0.7"/>
 
 </LinearLayout> 

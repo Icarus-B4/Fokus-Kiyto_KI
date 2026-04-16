@@ -46,34 +46,58 @@ class APISettingsDialog : DialogFragment() {
         val view = inflater.inflate(R.layout.dialog_api_settings, null)
         
         val apiKeyInput = view.findViewById<EditText>(R.id.apiKeyInput)
+        val geminiApiKeyInput = view.findViewById<EditText>(R.id.geminiApiKeyInput)
         
-        // Lade den aktuellen API-Key
-        val currentApiKey = apiSettingsManager.getApiKey()
+        // Lade die aktuellen API-Keys
+        val currentOpenAIKey = apiSettingsManager.getApiKey()
+        val currentGeminiKey = apiSettingsManager.getGeminiApiKey()
         
-        // Zeige den aktuellen API-Key Status
-        if (!currentApiKey.isNullOrEmpty()) {
-            apiKeyInput.hint = "API-Key ist gesetzt"
-        } else {
-            apiKeyInput.hint = "Bitte API-Key eingeben"
+        // Zeige den aktuellen Status
+        if (!currentOpenAIKey.isNullOrEmpty()) {
+            apiKeyInput.hint = "OpenAI API-Key ist gesetzt"
+        }
+        
+        if (!currentGeminiKey.isNullOrEmpty()) {
+            geminiApiKeyInput.hint = "Gemini API-Key ist gesetzt"
         }
 
         builder.setView(view)
-            .setTitle("API-Einstellungen")
+            .setTitle("KI-Einstellungen")
             .setPositiveButton("Speichern") { _, _ ->
-                val apiKey = apiKeyInput.text.toString().trim()
-                if (apiKey.isNotEmpty() && apiSettingsManager.validateApiKey(apiKey)) {
-                    // Speichere den API-Key
-                    apiSettingsManager.saveApiKey(apiKey)
-                    
-                    // Benachrichtige den Listener
-                    listener?.onApiKeySet(apiKey)
-                } else {
-                    // Zeige Fehlermeldung wenn der API-Key ungültig ist
+                val openAIKey = apiKeyInput.text.toString().trim()
+                val geminiKey = geminiApiKeyInput.text.toString().trim()
+                
+                var success = true
+                
+                // OpenAI Key speichern wenn eingegeben
+                if (openAIKey.isNotEmpty()) {
+                    if (apiSettingsManager.validateApiKey(openAIKey)) {
+                        apiSettingsManager.saveApiKey(openAIKey)
+                        listener?.onApiKeySet(openAIKey)
+                    } else {
+                        success = false
+                    }
+                }
+                
+                // Gemini Key speichern wenn eingegeben
+                if (geminiKey.isNotEmpty()) {
+                    if (apiSettingsManager.validateApiKey(geminiKey)) {
+                        apiSettingsManager.saveGeminiApiKey(geminiKey)
+                        // Trigger einen Refresh falls nötig
+                        listener?.onApiKeySet(geminiKey)
+                    } else {
+                        success = false
+                    }
+                }
+                
+                if (!success) {
                     com.google.android.material.snackbar.Snackbar.make(
                         requireActivity().findViewById(android.R.id.content),
-                        "Ungültiger API-Key",
+                        "Einige API-Keys waren ungültig",
                         com.google.android.material.snackbar.Snackbar.LENGTH_LONG
                     ).show()
+                } else {
+                    Toast.makeText(context, "KI-Einstellungen gespeichert", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Abbrechen", null)

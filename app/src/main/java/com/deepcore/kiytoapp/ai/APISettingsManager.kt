@@ -19,6 +19,7 @@ class APISettingsManager(context: Context) {
 
     companion object {
         private const val KEY_API_KEY = "openai_api_key"
+        private const val KEY_GEMINI_API_KEY = "gemini_api_key"
         private const val KEY_USE_CUSTOM_KEY = "use_custom_key"
     }
 
@@ -44,6 +45,27 @@ class APISettingsManager(context: Context) {
         }
     }
 
+    fun saveGeminiApiKey(apiKey: String) {
+        try {
+            encryptedPrefs.edit()
+                .putString(KEY_GEMINI_API_KEY, apiKey)
+                .apply()
+            Log.d(TAG, "Gemini API-Key erfolgreich gespeichert")
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim Speichern des Gemini API-Keys", e)
+            throw e
+        }
+    }
+
+    fun getGeminiApiKey(): String? {
+        return try {
+            encryptedPrefs.getString(KEY_GEMINI_API_KEY, null)
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim Abrufen des Gemini API-Keys", e)
+            null
+        }
+    }
+
     fun useCustomKey(): Boolean {
         return encryptedPrefs.getBoolean(KEY_USE_CUSTOM_KEY, false)
     }
@@ -64,7 +86,12 @@ class APISettingsManager(context: Context) {
     fun validateApiKey(apiKey: String): Boolean {
         val trimmedKey = apiKey.trim()
         
-        // Überprüfe zuerst die Mindestlänge
+        // Gemini Keys beginnen oft mit AIza
+        if (trimmedKey.startsWith("AIza")) {
+            return trimmedKey.length >= 30
+        }
+
+        // Überprüfe zuerst die Mindestlänge für OpenAI
         if (trimmedKey.length < 32) {
             Log.d(TAG, "API-Key zu kurz: ${trimmedKey.length} Zeichen")
             return false
@@ -75,15 +102,6 @@ class APISettingsManager(context: Context) {
         if (!validFormat) {
             Log.d(TAG, "API-Key enthält ungültige Zeichen")
             return false
-        }
-        
-        // Überprüfe die bekannten Präfixe, aber mache es nicht zur Pflicht
-        val hasValidPrefix = trimmedKey.startsWith("sk-") || 
-                           trimmedKey.startsWith("sk-proj-") ||
-                           trimmedKey.startsWith("sk_test_")
-        
-        if (!hasValidPrefix) {
-            Log.d(TAG, "API-Key hat kein bekanntes Präfix, wird aber akzeptiert")
         }
         
         return true

@@ -33,6 +33,7 @@ class TaskAIService(private val context: Context) {
         try {
             Log.d(TAG, "Initialisiere TaskAIService")
             OpenAIService.initialize(context)
+            GeminiService.initialize(context)
         } catch (e: Exception) {
             Log.e(TAG, "Fehler bei der Initialisierung des TaskAIService", e)
             throw e
@@ -86,13 +87,15 @@ class TaskAIService(private val context: Context) {
                 )
             }
 
-            // Wenn es ein Befehl ist, verwende GPT-3.5
-            if (isCommand(message)) {
-                val response = OpenAIService.chat(message)
-                return response
+            // Bevorzuge Gemini wenn vorhanden
+            if (GeminiService.isEnabled()) {
+                val geminiResponse = GeminiService.chat(message)
+                if (geminiResponse != null) {
+                    return geminiResponse
+                }
             }
-            
-            // Für normale Chats GPT-4 verwenden
+
+            // Fallback auf OpenAI
             val response = OpenAIService.chat(message)
             return response
             
@@ -289,6 +292,14 @@ class TaskAIService(private val context: Context) {
                 
                 while (retryCount < 3) {
                     try {
+                        // Gemini Bildanalyse bevorzugen
+                        if (GeminiService.isEnabled()) {
+                            val geminiResult = GeminiService.analyzeImage(file)
+                            if (!geminiResult.isNullOrEmpty()) {
+                                return@withContext geminiResult
+                            }
+                        }
+
                         val response = OpenAIService.analyzeImage(file)
                         if (!response.isNullOrBlank()) {
                             return@withContext response
