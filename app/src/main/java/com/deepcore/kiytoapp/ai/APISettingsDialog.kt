@@ -49,6 +49,7 @@ class APISettingsDialog : DialogFragment() {
         val inflater = requireActivity().layoutInflater
         val view = inflater.inflate(R.layout.dialog_api_settings, null)
         
+        val geminiApiKeyInput = view.findViewById<EditText>(R.id.geminiApiKeyInput)
         val geminiTestButton = view.findViewById<Button>(R.id.geminiTestButton)
         
         // Lade den aktuellen Gemini-Key
