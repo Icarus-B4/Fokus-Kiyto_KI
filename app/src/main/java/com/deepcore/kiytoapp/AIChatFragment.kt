@@ -122,7 +122,6 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
     private lateinit var pickFileLauncher: ActivityResultLauncher<Intent>
 
-    private val RECORDING_DURATION_MS = 2000 // auf 2000 ms reduzieren
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -472,7 +471,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                     } else {
                         // Feedback wenn nichts erkannt wurde
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(requireContext(), "Keine Sprache erkannt. Bitte deutlicher sprechen.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "Ich habe dich leider nicht verstanden. Bitte versuche es noch einmal oder sprich etwas lauter.", Toast.LENGTH_LONG).show()
                         }
                     }
                 } catch (e: Exception) {

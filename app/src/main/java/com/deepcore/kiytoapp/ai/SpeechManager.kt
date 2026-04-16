@@ -51,7 +51,7 @@ class SpeechManager(
         private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
         private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
         private const val BUFFER_SIZE_FACTOR = 2 // Größerer Buffer für bessere Performance
-        private const val SPEECH_TIMEOUT = 1500L // 1.5 Sekunden Stille für automatisches Ende
+        private const val SPEECH_TIMEOUT = 3000L // 3.0 Sekunden Stille für automatisches Ende
     }
     
     fun initialize() {
@@ -268,27 +268,27 @@ class SpeechManager(
                     val readBytes = audioRecord.read(audioData, 0, bufferSize)
                     
                     if (readBytes > 0) {
-                        var hasSound = false
+                        var maxAmplitude = 0
                         
-                        // Prüfe auf Geräusche
+                        // Prüfe auf Geräusche zur Steuerung des Timeouts
                         for (i in 0 until readBytes step 2) {
                             val sample = (audioData[i + 1].toInt() shl 8) or (audioData[i].toInt() and 0xFF)
-                            if (Math.abs(sample) > 500) { // Gesenkter Schwellenwert (vorher 1000) für bessere Empfindlichkeit
-                                hasSound = true
-                                lastSoundTime = System.currentTimeMillis()
-                                break
-                            }
+                            val absSample = Math.abs(sample)
+                            if (absSample > maxAmplitude) maxAmplitude = absSample
                         }
                         
-                        // Schreibe nur wenn Geräusche erkannt wurden
-                        if (hasSound) {
-                            outputStream.write(audioData, 0, readBytes)
+                        if (maxAmplitude > 200) { // Gesenkter Schwellenwert für bessere Empfindlichkeit
+                            lastSoundTime = System.currentTimeMillis()
+                            Log.d(TAG, "Geräusch erkannt: Amplitude $maxAmplitude")
                         }
                         
-                        // Prüfe auf Stille
+                        // Immer schreiben, um kontinuierliches Audio zu gewährleisten
+                        outputStream.write(audioData, 0, readBytes)
+                        
+                        // Prüfe auf Stille-Timeout
                         val currentTime = System.currentTimeMillis()
                         if (currentTime - lastSoundTime > SPEECH_TIMEOUT) {
-                            Log.d(TAG, "Spracherkennung durch Stille beendet")
+                            Log.d(TAG, "Spracherkennung durch Stille beendet ($SPEECH_TIMEOUT ms)")
                             break
                         }
                     }
