@@ -46,8 +46,8 @@ android {
         applicationId = "com.deepcore.kiytoapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = (project.findProperty("versionCode") as? String)?.toIntOrNull() ?: 20101
-        versionName = (project.findProperty("versionName") as? String) ?: "2.1.1"
+        versionCode = (project.findProperty("versionCode") as? String)?.toIntOrNull() ?: 20102
+        versionName = (project.findProperty("versionName") as? String) ?: "2.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         

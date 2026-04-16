@@ -68,14 +68,17 @@ jobs:
 
       - name: Calculate Version
         run: |
-          # Wir fangen bei 2.0.1 neu an. Offset ist der aktuelle Run-Counter (ca. 104)
-          # Falls der Run-Counter höher ist, wird die Patch-Version entsprechend 1, 2, 3...
-          OFFSET=104
-          PATCH=$(( ${{ github.run_number }} - OFFSET ))
-          if [ $PATCH -lt 1 ]; then PATCH=1; fi
+          # Extrahiere die Versionsnummern direkt aus der build.gradle.kts (Fallback-Werte nach ?:)
+          V_NAME=$(grep "versionName =" app/build.gradle.kts | sed 's/.*?: "//;s/"//')
+          V_CODE=$(grep "versionCode =" app/build.gradle.kts | sed 's/.*?: //')
           
-          echo "VERSION_CODE=$(( ${{ github.run_number }} + 20000 ))" >> $GITHUB_ENV
-          echo "VERSION_NAME=2.0.$PATCH" >> $GITHUB_ENV
+          # Falls keine Fallback-Werte gefunden wurden (andere Formatierung), nutze Standardwerte
+          if [ -z "$V_NAME" ]; then V_NAME="2.1.2"; fi
+          if [ -z "$V_CODE" ]; then V_CODE="20102"; fi
+          
+          echo "VERSION_CODE=$V_CODE" >> $GITHUB_ENV
+          echo "VERSION_NAME=$V_NAME" >> $GITHUB_ENV
+          echo "Using Version: $V_NAME (Code: $V_CODE)"
 
       - name: Assemble Release APK
         run: ./gradlew assembleRelease -PversionCode=${{ env.VERSION_CODE }} -PversionName=${{ env.VERSION_NAME }}

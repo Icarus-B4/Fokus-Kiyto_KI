@@ -250,6 +250,7 @@ class UpdateSystemFragment : Fragment() {
     private fun showDebugLogs() {
         val logs = StringBuilder()
             .append("App Version: ${BuildConfig.VERSION_NAME}\n")
+            .append("App VersionCode: ${BuildConfig.VERSION_CODE}\n")
             .append("Letzte Prüfung: ${updateManager.getLastCheckDate()}\n")
             .append("Update verfügbar: ${updateManager.updateAvailable}\n")
             .append("Neueste Version: ${updateManager.latestVersion}\n")

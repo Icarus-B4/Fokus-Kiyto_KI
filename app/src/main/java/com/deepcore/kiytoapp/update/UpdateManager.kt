@@ -113,7 +113,7 @@ class UpdateManager(private val context: Context) {
                 
                 updateAvailable
             } else {
-                updateDescription = "Keine Releases auf GitHub gefunden."
+                updateDescription = "GitHub API lieferte 0 Releases. (Entweder wurde noch kein Release erstellt oder das Repository ist nicht öffentlich zugänglich)."
                 LogUtils.debug(this@UpdateManager, "Keine Releases gefunden")
                 false
             }
