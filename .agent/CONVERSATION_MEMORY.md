@@ -87,3 +87,11 @@
   - **Error Feedback**: Mikrofon-Toast zeigt nun przise Fehlercodes (z.B. "FEHLER: API-Fehler 404").
   - **Build**: v2.1.10 erfolgreich auf GitHub hochgeladen.
 - **Ziel**: Identifikation der Ursache fr die massiven 404-Fehler in der Google Console.
+
+### 2026-04-16 - Next-Gen Update v2.1.11: Gemini 3.1 Flash TTS
+- **Status**: Erledigt. Modernstes TTS-Modell integriert.
+- **Wichtigste Features**:
+  - **Modell-Switch**: Sprachausgabe nutzt nun das spezialisierte 'gemini-3.1-flash-tts-preview' Modell.
+  - **404 Fix**: Das spezialisierte Routing behebt die Inkompatibilitten des Standard-1.5 Modells bei Audio-Output.
+  - **Dual-Model-System**: 1.5 Flash fr Text/STT + 3.1 Flash fr TTS.
+  - **Build**: v2.1.11 erfolgreich verffentlicht.

@@ -20,6 +20,9 @@ import com.deepcore.kiytoapp.services.YouTubeService
 
 object GeminiService {
     private const val TAG = "GeminiService"
+    private const val TEXT_MODEL_ID = "gemini-1.5-flash-latest"
+    private const val VOICE_MODEL_ID = "gemini-3.1-flash-tts-preview"
+    
     private var model: GenerativeModel? = null
     private var visionModel: GenerativeModel? = null
     private var voiceModel: GenerativeModel? = null // Für Audio-Input/Output
@@ -37,17 +40,17 @@ object GeminiService {
 
         try {
             model = GenerativeModel(
-                modelName = "gemini-1.5-flash",
+                modelName = TEXT_MODEL_ID,
                 apiKey = apiKey!!
             )
             
             visionModel = GenerativeModel(
-                modelName = "gemini-1.5-flash",
+                modelName = TEXT_MODEL_ID,
                 apiKey = apiKey!!
             )
 
             voiceModel = GenerativeModel(
-                modelName = "gemini-1.5-flash",
+                modelName = TEXT_MODEL_ID,
                 apiKey = apiKey!!
             )
             Log.d(TAG, "GeminiService erfolgreich initialisiert")
@@ -100,8 +103,8 @@ object GeminiService {
             val audioBytes = file.readBytes()
             val base64Audio = android.util.Base64.encodeToString(audioBytes, android.util.Base64.NO_WRAP)
             
-            // Wir nutzen REST für Transkription, da das SDK bei gRPC oft 404 liefert
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+            // Nutze die neue TEXT_MODEL_ID mit -latest Suffix für v1beta
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/$TEXT_MODEL_ID:generateContent?key=$apiKey"
             
             val requestBody = JSONObject().apply {
                 put("contents", JSONArray().apply {
@@ -157,9 +160,9 @@ object GeminiService {
         if (apiKey.isNullOrEmpty()) return@withContext null
         
         try {
-            // Wir nutzen hier den direkten REST-Call, um responseModalities: ["AUDIO"] zu setzen
+            // Wir nutzen hier den direkten REST-Call, um responseModalities: ["audio"] zu setzen
             // Nutze das brandneue gemini-3.1-flash-tts-preview Modell für beste Audio-Qualität
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent?key=$apiKey"
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/$VOICE_MODEL_ID:generateContent?key=$apiKey"
             
             val requestBody = JSONObject().apply {
                 put("contents", JSONArray().apply {
@@ -172,7 +175,7 @@ object GeminiService {
                     })
                 })
                 put("generationConfig", JSONObject().apply {
-                    put("responseModalities", JSONArray().apply { put("AUDIO") })
+                    put("responseModalities", JSONArray().apply { put("audio") })
                     put("speechConfig", JSONObject().apply {
                         put("voiceConfig", JSONObject().apply {
                             put("prebuiltVoiceConfig", JSONObject().apply {
@@ -220,7 +223,7 @@ object GeminiService {
         if (apiKey.isNullOrEmpty()) return@withContext false to "API-Key ist leer oder nicht konfiguriert."
         
         try {
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/$TEXT_MODEL_ID:generateContent?key=$apiKey"
             val requestBody = JSONObject().apply {
                 put("contents", JSONArray().apply {
                     put(JSONObject().apply {
