@@ -41,3 +41,13 @@
 - Voice-System nutzt jetzt nur noch lokale TTS (weiblich) und Gemini.
 - Projekt-Status: Bereinigt, Schlanker und auf Gemini-First-Architektur umgestellt.
 
+
+### 2026-04-16 - Gemini-Migration & v2.1.4 Build
+- **Status**: Migration abgeschlossen, Build erfolgreich, GitHub-Upload fehlgeschlagen (401).
+- **Änderungen**:
+  - OpenAI radikal aus dem Projekt entfernt (Gradle, Services, UI).
+  - Alle AI-Aufgaben auf Gemini 1.5 Flash konsolidiert.
+  - Kompilierfehler (Singleton-Zugriff, Signatur-Fehler, doppelte Methoden) behoben.
+  - App-Version auf v2.1.4 aktualisiert.
+  - APK erfolgreich lokal unter 'releases/Fokus-Kiyto-v2.1.4-debug.apk' erstellt.
+- **Blocker**: GitHub-Token 'ghp_...' ungültig für automatisiertes Release.
