@@ -477,8 +477,9 @@ class MainActivity : BaseActivity() {
                 if (updateManager.checkForUpdates()) {
                     updateManager.updateDescription?.let { description ->
                         updateManager.updateUrl?.let { url ->
-                            val dialog = UpdateDialog.newInstance(description, url)
-                            dialog.show(supportFragmentManager, "update_dialog")
+                            // Nutze das neue Fragment für nahtlose Updates
+                            val dialog = com.deepcore.kiytoapp.update.UpdateDownloadDialogFragment.newInstance(description, url)
+                            dialog.show(supportFragmentManager, "update_download_dialog")
                         }
                     }
                 }

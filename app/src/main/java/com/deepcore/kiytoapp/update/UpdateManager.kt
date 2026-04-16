@@ -28,6 +28,8 @@ class UpdateManager(private val context: Context) {
         private set
     var updateUrl: String? = null
         private set
+    var downloadUrl: String? = null
+        private set
     var updateAvailable: Boolean = false
         private set
 
@@ -38,8 +40,9 @@ class UpdateManager(private val context: Context) {
         latestVersion = prefs.getString(LATEST_VERSION_KEY, null)
         updateDescription = prefs.getString(UPDATE_DESC_KEY, null)
         updateUrl = prefs.getString(UPDATE_URL_KEY, null)
+        downloadUrl = prefs.getString("download_url", null)
         updateAvailable = prefs.getBoolean(UPDATE_STATUS_KEY, false)
-        LogUtils.debug(this, "UpdateManager initialisiert: Version=$latestVersion, Available=$updateAvailable")
+        LogUtils.debug(this, "UpdateManager initialisiert: Version=$latestVersion, Available=$updateAvailable, DownloadURL=$downloadUrl")
     }
 
     suspend fun checkForUpdates(): Boolean = withContext(Dispatchers.IO) {
@@ -81,6 +84,21 @@ class UpdateManager(private val context: Context) {
                 latestVersion = latestRelease.getString("tag_name").removePrefix("v")
                 updateDescription = latestRelease.getString("body")
                 updateUrl = latestRelease.getString("html_url")
+                
+                // Extrahiere APK Download URL aus Assets
+                downloadUrl = null
+                val assets = latestRelease.optJSONArray("assets")
+                if (assets != null) {
+                    for (i in 0 until assets.length()) {
+                        val asset = assets.getJSONObject(i)
+                        val name = asset.getString("name")
+                        if (name.endsWith(".apk")) {
+                            downloadUrl = asset.getString("browser_download_url")
+                            LogUtils.debug(this@UpdateManager, "APK Asset gefunden: $name -> $downloadUrl")
+                            break
+                        }
+                    }
+                }
                 
                 val currentVersion = BuildConfig.VERSION_NAME
                 
@@ -158,9 +176,10 @@ class UpdateManager(private val context: Context) {
             putString(LATEST_VERSION_KEY, latestVersion)
             putString(UPDATE_DESC_KEY, updateDescription)
             putString(UPDATE_URL_KEY, updateUrl)
+            putString("download_url", downloadUrl)
             apply()
         }
-        LogUtils.debug(this, "Update-Status gespeichert: $updateAvailable, Version=$latestVersion, Datum: $checkDate")
+        LogUtils.debug(this, "Update-Status gespeichert: $updateAvailable, Version=$latestVersion, DownloadURL=$downloadUrl, Datum: $checkDate")
     }
 
     fun getLastCheckDate(): Date? {
@@ -181,12 +200,14 @@ class UpdateManager(private val context: Context) {
             remove(LATEST_VERSION_KEY)
             remove(UPDATE_DESC_KEY)
             remove(UPDATE_URL_KEY)
+            remove("download_url")
             apply()
         }
         updateAvailable = false
         latestVersion = null
         updateDescription = null
         updateUrl = null
+        downloadUrl = null
         LogUtils.debug(this, "Update-Status zurückgesetzt")
     }
 } 

@@ -176,10 +176,9 @@
         <!-- Receiver für Update-Abschluss -->
         <receiver
             android:name=".update.UpdateCompletionReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
-                <data android:scheme="package" />
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
         

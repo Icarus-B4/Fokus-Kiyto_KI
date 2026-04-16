@@ -74,15 +74,35 @@ class UpdateDownloadDialogFragment : DialogFragment() {
 
     private fun startDownload(url: String) {
         try {
-            // Extrahiere die Release-URL (falls es eine GitHub-URL ist)
-            val releaseUrl = if (url.contains("/releases/download/")) {
-                url.split("/releases/download/").first() + "/releases/latest"
+            val updateManager = UpdateManager(requireContext())
+            val downloadUrl = updateManager.downloadUrl ?: url
+            
+            // Wenn die URL keine direkte APK-URL ist, versuchen wir sie zu konvertieren 
+            // oder öffnen den Browser als Fallback
+            if (!downloadUrl.endsWith(".apk") && !downloadUrl.contains("/releases/download/")) {
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl))
+                startActivity(browserIntent)
+                dismiss()
+                return
+            }
+
+            Toast.makeText(requireContext(), "Download gestartet. Installation folgt automatisch...", Toast.LENGTH_LONG).show()
+            
+            val downloader = APKDownloader(requireContext())
+            val fileName = "Fokus-Kiyto-v${updateManager.latestVersion ?: "update"}.apk"
+            val downloadId = downloader.downloadAPK(downloadUrl, fileName)
+            
+            if (downloadId != -1L) {
+                // Hier könnten wir einen BroadcastReceiver registrieren, um die Installation sofort nach Abschluss zu starten.
+                // Für dieses MVP verlassen wir uns auf die Systembenachrichtigung des DownloadManagers, 
+                // oder man klickt dort auf die abgeschlossene Datei.
+                
+                // OPTIONAL: Direkte Installation anstoßen (erfordert BroadcastReceiver)
+                dismiss()
             } else {
-                url
+                Toast.makeText(requireContext(), "Fehler beim Starten des Downloads", Toast.LENGTH_SHORT).show()
             }
             
-            // Zeige Deinstallations-Dialog
-            showDeinstallationDialog(releaseUrl)
         } catch (e: Exception) {
             Log.e("UpdateDownloadDialog", "Fehler beim Starten des Downloads", e)
             Toast.makeText(
@@ -91,68 +111,5 @@ class UpdateDownloadDialogFragment : DialogFragment() {
                 Toast.LENGTH_LONG
             ).show()
         }
-    }
-
-    private fun showDeinstallationDialog(releaseUrl: String) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Update verfügbar")
-            .setMessage("Um das Update zu installieren, müssen Sie:\n\n" +
-                    "1. Die aktuelle Version deinstallieren\n" +
-                    "2. Die neue Version von GitHub herunterladen und installieren\n\n" +
-                    "Möchten Sie jetzt mit der Deinstallation beginnen?")
-            .setPositiveButton("Jetzt deinstallieren") { _, _ ->
-                try {
-                    // Speichere die URL für den Browser-Start
-                    val prefs = requireContext().getSharedPreferences("update_prefs", Context.MODE_PRIVATE)
-                    prefs.edit().putString("pending_update_url", releaseUrl).apply()
-                    
-                    // Starte Deinstallation
-                    val packageName = requireContext().packageName
-                    val uninstallIntent = Intent(Intent.ACTION_DELETE)
-                    uninstallIntent.data = Uri.parse("package:$packageName")
-                    uninstallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    
-                    // Zeige Hinweis
-                    Toast.makeText(
-                        requireContext(),
-                        "Nach der Deinstallation wird die GitHub-Seite geöffnet.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    
-                    // Beende den Dialog und starte die Deinstallation
-                    dismiss()
-                    requireActivity().finish()
-                    startActivity(uninstallIntent)
-                    
-                } catch (e: Exception) {
-                    Log.e("UpdateDownloadDialog", "Fehler beim Deinstallieren", e)
-                    Toast.makeText(
-                        requireContext(),
-                        "Fehler beim Deinstallieren: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-            .setNegativeButton("GitHub öffnen") { _, _ ->
-                try {
-                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(releaseUrl))
-                    startActivity(browserIntent)
-                    Toast.makeText(
-                        requireContext(),
-                        "Denken Sie daran, die App zu deinstallieren, bevor Sie die neue Version installieren!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    dismiss()
-                } catch (e: Exception) {
-                    Log.e("UpdateDownloadDialog", "Fehler beim Öffnen des Browsers", e)
-                    Toast.makeText(
-                        requireContext(),
-                        "Fehler beim Öffnen des Browsers: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-            .setNeutralButton("Später", null)
-            .show()
     }
 } 
