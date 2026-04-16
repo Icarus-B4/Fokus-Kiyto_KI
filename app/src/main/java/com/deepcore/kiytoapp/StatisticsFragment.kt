@@ -203,7 +203,7 @@ class StatisticsFragment : Fragment() {
                 val messages = chatManager.getMessages()
                 val totalAiInteractions = messages.count { !it.isUser }
                 val localResponses = messages.count { !it.isUser && isLocalResponse(it.text) }
-                val openAiResponses = totalAiInteractions - localResponses
+                val geminiResponses = totalAiInteractions - localResponses
                 
                 withContext(Dispatchers.Main) {
                     updateFocusTimeDisplay(focusTime)
@@ -211,7 +211,7 @@ class StatisticsFragment : Fragment() {
                     
                     // KI-Nutzung anzeigen
                     aiUsageText.text = "$totalAiInteractions Interaktionen"
-                    aiTypeText.text = "Lokal: $localResponses | OpenAI: $openAiResponses"
+                    aiTypeText.text = "Lokal: $localResponses | Gemini: $geminiResponses"
                     
                     val activeDays = calculateActiveDays()
                     activeDaysText.text = "$activeDays aktive Tage"

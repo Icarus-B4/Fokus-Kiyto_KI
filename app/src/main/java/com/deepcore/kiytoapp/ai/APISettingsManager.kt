@@ -18,37 +18,15 @@ class APISettingsManager(context: Context) {
     )
 
     companion object {
-        private const val KEY_API_KEY = "openai_api_key"
         private const val KEY_GEMINI_API_KEY = "gemini_api_key"
         private const val KEY_USE_CUSTOM_KEY = "use_custom_key"
-    }
-
-    fun saveApiKey(apiKey: String) {
-        try {
-            encryptedPrefs.edit()
-                .putString(KEY_API_KEY, apiKey)
-                .putBoolean(KEY_USE_CUSTOM_KEY, true)
-                .apply()
-            Log.d(TAG, "API-Key erfolgreich gespeichert")
-        } catch (e: Exception) {
-            Log.e(TAG, "Fehler beim Speichern des API-Keys", e)
-            throw e
-        }
-    }
-
-    fun getApiKey(): String? {
-        return try {
-            encryptedPrefs.getString(KEY_API_KEY, null)
-        } catch (e: Exception) {
-            Log.e(TAG, "Fehler beim Abrufen des API-Keys", e)
-            null
-        }
     }
 
     fun saveGeminiApiKey(apiKey: String) {
         try {
             encryptedPrefs.edit()
                 .putString(KEY_GEMINI_API_KEY, apiKey)
+                .putBoolean(KEY_USE_CUSTOM_KEY, true)
                 .apply()
             Log.d(TAG, "Gemini API-Key erfolgreich gespeichert")
         } catch (e: Exception) {
@@ -73,7 +51,7 @@ class APISettingsManager(context: Context) {
     fun resetToDefaultKey() {
         try {
             encryptedPrefs.edit()
-                .remove(KEY_API_KEY)
+                .remove(KEY_GEMINI_API_KEY)
                 .putBoolean(KEY_USE_CUSTOM_KEY, false)
                 .apply()
             Log.d(TAG, "API-Einstellungen zurückgesetzt")

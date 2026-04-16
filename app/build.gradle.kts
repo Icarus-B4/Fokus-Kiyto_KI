@@ -61,8 +61,6 @@ android {
             }
         }
 
-        // BuildConfig Felder
-        buildConfigField("String", "OPENAI_API_KEY", "\"${System.getenv("OPENAI_API_KEY") ?: ""}\"")
     }
 
     lint {
@@ -152,7 +150,6 @@ dependencies {
     implementation("io.ktor:ktor-client-android:2.3.9")
     implementation("io.ktor:ktor-client-okhttp:2.3.9")
 
-    implementation("com.aallam.openai:openai-client:3.7.0")
 
     implementation("com.google.apis:google-api-services-youtube:v3-rev20231011-2.0.0")
 
@@ -167,6 +164,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 }
+
 
 
 

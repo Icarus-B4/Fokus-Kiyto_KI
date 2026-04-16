@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.deepcore.kiytoapp.services.OpenAIService
+import com.deepcore.kiytoapp.ai.GeminiService
 import com.deepcore.kiytoapp.services.YouTubeService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
@@ -17,7 +17,6 @@ class VideoSummaryActivity : AppCompatActivity() {
     private lateinit var continueButton: MaterialButton
     private lateinit var summaryTextView: TextView
     private val youtubeService by lazy { YouTubeService(this) }
-    private val openAIService by lazy { OpenAIService(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +71,7 @@ class VideoSummaryActivity : AppCompatActivity() {
             try {
                 val videoId = youtubeService.extractVideoId(url)
                 val videoInfo = youtubeService.getVideoInfo(videoId)
-                val summary = openAIService.generateVideoSummary(videoInfo)
+                val summary = GeminiService.generateVideoSummary(videoInfo)
                 
                 showSummary(summary, videoInfo.title, videoInfo.videoUrl)
             } catch (e: IllegalStateException) {

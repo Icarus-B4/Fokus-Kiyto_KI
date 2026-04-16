@@ -14,7 +14,7 @@ param (
 
 # Funktion zum Finden des Git-Executable
 function Find-GitPath {
-    # Prüfe direkt
+    # Pruefe direkt
     $gitCommand = Get-Command git -ErrorAction SilentlyContinue
     if ($gitCommand) {
         return "git"
@@ -34,7 +34,7 @@ function Find-GitPath {
         }
     }
     
-    Write-Host "Git wurde nicht gefunden. Bitte installiere Git und stelle sicher, dass es im PATH verfügbar ist." -ForegroundColor Red
+    Write-Host "Git wurde nicht gefunden. Bitte installiere Git und stelle sicher, dass es im PATH verfuegbar ist." -ForegroundColor Red
     exit 1
 }
 
@@ -59,7 +59,7 @@ function Update-AppVersion {
     $gradleContent = Get-Content $gradlePath -Raw
     if ($gradleContent -match 'versionCode\s*=\s*(\d+)') {
         $currentVersionCode = [int]$matches[1]
-        # Erhöhe versionCode nur wenn die neue Version größer ist
+        # Erhoehe versionCode nur wenn die neue Version groesser ist
         if ($versionCode -le $currentVersionCode) {
             $versionCode = $currentVersionCode + 1
             Write-Host "Increasing versionCode to $versionCode to ensure update detection" -ForegroundColor Yellow
@@ -79,18 +79,18 @@ Update-AppVersion -version $version
 
 # Token-Handling verbessert
 function Get-GitHubToken {
-    # 1. Prüfe, ob Token als Parameter übergeben wurde
+    # 1. Pruefe, ob Token als Parameter uebergeben wurde
     if ($token) {
         return $token
     }
     
-    # 2. Prüfe, ob Token in Umgebungsvariable existiert
+    # 2. Pruefe, ob Token in Umgebungsvariable existiert
     $envToken = $env:GITHUB_TOKEN
     if ($envToken) {
         return $envToken
     }
     
-    # 3. Prüfe, ob Token in User-Umgebungsvariable existiert
+    # 3. Pruefe, ob Token in User-Umgebungsvariable existiert
     $userToken = [System.Environment]::GetEnvironmentVariable('GITHUB_TOKEN', [System.EnvironmentVariableTarget]::User)
     if ($userToken) {
         return $userToken
@@ -99,7 +99,7 @@ function Get-GitHubToken {
     # 4. Fehler, wenn kein Token gefunden
     Write-Host "GitHub token not found. Please set the GITHUB_TOKEN environment variable or pass the token as a parameter." -ForegroundColor Red
     Write-Host "Gehe zu GitHub Settings > Developer Settings > Personal Access Tokens > Tokens (classic)" -ForegroundColor Yellow
-    Write-Host "Wähle 'repo', 'write:packages', und 'delete:packages' Berechtigungen." -ForegroundColor Yellow
+    Write-Host "Waehle 'repo', 'write:packages', und 'delete:packages' Berechtigungen." -ForegroundColor Yellow
     exit 1
 }
 
@@ -123,7 +123,7 @@ function Get-ReleaseNotes {
     $commits = & $gitExe log $gitRange --pretty=format:"%s" --no-merges
     
     if (-not $commits) {
-        return "Release v$version`n`nKeine Änderungen dokumentiert."
+        return "Release v$version`n`nKeine Aenderungen dokumentiert."
     }
     
     # Kategorisiere Commits (basierend auf Präfixen oder Keywords)
@@ -169,12 +169,12 @@ function Get-ReleaseNotes {
     }
     
     if ($others.Count -gt 0) {
-        $releaseNotes += "## Sonstige Änderungen`n"
+        $releaseNotes += "## Sonstige Aenderungen`n"
         $releaseNotes += $others -join "`n"
         $releaseNotes += "`n`n"
     }
     
-    $releaseNotes += "## Installation`nLade die APK herunter und installiere sie auf deinem Android-Gerät. Bei Problemen deinstalliere bitte vorher die App und versuche es erneut."
+    $releaseNotes += "## Installation`nLade die APK herunter und installiere sie auf deinem Android-Geraet. Bei Problemen deinstalliere bitte vorher die App und versuche es erneut."
     
     return $releaseNotes
 }
@@ -200,7 +200,7 @@ Write-Host "Pushing changes..."
 & $gitExe push
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error pushing changes." -ForegroundColor Red
-    Write-Host "Tipp: Wenn der Push aufgrund eines erkannten Tokens blockiert wird, prüfe den Git-Verlauf und bereinige ihn." -ForegroundColor Yellow
+    Write-Host "Tipp: Wenn der Push aufgrund eines erkannten Tokens blockiert wird, pruefe den Git-Verlauf und bereinige ihn." -ForegroundColor Yellow
     exit 1
 }
 
@@ -342,9 +342,9 @@ Write-Host "Process completed. The APK is located at: $releasedApkPath" -Foregro
 # Install via ADB
 Write-Host "Installing APK via ADB..."
 
-# Prüfe, ob ADB verfügbar ist oder finde den Pfad
+# Pruefe, ob ADB verfuegbar ist oder finde den Pfad
 function Find-AdbPath {
-    # Prüfe direkt
+    # Pruefe direkt
     $adbCommand = Get-Command adb -ErrorAction SilentlyContinue
     if ($adbCommand) {
         return "adb"

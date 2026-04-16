@@ -25,8 +25,7 @@ import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.delay
 
 class SpeechManager(
-    private val context: Context,
-    private val openAIService: OpenAIService
+    private val context: Context
 ) {
     private val TAG = "SpeechManager"
     
@@ -216,13 +215,12 @@ class SpeechManager(
                 
                 val audioFile = recordAudio()
                 audioFile?.let { file ->
-                    // Bevorzuge Gemini für die Transkription
+                    // Nutze Gemini zur Transkription
                     val transcription = if (GeminiService.isEnabled()) {
                         Log.d(TAG, "Nutze Gemini zur Transkription")
                         GeminiService.transcribeAudio(file)
                     } else {
-                        Log.d(TAG, "Nutze OpenAI zur Transkription")
-                        openAIService.transcribeAudio(file)
+                        null
                     }
                     
                     file.delete() // Cleanup
@@ -416,17 +414,16 @@ class SpeechManager(
             isSpeaking = true
             statusCallback?.invoke(isRecording, isSpeaking)
             
-            // Versuche zuerst natives Gemini Audio (die "schöne Stimme")
+            // Nutze natives Gemini Audio (die "schöne Stimme")
             val audioData = if (GeminiService.isEnabled()) {
                 Log.d(TAG, "Nutze natives Gemini Audio für Sprache")
                 GeminiService.generateGeminiSpeech(text)
             } else {
-                Log.d(TAG, "Nutze OpenAI TTS")
-                openAIService.textToSpeech(text)
+                null
             }
             
             if (audioData != null) {
-                // Audio erfolgreich (Gemini oder OpenAI), nutze die erhaltenen Audiodaten
+                // Audio erfolgreich (Gemini), nutze die erhaltenen Audiodaten
                 val tempFile = File(context.cacheDir, "tts_output.mp3")
                 tempFile.writeBytes(audioData)
                 

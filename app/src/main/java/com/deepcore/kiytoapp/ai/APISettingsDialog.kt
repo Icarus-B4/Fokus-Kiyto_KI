@@ -46,18 +46,12 @@ class APISettingsDialog : DialogFragment() {
         val inflater = requireActivity().layoutInflater
         val view = inflater.inflate(R.layout.dialog_api_settings, null)
         
-        val apiKeyInput = view.findViewById<EditText>(R.id.apiKeyInput)
         val geminiApiKeyInput = view.findViewById<EditText>(R.id.geminiApiKeyInput)
         
-        // Lade die aktuellen API-Keys
-        val currentOpenAIKey = apiSettingsManager.getApiKey()
+        // Lade den aktuellen Gemini-Key
         val currentGeminiKey = apiSettingsManager.getGeminiApiKey()
         
         // Zeige den aktuellen Status
-        if (!currentOpenAIKey.isNullOrEmpty()) {
-            apiKeyInput.hint = "OpenAI API-Key ist gesetzt"
-        }
-        
         if (!currentGeminiKey.isNullOrEmpty()) {
             geminiApiKeyInput.hint = "Gemini API-Key ist gesetzt"
         }
@@ -65,20 +59,9 @@ class APISettingsDialog : DialogFragment() {
         builder.setView(view)
             .setTitle("KI-Einstellungen")
             .setPositiveButton("Speichern") { _, _ ->
-                val openAIKey = apiKeyInput.text.toString().trim()
                 val geminiKey = geminiApiKeyInput.text.toString().trim()
                 
                 var success = true
-                
-                // OpenAI Key speichern wenn eingegeben
-                if (openAIKey.isNotEmpty()) {
-                    if (apiSettingsManager.validateApiKey(openAIKey)) {
-                        apiSettingsManager.saveApiKey(openAIKey)
-                        listener?.onApiKeySet(openAIKey)
-                    } else {
-                        success = false
-                    }
-                }
                 
                 // Gemini Key speichern wenn eingegeben
                 if (geminiKey.isNotEmpty()) {

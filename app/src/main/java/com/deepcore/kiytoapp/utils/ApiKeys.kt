@@ -10,7 +10,6 @@ object ApiKeys {
     private const val TAG = "ApiKeys"
     private const val PREFS_NAME = "encrypted_api_keys"
     private const val YOUTUBE_KEY = "youtube_api_key"
-    private const val OPENAI_KEY = "openai_api_key"
 
     private fun getEncryptedPrefs(context: Context) = EncryptedSharedPreferences.create(
         PREFS_NAME,
@@ -44,64 +43,12 @@ object ApiKeys {
             }
     }
 
-    fun saveOpenAIApiKey(context: Context, apiKey: String) {
-        val sanitizedKey = sanitizeApiKey(apiKey)
-        Log.d(TAG, "Speichere OpenAI API-Schlüssel: ${sanitizedKey.take(5)}...")
-        Log.d(TAG, "API-Schlüssel Länge: ${sanitizedKey.length}")
-        getEncryptedPrefs(context).edit().putString(OPENAI_KEY, sanitizedKey).apply()
-    }
-
-    fun getOpenAIApiKey(context: Context): String? {
-        // Versuche zuerst den gespeicherten Schlüssel zu laden
-        val savedKey = getEncryptedPrefs(context).getString(OPENAI_KEY, null)
-        Log.d(TAG, "Gespeicherter OpenAI API-Schlüssel: ${if (savedKey != null) "gefunden" else "nicht gefunden"}")
-        
-        if (!savedKey.isNullOrEmpty()) {
-            val sanitizedKey = sanitizeApiKey(savedKey)
-            Log.d(TAG, "Gespeicherter API-Schlüssel Länge: ${sanitizedKey.length}")
-            if (sanitizedKey.length >= 20) {
-                Log.d(TAG, "Gespeicherter API-Schlüssel akzeptiert")
-                return sanitizedKey
-            } else {
-                Log.w(TAG, "Gespeicherter API-Schlüssel zu kurz (${sanitizedKey.length} Zeichen)")
-            }
-        }
-
-        // Wenn kein Schlüssel gespeichert ist, versuche den BuildConfig-Schlüssel
-        val buildConfigKey = sanitizeApiKey(BuildConfig.OPENAI_API_KEY)
-        Log.d(TAG, "BuildConfig OpenAI API-Schlüssel: ${if (buildConfigKey.isNotEmpty()) "gefunden" else "leer"}")
-        
-        if (buildConfigKey.isNotEmpty()) {
-            Log.d(TAG, "BuildConfig API-Schlüssel Länge: ${buildConfigKey.length}")
-            if (buildConfigKey.length >= 20) {
-                Log.d(TAG, "BuildConfig API-Schlüssel akzeptiert")
-                saveOpenAIApiKey(context, buildConfigKey)
-                return buildConfigKey
-            } else {
-                Log.w(TAG, "BuildConfig API-Schlüssel zu kurz (${buildConfigKey.length} Zeichen)")
-            }
-        }
-
-        Log.w(TAG, "Kein gültiger OpenAI API-Schlüssel gefunden!")
-        return null
+    fun getYouTubeApiKey(context: Context): String? {
+        return getEncryptedPrefs(context).getString(YOUTUBE_KEY, null)
     }
 
     fun initializeApiKeys(context: Context) {
         Log.d(TAG, "Initialisiere API-Schlüssel...")
-        try {
-            // Initialisiere OpenAI API-Schlüssel aus BuildConfig, wenn noch nicht gespeichert
-            val buildConfigKey = BuildConfig.OPENAI_API_KEY
-            Log.d(TAG, "BuildConfig OpenAI API-Schlüssel vorhanden: ${buildConfigKey.isNotEmpty()}")
-            
-            val existingKey = getOpenAIApiKey(context)
-            Log.d(TAG, "Existierender OpenAI API-Schlüssel: ${if (existingKey != null) "vorhanden" else "nicht vorhanden"}")
-            
-            if (buildConfigKey.isNotEmpty() && existingKey == null) {
-                Log.d(TAG, "Speichere BuildConfig OpenAI API-Schlüssel...")
-                saveOpenAIApiKey(context, buildConfigKey)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Fehler beim Initialisieren der API-Schlüssel", e)
-        }
+        // Nur YouTube Initialisierung falls nötig
     }
 } 

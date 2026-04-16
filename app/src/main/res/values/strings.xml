@@ -72,7 +72,6 @@
     <string name="undo">Rückgängig</string>
     <string name="timer_zero_warning">Bitte eine Anzahl größer 0 angeben</string>
     <string name="timer_error">Fehler beim Starten des Timers</string>
-    <!-- Dashboard -->
     <string name="daily_overview">Tagesübersicht</string>
     <string name="daily_progress_format">%1$d von %2$d Aufgaben erledigt (%3$d%%)</string>
     <string name="no_tasks_today">Keine Aufgaben für heute</string>
@@ -82,7 +81,6 @@
     <string name="prioritized_tasks">Priorisierte Aufgaben</string>
     <string name="no_tasks_message">Keine Aufgaben vorhanden</string>
     <string name="ai_assistant">KI-Assistent</string>
-    <!-- Chat -->
     <string name="message_hint">Nachricht eingeben...</string>
     <string name="send_message">Nachricht senden</string>
     <string name="task_help">Aufgabenhilfe</string>
@@ -101,7 +99,6 @@
     <string name="high_priority">Hohe Priorität</string>
     <string name="medium_priority">Mittlere Priorität</string>
     <string name="low_priority">Niedrige Priorität</string>
-    <!-- Chat History -->
     <string name="clear_history">Verlauf löschen</string>
     <string name="clear_history_confirmation">Möchten Sie wirklich den gesamten Chat-Verlauf löschen?</string>
     <string name="archive_chat">Chat archivieren</string>
@@ -114,27 +111,24 @@
     <string name="close">Schließen</string>
     <string name="message_deleted">Nachricht gelöscht</string>
     <string name="completed_tasks_over_time">Abgeschlossene Aufgaben (letzte 7 Tage)</string>
-    <!-- Chat Actions -->
     <string name="open_calendar">Kalender öffnen</string>
     <string name="play_music">Musik abspielen</string>
     <string name="manage_devices">Geräte verwalten</string>
     <string name="hints">Hinweise</string>
     <string name="contact_us">Kontaktiere uns</string>
     <string name="menu">Menü</string>
-    <!-- Hinweise -->
     <string name="voice_commands">Sprachbefehle</string>
     <string name="timer_commands">Timer-Befehle:\n• \'Timer starten\'\n• \'Fokus für [Zeit] Minuten\'\n• \'Pause starten\'</string>
     <string name="task_commands">Aufgaben-Befehle:\n• \'Neue Aufgabe: [Titel]\'\n• \'Erstelle Task [Titel]\'\n• \'Füge Aufgabe hinzu: [Titel]\'</string>
     <string name="app_tips">App-Tipps</string>
     <string name="productivity_tips">Nutzen Sie Sprachbefehle für schnelles Erstellen von Aufgaben\n• Planen Sie regelmäßige Fokus-Sessions\n• Überprüfen Sie Ihre Statistiken wöchentlich\n• Priorisieren Sie Ihre Aufgaben mit KI-Unterstützung</string>
-    <string name="productivity_tips2">Es ist einen Standard APK-KEY Installiert. Unter Einstellungen können Sie Ihren eigenen Schlüssel OPENAI-API-KEY eingeben. Es muss über ein genügendes Guthaben verfügbar sein.</string>
+    <string name="productivity_tips2">Für die Nutzung der erweiterten KI-Funktionen empfehlen wir die Eingabe eines eigenen Gemini API-Keys in den Einstellungen. Dieser wird sicher auf Ihrem Gerät gespeichert.</string>
     <string name="statistics">Statistiken</string>
     <string name="no_tasks_yet">Noch keine Aufgaben vorhanden</string>
     <string name="calendar">Kalender</string>
     <string name="welcome_user">Willkommen, %1$s!</string>
     <string name="today_stats">%1$d Aufgaben heute, %2$d min Fokuszeit</string>
     <string name="day_stats">Statistiken für %1$s:\n%2$d abgeschlossen, %3$d offen, %4$s Fokuszeit</string>
-    <!-- API Settings -->
     <string name="api_settings">KI API-Key Einstellungen</string>
     <string name="api_key_hint">API-Key eingeben</string>
     <string name="use_custom_key">Eigenen API-Key verwenden</string>
@@ -144,7 +138,6 @@
     <string name="api_key_secure_note">Hinweis: Der API-Key wird sicher verschlüsselt gespeichert.</string>
     <string name="theme">Erscheinungsbild</string>
     <string name="notifications">Benachrichtigungen</string>
-    <!-- Auth Strings -->
     <string name="login">Anmelden</string>
     <string name="register">Registrieren</string>
     <string name="email">E-Mail</string>
@@ -231,7 +224,7 @@
     <string name="notification_background_updated">Benachrichtigungshintergrund wurde aktualisiert</string>
     <string name="notification_background_error">Fehler beim Aktualisieren des Benachrichtigungshintergrunds</string>
     <string name="welcome_message">👋 Hallo! Ich bin Kiyto, Ihr persönlicher KI-Assistent. Ich kann Ihnen bei verschiedenen Aufgaben helfen:\n\n• Aufgaben erstellen und verwalten\n• Timer setzen\n• Kalendereinträge erstellen\n• Bilder analysieren\n• Dokumente zusammenfassen\n• und vieles mehr!\n\nWie kann ich Ihnen heute helfen?</string>
-    <string name="openai_api_key">API-Key</string>
+    <string name="openai_api_key">Gemini API-Key</string>
     <string name="web_content">web content</string>
     <string name="x_tweeter">X-tweeter</string>
     <string name="e_mail">E-Mail:</string>

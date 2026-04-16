@@ -51,7 +51,6 @@ import com.deepcore.kiytoapp.ai.ChatAdapter
 import com.deepcore.kiytoapp.ai.ChatManager
 import com.deepcore.kiytoapp.ai.ChatMessage
 import com.deepcore.kiytoapp.ai.ImageGenerationService
-import com.deepcore.kiytoapp.ai.OpenAIService
 import com.deepcore.kiytoapp.ai.SpeechManager
 import com.deepcore.kiytoapp.ai.TaskAIService
 import com.deepcore.kiytoapp.base.BaseFragment
@@ -102,11 +101,8 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private lateinit var photosOption: LinearLayout
     private lateinit var cameraOption: LinearLayout
     private lateinit var filesOption: LinearLayout
-    private lateinit var createImageOption: LinearLayout
-    private lateinit var collectIdeasOption: LinearLayout
     private lateinit var analyzeImagesOption: LinearLayout
     private lateinit var moreOption: LinearLayout
-    private lateinit var imageGenerationService: ImageGenerationService
     private lateinit var loadingDialog: AlertDialog
     private var toneGenerator: ToneGenerator? = null
 
@@ -192,9 +188,8 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             taskAIService = TaskAIService(requireContext())
             chatManager = ChatManager(requireContext())
             taskManager = TaskManager(requireContext())
-            imageGenerationService = ImageGenerationService(requireContext())
             // SpeechManager korrekt initialisieren
-            speechManager = SpeechManager(requireContext(), com.deepcore.kiytoapp.ai.OpenAIService).apply {
+            speechManager = SpeechManager(requireContext()).apply {
                 initialize()
                 onVolumeChanged = { amplitude ->
                     // Wir loggen die Amplitude für das Debugging über Logcat
@@ -1416,12 +1411,10 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         }
     }
 
-    override fun onApiKeySet(apiKey: String) {
-        // Initialisiere OpenAIService neu mit dem aktualisierten API-Key
+    override fun onApiKeySet() {
+        // Initialisiere Dienste neu mit dem aktualisierten API-Key
+        GeminiService.initialize(requireContext())
         taskAIService = TaskAIService(requireContext())
-        val message = ChatMessage(
-            "API-Einstellungen wurden aktualisiert. Sie können den Chat jetzt fortsetzen.",
-            false
         )
         adapter.addMessage(message)
         chatManager.addMessage(message)
@@ -1555,16 +1548,6 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             plusMenuContainer.visibility = View.GONE
         }
 
-        createImageOption.setOnClickListener {
-            showImageGenerationDialog()
-            plusMenuContainer.visibility = View.GONE
-        }
-
-        collectIdeasOption.setOnClickListener {
-            showIdeaCollectionDialog()
-            plusMenuContainer.visibility = View.GONE
-        }
-
         analyzeImagesOption.setOnClickListener {
             openPhotoPicker()
             plusMenuContainer.visibility = View.GONE
@@ -1596,10 +1579,10 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
     private fun openCamera() {
         // Prüfe zuerst, ob ein API-Key vorhanden ist
         val apiSettingsManager = APISettingsManager(requireContext())
-        if (apiSettingsManager.getApiKey().isNullOrEmpty()) {
+        if (apiSettingsManager.getGeminiApiKey().isNullOrEmpty()) {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("API-Key erforderlich")
-                .setMessage("Für die Bildanalyse wird ein OpenAI API-Key benötigt. Möchten Sie jetzt einen API-Key hinzufügen?")
+                .setTitle("Gemini API-Key erforderlich")
+                .setMessage("Für die Bildanalyse wird ein Gemini API-Key benötigt. Möchten Sie jetzt einen API-Key hinzufügen?")
                 .setPositiveButton("Ja") { _, _ ->
                     showApiSettingsDialog()
                 }
@@ -1699,7 +1682,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                             throw Exception("Keine Textinhalte in der PDF gefunden")
                         }
                         
-                        // PDF-Inhalt an OpenAI senden
+                        // PDF-Inhalt an Gemini senden
                         val response = taskAIService.analyzeFile(fileName, pdfContent.toString())
                         hideLoadingDialog()
                         
@@ -1828,8 +1811,8 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         val apiSettingsManager = APISettingsManager(requireContext())
         if (apiSettingsManager.getApiKey().isNullOrEmpty()) {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("API-Key erforderlich")
-                .setMessage("Für die Bildgenerierung wird ein OpenAI API-Key benötigt. Möchten Sie jetzt einen API-Key hinzufügen?")
+                .setTitle("Gemini API-Key erforderlich")
+                .setMessage("Für diese Funktion wird ein Gemini API-Key benötigt. Möchten Sie jetzt einen API-Key hinzufügen?")
                 .setPositiveButton("Ja") { _, _ ->
                     showApiSettingsDialog()
                 }
@@ -2210,7 +2193,6 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             • "Erstelle eine Aufgabe" - Erstellt eine neue Aufgabe
             • "Öffne den Kalender" - Öffnet den Kalender
             • "Zeige meine Aufgaben" - Zeigt alle Aufgaben an
-            • "Erzeuge ein Bild" - Startet die Bildgenerierung
         """.trimIndent()
         
         builder.setMessage(commands)
@@ -2220,145 +2202,9 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         builder.show()
     }
     
-    /**
-     * Startet das KI-Training für bessere Spracherkennung
-     */
     private fun startAITraining() {
         // Platzhalter für zukünftige Funktionalität
         showSnackbar("Diese Funktion wird in Kürze verfügbar sein")
-    }
-
-    private fun showIdeaCollectionDialog() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Ideen sammeln")
-        
-        // Layout für die Themeneingabe erstellen
-        val inputLayout = LinearLayout(requireContext())
-        inputLayout.orientation = LinearLayout.VERTICAL
-        inputLayout.setPadding(32, 16, 32, 16)
-        
-        val themeLabel = TextView(requireContext())
-        themeLabel.text = "Zu welchem Thema möchtest du Ideen sammeln?"
-        themeLabel.setPadding(0, 0, 0, 16)
-        
-        val themeInput = EditText(requireContext())
-        themeInput.hint = "z.B. Produktentwicklung, Marketingstrategien, Projektplanung..."
-        themeInput.inputType = InputType.TYPE_CLASS_TEXT
-        
-        val quantityLabel = TextView(requireContext())
-        quantityLabel.text = "Wie viele Ideen werden benötigt?"
-        quantityLabel.setPadding(0, 24, 0, 16)
-        
-        val quantitySlider = SeekBar(requireContext())
-        quantitySlider.max = 9 // 1-10 Ideen
-        quantitySlider.progress = 4 // Standard: 5 Ideen
-        
-        val quantityText = TextView(requireContext())
-        quantityText.text = "5 Ideen"
-        quantityText.gravity = Gravity.CENTER
-        
-        // SeekBar Listener
-        quantitySlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                quantityText.text = "${progress + 1} Ideen"
-            }
-            
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-        
-        // Layout zusammenbauen
-        inputLayout.addView(themeLabel)
-        inputLayout.addView(themeInput)
-        inputLayout.addView(quantityLabel)
-        inputLayout.addView(quantitySlider)
-        inputLayout.addView(quantityText)
-        
-        builder.setView(inputLayout)
-        
-        // Buttons hinzufügen
-        builder.setPositiveButton("Ideen generieren") { dialog, _ ->
-            val theme = themeInput.text.toString().trim()
-            if (theme.isNotEmpty()) {
-                generateIdeasForTheme(theme, quantitySlider.progress + 1)
-            } else {
-                showSnackbar("Bitte gib ein Thema ein")
-            }
-            dialog.dismiss()
-        }
-        
-        builder.setNegativeButton("Abbrechen") { dialog, _ ->
-            dialog.dismiss()
-        }
-        
-        // Dialog anzeigen
-        builder.show()
-    }
-    
-    private fun generateIdeasForTheme(theme: String, quantity: Int) {
-        // Füge eine Benutzernachricht zum Chat hinzu
-        val userMessage = ChatMessage("Generiere $quantity Ideen zum Thema: $theme", true)
-        adapter.addMessage(userMessage)
-        chatManager.addMessage(userMessage)
-        
-        // Zeige "Assistent schreibt..." an
-        val typingMessage = ChatMessage("", false, isTyping = true)
-        adapter.addMessage(typingMessage)
-        scrollToBottom()
-        
-        // Starte Coroutine für die API-Anfrage
-        lifecycleScope.launch {
-            try {
-                // Erstelle den Prompt für die API
-                val prompt = """
-                    Bitte generiere $quantity kreative und umsetzbare Ideen zum Thema "$theme".
-                    Formatiere die Antwort als nummerierte Liste mit kurzen Erklärungen zu jeder Idee.
-                    Die Ideen sollten innovativ, praktisch und gut durchdacht sein.
-                """.trimIndent()
-                
-                // Rufe die OpenAI API auf, um Ideen zu generieren
-                val response = withContext(Dispatchers.IO) {
-                    com.deepcore.kiytoapp.ai.OpenAIService.generateChatResponse(prompt)
-                }
-                
-                // Entferne die "Assistent schreibt..." Nachricht
-                adapter.removeLastMessage()
-                
-                // Füge die Antwort des Assistenten hinzu
-                val assistantMessage = ChatMessage(response ?: "Entschuldigung, ich konnte keine Ideen generieren. Bitte versuche es später erneut.", false)
-                adapter.addMessage(assistantMessage)
-                chatManager.addMessage(assistantMessage)
-                
-                // Scrollen, um die neuen Nachrichten anzuzeigen
-                scrollToBottom()
-                
-                // Füge Aktionen für die generierten Ideen hinzu
-                addIdeaActions()
-            } catch (e: Exception) {
-                // Fehlerbehandlung
-                adapter.removeLastMessage()
-                val errorMessage = ChatMessage("Entschuldigung, bei der Ideengenerierung ist ein Fehler aufgetreten: ${e.message}", false)
-                adapter.addMessage(errorMessage)
-                chatManager.addMessage(errorMessage)
-                scrollToBottom()
-                Log.e(TAG, "Fehler bei der Ideengenerierung", e)
-            }
-        }
-    }
-    
-    private fun addIdeaActions() {
-        // Füge Aktionschips hinzu, um mit den generierten Ideen zu arbeiten
-        val actionMessage = ChatMessage(
-            content = "", 
-            isUser = false, 
-            chatActions = listOf(
-                ActionItem("Ideen speichern", "save_ideas"),
-                ActionItem("In MindMap übertragen", "to_mindmap"),
-                ActionItem("Weitere Ideen", "more_ideas")
-            )
-        )
-        adapter.addMessage(actionMessage)
-        scrollToBottom()
     }
 
     companion object {

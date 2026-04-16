@@ -33,3 +33,11 @@
 
 ---
 *Status: App ist stabil (v2.0.95+), Chat & Voice funktionieren, Update-Persistenz ist aktiv.*
+
+### [2026-04-16 20:21:12] Radikale OpenAI-Entfernung & Gemini-Konsolidierung
+- OpenAI wurde vollständig aus dem Projekt entfernt (SDK, Code, UI).
+- Alle KI-Dienste (Chat, Audio, Video, Files) laufen nun exklusiv über Gemini.
+- GeminiService wurde um REST-Transkription und Video-Analysis erweitert.
+- Voice-System nutzt jetzt nur noch lokale TTS (weiblich) und Gemini.
+- Projekt-Status: Bereinigt, Schlanker und auf Gemini-First-Architektur umgestellt.
+

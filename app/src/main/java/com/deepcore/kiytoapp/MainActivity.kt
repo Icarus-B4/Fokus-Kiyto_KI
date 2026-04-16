@@ -69,12 +69,11 @@ class MainActivity : BaseActivity() {
         
         // Initialisiere Services im Hintergrund
         lifecycleScope.launch(Dispatchers.IO) {
-            // Initialisiere OpenAI Service
-            com.deepcore.kiytoapp.ai.OpenAIService.initialize(this@MainActivity)
+            GeminiService.initialize(this@MainActivity)
             
             withContext(Dispatchers.Main) {
                 // Initialisiere Speech Manager
-                speechManager = SpeechManager(this@MainActivity, com.deepcore.kiytoapp.ai.OpenAIService)
+                speechManager = SpeechManager(this@MainActivity)
                 chatManager = ChatManager(this@MainActivity)
 
                 if (savedInstanceState == null) {

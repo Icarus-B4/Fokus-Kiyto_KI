@@ -20,7 +20,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.deepcore.kiytoapp.MainActivity
 import com.deepcore.kiytoapp.R
-import com.deepcore.kiytoapp.ai.OpenAIService
+import com.deepcore.kiytoapp.ai.GeminiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -263,8 +263,12 @@ class WakeWordService : Service() {
                 if (audioFile != null) {
                     Log.d(TAG, "Audio aufgenommen, starte Transkription...")
                     try {
-                        // Audio-Datei transkribieren
-                        val transcription = OpenAIService.transcribeAudio(audioFile)
+                        // Audio-Datei transkribieren mit Gemini
+                        val transcription = if (GeminiService.isEnabled()) {
+                            GeminiService.transcribeAudio(audioFile)
+                        } else {
+                            null
+                        }
                         audioFile.delete() // Aufräumen
                         
                         // Wake-Word überprüfen

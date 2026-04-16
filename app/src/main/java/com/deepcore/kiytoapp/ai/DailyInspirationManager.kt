@@ -17,7 +17,6 @@ import java.util.Locale
 class DailyInspirationManager(private val context: Context) {
     private var textToSpeech: TextToSpeech? = null
     private var isTtsReady = false
-    private val openAIService = OpenAIService
     private val TAG = "DailyInspirationManager"
     private val prefs: SharedPreferences
 
@@ -121,8 +120,11 @@ class DailyInspirationManager(private val context: Context) {
         saveQuote(quote.copy(aiComment = null))
         
         return try {
-            // Generiere einen neuen Kommentar
-            val aiComment = openAIService.generateQuoteComment(quote)
+            // Generiere einen neuen Kommentar mit Gemini
+            val prompt = "Gib mir einen kurzen, motivierenden und inspirierenden Kommentar (max. 2 Sätze) zu folgendem Zitat auf Deutsch:\n\"${quote.text}\" - ${quote.author}"
+            val response = GeminiService.chat(prompt)
+            val aiComment = response?.content ?: "Ein inspirierender Gedanke für mehr Erfolg."
+            
             quote.aiComment = aiComment
             saveQuote(quote)
             aiComment

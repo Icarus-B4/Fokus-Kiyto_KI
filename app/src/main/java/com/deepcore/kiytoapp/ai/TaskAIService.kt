@@ -31,12 +31,10 @@ class TaskAIService(private val context: Context) {
 
     init {
         try {
-            Log.d(TAG, "Initialisiere TaskAIService")
-            OpenAIService.initialize(context)
+            Log.d(TAG, "Initialisiere TaskAIService mit Gemini")
             GeminiService.initialize(context)
         } catch (e: Exception) {
             Log.e(TAG, "Fehler bei der Initialisierung des TaskAIService", e)
-            throw e
         }
     }
 
@@ -87,7 +85,7 @@ class TaskAIService(private val context: Context) {
                 )
             }
 
-            // Bevorzuge Gemini wenn vorhanden
+            // Nutze Gemini
             if (GeminiService.isEnabled()) {
                 val geminiResponse = GeminiService.chat(message)
                 if (geminiResponse != null) {
@@ -95,9 +93,10 @@ class TaskAIService(private val context: Context) {
                 }
             }
 
-            // Fallback auf OpenAI
-            val response = OpenAIService.chat(message)
-            return response
+            return ChatMessage(
+                content = "Verzeihung, ich kann gerade nicht antworten.",
+                isUser = false
+            )
             
         } catch (e: Exception) {
             Log.e(TAG, "Fehler bei der Nachrichtenverarbeitung", e)
@@ -292,7 +291,7 @@ class TaskAIService(private val context: Context) {
                 
                 while (retryCount < 3) {
                     try {
-                        // Gemini Bildanalyse bevorzugen
+                        // Nutze Gemini
                         if (GeminiService.isEnabled()) {
                             val geminiResult = GeminiService.analyzeImage(file)
                             if (!geminiResult.isNullOrEmpty()) {
@@ -300,10 +299,6 @@ class TaskAIService(private val context: Context) {
                             }
                         }
 
-                        val response = OpenAIService.analyzeImage(file)
-                        if (!response.isNullOrBlank()) {
-                            return@withContext response
-                        }
                         retryCount++
                         delay(1000L * retryCount) // Exponentielles Backoff
                     } catch (e: Exception) {
@@ -331,8 +326,12 @@ class TaskAIService(private val context: Context) {
     suspend fun analyzeFile(fileName: String, content: String): String {
         return withContext(Dispatchers.IO) {
             try {
-                val response = OpenAIService.analyzeFile(fileName, content)
-                response ?: "Entschuldigung, ich konnte die Datei nicht analysieren."
+                if (GeminiService.isEnabled()) {
+                    val response = GeminiService.analyzeFile(fileName, content)
+                    response ?: "Entschuldigung, ich konnte die Datei nicht analysieren."
+                } else {
+                    "API-Dienst nicht bereit."
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Fehler bei der Dateianalyse", e)
                 "Entschuldigung, bei der Analyse der Datei ist ein Fehler aufgetreten."

@@ -16,6 +16,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import org.json.JSONArray
 import com.google.ai.client.generativeai.type.*
+import com.deepcore.kiytoapp.services.YouTubeService
 
 object GeminiService {
     private const val TAG = "GeminiService"
@@ -208,6 +209,40 @@ object GeminiService {
         } catch (e: Exception) {
             Log.e(TAG, "Gemini Speech Generierung fehlgeschlagen", e)
             null
+        }
+    }
+
+    suspend fun analyzeFile(fileName: String, content: String): String? = withContext(Dispatchers.IO) {
+        if (model == null) return@withContext null
+        
+        try {
+            val prompt = "Analysiere diese Datei ($fileName) und gib mir eine Zusammenfassung oder beantworte Fragen dazu:\n\n$content"
+            val response = model?.generateContent(prompt)
+            response?.text
+        } catch (e: Exception) {
+            Log.e(TAG, "Gemini Dateianalyse Fehler", e)
+            null
+        }
+    }
+
+    suspend fun generateVideoSummary(videoInfo: YouTubeService.VideoInfo): String = withContext(Dispatchers.IO) {
+        if (model == null) return@withContext "KI-Dienst nicht initialisiert."
+        
+        try {
+            val prompt = """
+                Erstelle eine prägnante Zusammenfassung für dieses YouTube-Video auf Deutsch:
+                Titel: ${videoInfo.title}
+                Dauer: ${videoInfo.duration}
+                Beschreibung: ${videoInfo.description}
+                
+                Die Zusammenfassung sollte die wichtigsten Punkte hervorheben und in einem hilfreichen Ton verfasst sein.
+            """.trimIndent()
+            
+            val response = model?.generateContent(prompt)
+            response?.text ?: "Entschuldigung, ich konnte keine Zusammenfassung generieren."
+        } catch (e: Exception) {
+            Log.e(TAG, "Gemini Video-Zusammenfassung Fehler", e)
+            "Fehler bei der Generierung der Video-Zusammenfassung."
         }
     }
 
