@@ -1409,7 +1409,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
         }
     }
 
-    override fun onApiKeySet() {
+    override fun onApiKeySet(apiKey: String) {
         // Initialisiere Dienste neu mit dem aktualisierten API-Key
         GeminiService.initialize(requireContext())
         taskAIService = TaskAIService(requireContext())
