@@ -414,63 +414,68 @@ class SpeechManager(
             isSpeaking = true
             statusCallback?.invoke(isRecording, isSpeaking)
             
-            // Nutze natives Gemini Audio (die "schöne Stimme")
+            Log.d(TAG, "Generiere Sprache für: \"${text.take(50)}...\"")
+            
+            // 1. Primärer Pfad: Natives Gemini Audio (die "schöne Stimme")
             val audioData = if (GeminiService.isEnabled()) {
-                Log.d(TAG, "Nutze natives Gemini Audio für Sprache")
+                Log.d(TAG, "Anfrage für multimodale Gemini-Sprachausgabe gestartet")
                 GeminiService.generateGeminiSpeech(text)
             } else {
                 null
             }
             
-            if (audioData != null) {
-                // Audio erfolgreich (Gemini), nutze die erhaltenen Audiodaten
-                val tempFile = File(context.cacheDir, "tts_output.mp3")
+            if (audioData != null && audioData.isNotEmpty()) {
+                Log.d(TAG, "Gemini Audio erfolgreich empfangen (${audioData.size} Bytes)")
+                
+                // Audio im Cache speichern
+                val tempFile = File(context.cacheDir, "gemini_voice_${System.currentTimeMillis()}.mp3")
                 tempFile.writeBytes(audioData)
                 
                 withContext(Dispatchers.Main) {
                     playAudioFile(tempFile)
                 }
             } else {
-                // Alle KI-Stimmen fehlgeschlagen, nutze lokale Android TTS als letzten Fallback
-                Log.d(TAG, "KI-Sprachausgabe fehlgeschlagen, verwende lokale TTS als Fallback")
+                // 2. Fallback: Lokale Android TTS (Offline oder API-Fehler)
+                Log.w(TAG, "Gemini Sprache fehlgeschlagen oder deaktiviert, nutze lokales TTS-System")
                 
                 withContext(Dispatchers.Main) {
                     if (textToSpeech != null && ttsInitialized) {
-                        // Sicherstellen, dass die lokale TTS initialisiert ist
-                        if (textToSpeech?.isSpeaking == true) {
-                            textToSpeech?.stop()
+                        // Parameter für die Sprachausgabe
+                        val params = Bundle().apply {
+                            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+                            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "kiyto_speech_${System.currentTimeMillis()}")
                         }
                         
-                        // Aufteilung des Textes in kleine Chunks, falls er zu lang ist
-                        val chunks = splitTextIntoChunks(text, 200) // Max. 200 Zeichen pro Chunk
+                        // EventListener für den Abschluss
+                        textToSpeech?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
+                            override fun onStart(utteranceId: String?) {
+                                Log.d(TAG, "Lokales TTS gestartet")
+                            }
+                            override fun onDone(utteranceId: String?) {
+                                isSpeaking = false
+                                statusCallback?.invoke(isRecording, isSpeaking)
+                            }
+                            override fun onError(utteranceId: String?) {
+                                Log.e(TAG, "Fehler bei lokaler TTS")
+                                isSpeaking = false
+                                statusCallback?.invoke(isRecording, isSpeaking)
+                            }
+                        })
                         
-                        // HashMap für TTS-Parameter
-                        val params = HashMap<String, String>()
-                        params[android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME] = "1.0"
-                        params[android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = "utteranceId"
-                        
-                        // EventListener für Abschluss der Sprachausgabe
-                        textToSpeech?.setOnUtteranceCompletedListener {
-                            isSpeaking = false
-                            statusCallback?.invoke(isRecording, isSpeaking)
-                        }
-                        
-                        // Sprich Text-Chunks nacheinander aus
+                        // Text in Chunks sprechen (Android TTS hat Limits pro Utterance)
+                        val chunks = splitTextIntoChunks(text, 350) 
                         for (chunk in chunks) {
-                            textToSpeech?.speak(chunk, android.speech.tts.TextToSpeech.QUEUE_ADD, params)
+                            textToSpeech?.speak(chunk, TextToSpeech.QUEUE_ADD, params, params.getString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID))
                         }
                     } else {
-                        // TTS nicht verfügbar
-                        Log.e(TAG, "Lokale TTS nicht verfügbar")
+                        Log.e(TAG, "Kein Sprachsystem (KI oder Lokal) verfügbar!")
                         isSpeaking = false
                         statusCallback?.invoke(isRecording, isSpeaking)
                     }
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Fehler bei der Sprachausgabe", e)
-            mediaPlayer?.release()
-            mediaPlayer = null
+            Log.e(TAG, "Kritischer Fehler bei Sprachausgabe", e)
             isSpeaking = false
             statusCallback?.invoke(isRecording, isSpeaking)
         }

@@ -60,3 +60,12 @@
   - UpdateDownloadDialogFragment.kt: Priorisiert APK-Links vor HTML-Seiten; Variablen-Scope korrigiert.
   - GitHub-Upload: v2.1.5 mit neuem Token erfolgreich erstellt (ID: 310022167).
 - **Ergebnis**: Der Download-Button "Herunterladen und Installieren" funktioniert nun wie erwartet und stösst den automatischen APK-Download an.
+
+### 2026-04-16 - Pipeline-Fix & v2.1.8 Release
+- **Status**: Versions-Inkonsistenz und Pipeline-Fehler endgültig behoben. v2.1.8 verffentlicht.
+- **nderungen**:
+  - build.gradle.kts: Version hartcodiert (versionName = "2.1.8"), um Parsing-Fehler zu vermeiden.
+  - release-apk.ps1: Regex-Hrtung fr Versions-Ersetzung.
+  - .github/workflows/release.yml: Korrektur der Extraktions-Logik (grep/sed) fr den GitHub-Build.
+  - PackageInstallerHelper.kt: Optimierung fr Android 11+ Installationen & Berechtigungs-Checks.
+- **Ergebnis**: v2.1.8 ist live. Die korrekte Versionsnummer wird nun sowohl lokal als auch im GitHub-Release korrekt angezeigt.

@@ -114,7 +114,7 @@ object GeminiService {
                                 })
                             })
                             put(JSONObject().apply {
-                                put("text", "Transkribiere dieses Audio präzise auf Deutsch. Gib NUR den transkribierten Text zurück.")
+                                put("text", "Transkribiere dieses Audio präzise auf Deutsch. Gib NUR den transkribierten Text zurück, ohne Kommentare oder Formatierungen. Wenn nichts zu hören ist, gib einen leeren String zurück.")
                             })
                         })
                     })
@@ -173,7 +173,7 @@ object GeminiService {
                     put("speechConfig", JSONObject().apply {
                         put("voiceConfig", JSONObject().apply {
                             put("prebuiltVoiceConfig", JSONObject().apply {
-                                put("voiceName", "Aoede") // Aoede ist eine sehr natürliche Stimme
+                                put("voiceName", "Aoede") // Aoede ist eine sehr natürliche, emotionale Stimme
                             })
                         })
                     })

@@ -208,49 +208,43 @@ class WakeWordService : Service() {
         val text = recognizedText.lowercase().trim()
         
         // Debug-Ausgabe für alle erkannten Texte
-        Log.d(TAG, "Prüfe Wake Word in: \"$text\"")
+        Log.d(TAG, "Detaillierte Wake-Word-Analyse für: \"$text\"")
         
-        // Bekannte Fehlerkennungen filtern - nur die häufigsten
-        if (text.contains("untertitel")) {
-            Log.d(TAG, "Ignoriere erkannten Text als Untertitel: \"$text\"")
+        // 1. Ignoriere offensichtliche Störgeräusche/Hintergrund-Transkriptionen
+        if (text.isEmpty() || text == "." || text == "untertitel" || text.contains("vielen dank")) {
             return false
         }
         
-        // Exakte Übereinstimmung - weniger streng mit contains statt equals
-        if (text.contains("hei kiyto") || text.contains("hey kiyto") || text.contains("hallo kiyto")) {
-            Log.d(TAG, "Wake Word-Übereinstimmung gefunden: \"$text\"")
+        // 2. Primäres Regex-Matching für "Hey/Hei/Hi/Hallo" + "Kiyto/Kito/Kyto/Kieto"
+        // Erlaubt auch Wörter dazwischen wie "Hey mein Kiyto" oder "Kiyto hallo"
+        val wakeWordPattern = Regex("(?i)(hey|hei|hi|hallo|ok|servus).*?(kiyto|kito|kyto|kieto|quito)")
+        if (wakeWordPattern.containsMatchIn(text)) {
+            Log.d(TAG, "Regex-Match für Wake-Word gefunden: \"$text\"")
             return true
         }
         
-        // Prüfen der Alternativen - weniger streng
-        val alternatives = listOf(
-            "hei kito", "hey kito", "hallo kito",
-            "hi kiyto", "hi kito",
-            "hey kieto", "hei kieto"
-        )
+        // 3. Phonetik-Fallback: Wenn nur "Kiyto" (oder ähnlich) erkannt wurde, 
+        // setzen wir die Hürde etwas höher, um Fehlauslösungen zu vermeiden,
+        // aber erlauben es dennoch, wenn der Text kurz ist.
+        val standaloneNames = listOf("kiyto", "kito", "kyto", "kieto", "kyoto")
+        if (text.length <= 10 && standaloneNames.any { text.contains(it) }) {
+            Log.d(TAG, "Standalone-Name erkannt: \"$text\"")
+            return true
+        }
         
-        for (alternative in alternatives) {
-            if (text.contains(alternative)) {
-                Log.d(TAG, "Alternative Wake Word-Übereinstimmung gefunden: \"$alternative\" in \"$text\"")
+        // 4. Teiltreffer-Logik für laute Umgebungen
+        // Wenn "Hei" + ein Wort mit "K" vorkommt
+        if ((text.contains("hei") || text.contains("hey")) && 
+            (text.contains("ki") || text.contains("ky"))) {
+            
+            // Ausschluss von false positives wie "Hey Kino"
+            if (!text.contains("kino") && !text.contains("kind")) {
+                Log.d(TAG, "Teiltreffer-Match für Wake-Word gefunden: \"$text\"")
                 return true
             }
         }
         
-        // Prüfen einer ungefähren Übereinstimmung
-        if ((text.contains("hei") || text.contains("hey") || text.contains("hi") || text.contains("hallo")) &&
-            (text.contains("ki") || text.contains("ky") || text.contains("kiy"))) {
-            
-            // Ignoriere bekannte Fehlerkennungen
-            if (text.contains("musik") || text.contains("kinder") || text.contains("kino")) {
-                Log.d(TAG, "Ignoriere falsche Übereinstimmung: \"$text\"")
-                return false
-            }
-            
-            Log.d(TAG, "Ungefähre Wake Word-Übereinstimmung gefunden: \"$text\"")
-            return true
-        }
-        
-        Log.d(TAG, "Kein Wake Word in der Aufnahme gefunden.")
+        Log.d(TAG, "Kein Wake-Word Treffer in: \"$text\"")
         return false
     }
     
