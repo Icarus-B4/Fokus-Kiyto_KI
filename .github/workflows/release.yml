@@ -57,6 +57,10 @@ jobs:
           mkdir -p app/keystore
           printf "%s" "$ENCODED_KEYSTORE" | base64 --decode > app/keystore/kiyto_release.keystore
 
+      - name: Verify Keystore
+        run: |
+          keytool -list -v -keystore app/keystore/kiyto_release.keystore -storepass "${{ secrets.KEY_STORE_PASSWORD }}" -alias "${{ secrets.KEY_ALIAS }}"
+
       - name: Assemble Release APK
         run: ./gradlew assembleRelease
         env:
