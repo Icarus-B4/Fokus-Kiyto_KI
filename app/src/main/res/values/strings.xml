@@ -135,7 +135,7 @@
     <string name="today_stats">%1$d Aufgaben heute, %2$d min Fokuszeit</string>
     <string name="day_stats">Statistiken für %1$s:\n%2$d abgeschlossen, %3$d offen, %4$s Fokuszeit</string>
     <!-- API Settings -->
-    <string name="api_settings">OpenAI API Einstellungen</string>
+    <string name="api_settings">KI API-Key Einstellungen</string>
     <string name="api_key_hint">OpenAI API-Key eingeben</string>
     <string name="use_custom_key">Eigenen API-Key verwenden</string>
     <string name="api_key_invalid">Ungültiger API-Key</string>
