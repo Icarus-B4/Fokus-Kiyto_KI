@@ -70,7 +70,7 @@ class MainActivity : BaseActivity() {
         
         // Initialisiere Services im Hintergrund
         lifecycleScope.launch(Dispatchers.IO) {
-            GeminiService.instance.initialize(this@MainActivity)
+            GeminiService.initialize(this@MainActivity)
             
             withContext(Dispatchers.Main) {
                 // Initialisiere Speech Manager

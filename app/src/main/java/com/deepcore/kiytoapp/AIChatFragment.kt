@@ -1411,7 +1411,7 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
 
     override fun onApiKeySet() {
         // Initialisiere Dienste neu mit dem aktualisierten API-Key
-        GeminiService.instance.initialize(requireContext())
+        GeminiService.initialize(requireContext())
         taskAIService = TaskAIService(requireContext())
     }
 
