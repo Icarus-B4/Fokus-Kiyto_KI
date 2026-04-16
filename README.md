@@ -1,6 +1,9 @@
 # 🚀 Fokus-Kiyto KI
 
-
+<div align="center">
+  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" alt="Fokus-Kiyto Logo" width="120"/>
+  <br>
+  
 ### Eine KI-gestützte Produktivitäts-App für Android
 
 </div>
@@ -42,6 +45,13 @@ Fokus-Kiyto KI ist eine moderne Produktivitäts-App, die fortschrittliche KI-Tec
 </div>
 
 ## 🛠️ Setup
+
+1. Klone das Repository:
+
+```bash
+git clone https://github.com/Icarus-B4/Fokus-Kiyto_KI.git
+cd Fokus-Kiyto_KI
+```
 
 2. API-Key Konfiguration:
 
@@ -109,5 +119,3 @@ Dieses Repository ist nur für Sponsoren verfügbar. Um Zugang zu erhalten:
 1. Besuche [github.com/sponsors/Icarus-B4](https://github.com/sponsors/Icarus-B4)
 2. Wähle einen Sponsoring-Plan
 3. Nach erfolgreicher Anmeldung erhältst du automatisch Zugang zum Repository
-
-powershell.exe -ExecutionPolicy Bypass -File scripts/release-apk.ps1 -version "x.x.xx"

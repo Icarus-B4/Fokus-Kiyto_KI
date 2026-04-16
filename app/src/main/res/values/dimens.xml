@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="pinned_message_stroke_width">2dp</dimen>
+    <!-- Nachrichtenabstände -->
+    <dimen name="message_margin_small">8dp</dimen>
+    <dimen name="message_margin_large">64dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <!-- Kartenansicht -->
+    <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+</resources> 

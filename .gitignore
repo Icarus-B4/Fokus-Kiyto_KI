@@ -55,8 +55,15 @@ google-services.json
 env.properties
 secrets.properties
 config.properties
+Logcat.txt
+temp.kt
+*.base64
+*.msi
+GeneratedIcons/
+LottieAnimation/
+.cursor/
+.vscode/
 
 # Build configuration
 app/release/
 app/keystore/kiyto_release.keystore.base64
-scripts/release.bat
