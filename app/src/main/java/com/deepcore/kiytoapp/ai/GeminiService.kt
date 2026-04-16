@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import com.deepcore.kiytoapp.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -16,8 +15,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import org.json.JSONArray
-import com.google.ai.client.generativeai.type.content
-import com.google.ai.client.generativeai.type.blob
+import com.google.ai.client.generativeai.type.*
 
 object GeminiService {
     private const val TAG = "GeminiService"
