@@ -46,7 +46,7 @@ object GeminiService {
             )
 
             voiceModel = GenerativeModel(
-                modelName = "gemini-2.0-flash",
+                modelName = "gemini-1.5-flash-latest",
                 apiKey = apiKey!!
             )
             Log.d(TAG, "GeminiService erfolgreich initialisiert")
@@ -106,7 +106,7 @@ object GeminiService {
             response?.text?.trim()
         } catch (e: Exception) {
             Log.e(TAG, "Gemini Transkription Fehler", e)
-            null
+            "FEHLER: ${e.localizedMessage ?: e.message ?: "Unbekannter API Fehler"}"
         }
     }
 

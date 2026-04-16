@@ -195,6 +195,12 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
             // SpeechManager korrekt initialisieren
             speechManager = SpeechManager(requireContext(), OpenAIService).apply {
                 initialize()
+                onVolumeChanged = { amplitude ->
+                    // Wir loggen die Amplitude für das Debugging über Logcat
+                    if (amplitude > 0) {
+                        // Bei hohen Amplituden können wir optional ein visuelles Feedback geben
+                    }
+                }
             }
             
             Log.d("AIChatFragment", "Fragment-Initialisierung erfolgreich")
@@ -460,18 +466,23 @@ class AIChatFragment : BaseFragment(), APISettingsDialog.OnApiKeySetListener {
                                 // Starte die Sprachausgabe sofort
                                 launch { speakResponse(response.text) }
                                 
-                                // Aktualisiere die UI parallel zur Sprachausgabe
-                                withContext(Dispatchers.Main) {
-                                    adapter.addMessage(response)
-                                    chatManager.addMessage(response)
-                                    scrollToBottom()
-                                }
-                            }
+                    if (!spokenText.isNullOrEmpty() && !spokenText.startsWith("FEHLER:")) {
+                        withContext(Dispatchers.Main) {
+                            hideLoadingState()
+                            addMessage(spokenText, true)
+                            processMessage(spokenText)
                         }
                     } else {
-                        // Feedback wenn nichts erkannt wurde
+                        // Feedback wenn nichts erkannt wurde oder ein Fehler auftrat
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(requireContext(), "Ich habe dich leider nicht verstanden. Bitte versuche es noch einmal oder sprich etwas lauter.", Toast.LENGTH_LONG).show()
+                            hideLoadingState()
+                            val errorMessage = if (spokenText?.startsWith("FEHLER:") == true) {
+                                spokenText
+                            } else {
+                                "Ich habe keine Sprache gehört. Bitte prüfe dein Mikrofon oder sprich lauter."
+                            }
+                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                            Log.e("AIChatFragment", "Spracherkennung fehlgeschlagen: $errorMessage")
                         }
                     }
                 } catch (e: Exception) {

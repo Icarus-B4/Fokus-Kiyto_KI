@@ -46,6 +46,9 @@ class SpeechManager(
     // Callback für Status-Updates
     private var statusCallback: ((Boolean, Boolean) -> Unit)? = null
     
+    // Callback für Lautstärke-Änderungen (für Debug/UI)
+    var onVolumeChanged: ((Int) -> Unit)? = null
+
     companion object {
         private const val SAMPLE_RATE = 16000
         private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
@@ -240,21 +243,22 @@ class SpeechManager(
         
         var audioRecord: AudioRecord? = null
         try {
-            audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            val audioSource = android.media.MediaRecorder.AudioSource.MIC
+            val audioRecord = AudioRecord(
+                audioSource,
                 SAMPLE_RATE,
                 CHANNEL_CONFIG,
                 AUDIO_FORMAT,
                 bufferSize
             )
             
+            val outputFile = File(context.cacheDir, "audio_recording.wav")
             if (audioRecord.state != AudioRecord.STATE_INITIALIZED) {
                 Log.e(TAG, "Fehler: AudioRecord nicht initialisiert")
                 audioRecord.release()
                 return@withContext null
             }
             
-            val outputFile = File(context.cacheDir, "audio_recording.wav")
             val outputStream = ByteArrayOutputStream()
             
             try {
@@ -268,18 +272,16 @@ class SpeechManager(
                     val readBytes = audioRecord.read(audioData, 0, bufferSize)
                     
                     if (readBytes > 0) {
-                        var maxAmplitude = 0
+                        val maxAmplitude = audioData.maxOfOrNull { Math.abs(it.toInt()) } ?: 0
                         
-                        // Prüfe auf Geräusche zur Steuerung des Timeouts
-                        for (i in 0 until readBytes step 2) {
-                            val sample = (audioData[i + 1].toInt() shl 8) or (audioData[i].toInt() and 0xFF)
-                            val absSample = Math.abs(sample)
-                            if (absSample > maxAmplitude) maxAmplitude = absSample
-                        }
+                        // Callback für die UI/Debug
+                        onVolumeChanged?.invoke(maxAmplitude)
                         
-                        if (maxAmplitude > 200) { // Gesenkter Schwellenwert für bessere Empfindlichkeit
+                        if (maxAmplitude > 50) { // Extrem niedriger Schwellenwert für maximale Sensitivität
                             lastSoundTime = System.currentTimeMillis()
-                            Log.d(TAG, "Geräusch erkannt: Amplitude $maxAmplitude")
+                            if (maxAmplitude > 100) {
+                                Log.d(TAG, "Deutliches Geräusch erkannt: Amplitude $maxAmplitude")
+                            }
                         }
                         
                         // Immer schreiben, um kontinuierliches Audio zu gewährleisten
