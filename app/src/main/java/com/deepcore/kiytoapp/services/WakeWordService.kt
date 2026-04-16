@@ -41,6 +41,7 @@ class WakeWordService : Service() {
     
     private var serviceJob: Job? = null
     private var isRunning = false
+    private var isPaused = false
     private var wakeLock: PowerManager.WakeLock? = null
     
     // Audio-Aufnahme-Konfiguration
@@ -65,6 +66,8 @@ class WakeWordService : Service() {
     companion object {
         const val ACTION_START_SERVICE = "com.deepcore.kiytoapp.START_WAKE_WORD_SERVICE"
         const val ACTION_STOP_SERVICE = "com.deepcore.kiytoapp.STOP_WAKE_WORD_SERVICE"
+        const val ACTION_PAUSE_DETECTION = "com.deepcore.kiytoapp.PAUSE_WAKE_WORD"
+        const val ACTION_RESUME_DETECTION = "com.deepcore.kiytoapp.RESUME_WAKE_WORD"
         const val ACTION_WAKE_WORD_DETECTED = "com.deepcore.kiytoapp.WAKE_WORD_DETECTED"
         const val EXTRA_ACTIVATE_VOICE = "com.deepcore.kiytoapp.ACTIVATE_VOICE"
         
@@ -99,6 +102,14 @@ class WakeWordService : Service() {
                 stopWakeWordDetection()
                 Log.d(TAG, "WakeWordService gestoppt")
             }
+            ACTION_PAUSE_DETECTION -> {
+                isPaused = true
+                Log.d(TAG, "WakeWordService pausiert (Mikrofon wird für Chat freigegeben)")
+            }
+            ACTION_RESUME_DETECTION -> {
+                isPaused = false
+                Log.d(TAG, "WakeWordService fortgesetzt")
+            }
         }
         
         return START_STICKY
@@ -127,6 +138,11 @@ class WakeWordService : Service() {
         // Erkennungsprozess starten
         serviceJob = CoroutineScope(Dispatchers.Default).launch {
             while (isActive && isRunning) {
+                if (isPaused) {
+                    delay(500)
+                    continue
+                }
+                
                 try {
                     Log.d(TAG, "Starte neue Aufnahme für Wake-Word-Erkennung")
                     val wakeWordDetected = detectWakeWord()
@@ -331,7 +347,7 @@ class WakeWordService : Service() {
                 val startTime = System.currentTimeMillis()
                 val endTime = startTime + RECORDING_DURATION_MS
                 
-                while (System.currentTimeMillis() < endTime && isRunning) {
+                while (System.currentTimeMillis() < endTime && isRunning && !isPaused) {
                     val readBytes = audioRecord.read(audioData, 0, bufferSize)
                     if (readBytes > 0) {
                         outputStream.write(audioData, 0, readBytes)

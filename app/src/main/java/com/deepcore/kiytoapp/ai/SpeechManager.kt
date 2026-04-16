@@ -201,6 +201,10 @@ class SpeechManager(
                 delay(500)
                 
                 // Stelle sicher, dass der AudioRecord ordnungsgemäß initialisiert ist
+                // Stelle sicher, dass der WakeWordService pausiert wird, um das Mikrofon freizugeben
+                sendWakeWordAction("com.deepcore.kiytoapp.PAUSE_WAKE_WORD")
+                delay(300) // Puffer für Dienst-Reaktion
+                
                 isRecording = true
                 statusCallback?.invoke(isRecording, isSpeaking)
                 
@@ -225,7 +229,21 @@ class SpeechManager(
             } finally {
                 isRecording = false
                 statusCallback?.invoke(isRecording, isSpeaking)
+                
+                // WakeWordService wieder fortsetzen
+                sendWakeWordAction("com.deepcore.kiytoapp.RESUME_WAKE_WORD")
             }
+        }
+    }
+
+    private fun sendWakeWordAction(action: String) {
+        try {
+            val intent = Intent(context, com.deepcore.kiytoapp.services.WakeWordService::class.java)
+            intent.action = action
+            context.startService(intent)
+            Log.d(TAG, "Benachrichtige WakeWordService: $action")
+        } catch (e: Exception) {
+            Log.e(TAG, "Fehler beim Benachrichtigen des WakeWordServices", e)
         }
     }
     
